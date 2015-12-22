@@ -1,3 +1,2 @@
-# Discord-AkephalosBot
+# Discord-AkephalosBot(Node.js)
 Library: Discord.io
-In Node.js
