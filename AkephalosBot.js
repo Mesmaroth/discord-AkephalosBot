@@ -20,14 +20,6 @@ bot.on('ready', function() {
 
 bot.on('message', function(user, userID, channelID, message, rawEvent, avatar) {
 
-    if (message === "fuck you"){
-        bot.sendMessage({
-            to: channelID,
-            message: "http://4.bp.blogspot.com/-XWNXDprHibk/UYxniZERK6I/AAAAAAAAW1Y/RyvRcq_Q_cc/s640/vlcsnap-2011-11-10-19h19m39s159.png"
-        });
-        console.log("I've sent a message.");
-    }
-
     if (message === "!info") {
         bot.sendMessage({
             to: channelID,
@@ -54,16 +46,34 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, avatar) {
     }
     return false;
     } 
-    // if bot is given a direct message
-    if (mentionedMe(rawEvent) ) {
+
+    // if bot is given a direct message without having fuck you in it
+    if ( (message.indexOf("fuck you") >= 0 || message.indexOf("Fuck you")) && mentionedMe(rawEvent)) {
+        bot.sendMessage({
+            to: channelID,
+            message: "Why you mad!"
+        });
+        console.log("I've sent a message.");
+    }
+    else if (mentionedMe(rawEvent))
+    {
         bot.sendMessage({
             to: channelID,
             message: "Why you calling me? Fuck off!"
         });
         console.log("I've sent a message.");
     }
+
+    if ( (message.indexOf("fuck you") >= 0) || (message.indexOf("Fuck you") >= 0)) {
+        bot.sendMessage({
+            to: channelID,
+            message: "http://4.bp.blogspot.com/-XWNXDprHibk/UYxniZERK6I/AAAAAAAAW1Y/RyvRcq_Q_cc/s640/vlcsnap-2011-11-10-19h19m39s159.png"
+        });
+        console.log("I've sent a message.");
+    }
+
     //sample text
-    if(message === "sample text" || message == "!Sample text" || message == "Sample text"){
+    if(message === "!sample text" || message == "!Sample text"){
         bot.sendMessage({
             to: channelID,
             message: "SampleText.MP4?\nhttps://www.youtube.com/watch?v=Tlr1L8FHp2U"
@@ -79,8 +89,8 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, avatar) {
     }
 
 
-    // Say goodye
-    if(message === "peace" || message === "Peace" || message === "goodnight" || message ==="Goodnight"){
+    // Say goodye, Also checks to see if peace is within the sentence
+    if(message === "peace" || message === "Peace" || message === "goodnight" || message ==="Goodnight" || (message.indexOf("peace") >= 0) ){
         bot.sendMessage({
             to: channelID,
             message: "Goodnight! :)"
