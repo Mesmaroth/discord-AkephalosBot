@@ -105,5 +105,13 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, avatar) {
         });
     }
 
+    // For when someone says !1v1
+    if (message === "!1v1" || message === "!1V1" || message === "1v1"){
+        bot.sendMessage({
+            to: channelID,
+            message: "My nigga! Let's go then bitch!!"
+        });
+    }
+
 });
 
