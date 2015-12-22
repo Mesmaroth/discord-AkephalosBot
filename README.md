@@ -2,4 +2,4 @@
 
 Library: Discord.io
 
-A simple bot written in Java Script for Discord.
+A simple bot written in Java Script for [Discord](http://www.discord.gg)
