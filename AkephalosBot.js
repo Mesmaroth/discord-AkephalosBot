@@ -1,0 +1,109 @@
+var DiscordClient = require('discord.io');
+var bot = new DiscordClient({
+    email: "mesmar0th@live.com",
+    password: "Demigod6",
+    autorun: true
+}); 
+
+bot.on('ready', function() {
+    console.log(bot.username + " - (" + bot.id + ")");
+    console.log(bot.username + ": is Online");
+
+    bot.setPresence({
+    //idle_since: Date.now(),
+    game_id: 13
+    });
+ 
+
+});
+
+
+bot.on('message', function(user, userID, channelID, message, rawEvent, avatar) {
+
+    if (message === "fuck you"){
+        bot.sendMessage({
+            to: channelID,
+            message: "http://4.bp.blogspot.com/-XWNXDprHibk/UYxniZERK6I/AAAAAAAAW1Y/RyvRcq_Q_cc/s640/vlcsnap-2011-11-10-19h19m39s159.png"
+        });
+        console.log("I've sent a message.");
+    }
+
+    if (message === "!info") {
+        bot.sendMessage({
+            to: channelID,
+            message: "This channel ID is: " + channelID + "."
+        });
+        console.log("I've sent a message.");
+    } 
+
+    if (message.indexOf("sucks") >= 0) {
+        bot.sendMessage({
+            to: channelID,
+            message: "you suck"
+        });
+        console.log("I've sent a message.");
+    } 
+
+    // check to see if bot is directed
+    function mentionedMe(rawEvent) {
+    var mentionArr = rawEvent.d.mentions;
+    for (var i=0; i<mentionArr.length; i++) {
+        if (mentionArr[i].id === bot.id) {
+            return true;
+        }
+    }
+    return false;
+    } 
+    // if bot is given a direct message
+    if (mentionedMe(rawEvent) ) {
+        bot.sendMessage({
+            to: channelID,
+            message: "Why you calling me? Fuck off!"
+        });
+        console.log("I've sent a message.");
+    }
+    //sample text
+    if(message === "sample text" || message == "!Sample text" || message == "Sample text"){
+        bot.sendMessage({
+            to: channelID,
+            message: "SampleText.MP4?\nhttps://www.youtube.com/watch?v=Tlr1L8FHp2U"
+        });
+    }
+
+    //check ping
+    if(message === "ping" || message === "!ping"){
+        bot.sendMessage({
+            to: channelID,
+            message: "Ping deez nuts in your mouth"
+        });
+    }
+
+
+    // Say goodye
+    if(message === "peace" || message === "Peace" || message === "goodnight" || message ==="Goodnight"){
+        bot.sendMessage({
+            to: channelID,
+            message: "Goodnight! :)"
+
+        });
+    }
+
+    // for when somone didn't invite someone
+    if(message === "No invite?" || message == "no invite?" || message === "no invite!"){
+        bot.sendMessage({
+            to: channelID,
+            message:"That's cold blooded right there man.",
+            tts: true
+        });
+    }
+
+    // For when someone says rekt
+    if(message === "!REKT" || message === "!Rekt" || message === "rekt" || message === "REKT" || message === "!rekt") {
+        bot.sendMessage({
+            to: channelID,
+            message: "https://giphy.com/gifs/rekt-vSR0fhtT5A9by"
+        });
+    }
+
+});
+
