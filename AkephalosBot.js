@@ -1,6 +1,6 @@
 var DiscordClient = require('discord.io');
 var bot = new DiscordClient({
-    email: "...",
+    email: "..."
     password: "...",
     autorun: true
 }); 
@@ -116,7 +116,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, avatar) {
     }
 
     // For when someone says !1v1
-    if (message === "!1v1" || message === "!1V1" || message === "1v1"){
+    if (message.indexOf("1v1") >= 0 || message.indexOf("1V1") >= 0){
         bot.sendMessage({
             to: channelID,
             message: "My nigga! Let's go then bitch!!"
