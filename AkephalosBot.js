@@ -1,6 +1,6 @@
 var DiscordClient = require('discord.io');
 var bot = new DiscordClient({
-    email: "..."
+    email: "...",
     password: "...",
     autorun: true
 }); 
@@ -11,7 +11,7 @@ bot.on('ready', function() {
 
     bot.setPresence({
     //idle_since: Date.now(),
-    game_id: 13
+    game_id: 201
     });
  
 
@@ -25,7 +25,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, avatar) {
             to: channelID,
             message: "This channel ID is: " + channelID + "."
         });
-        console.log("I've sent a message.");
+        
     } 
 
     if (message.indexOf("sucks") >= 0) {
@@ -33,7 +33,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, avatar) {
             to: channelID,
             message: "you suck"
         });
-        console.log("I've sent a message.");
+        
     } 
 
     // check to see if bot is directed
@@ -53,7 +53,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, avatar) {
             to: channelID,
             message: "Why you mad!"
         });
-        console.log("I've sent a message.");
+        
     }
     else if (mentionedMe(rawEvent))
     {
@@ -61,15 +61,15 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, avatar) {
             to: channelID,
             message: "Why you calling me? Fuck off!"
         });
-        console.log("I've sent a message.");
+        
     }
 
-    if ( (message.indexOf("fuck you") >= 0) || (message.indexOf("Fuck you") >= 0)) {
+    if ( (message.indexOf("fuck you") >= 0) || (message.indexOf("Fuck you") >= 0) || (message.indexOf("FUCK YOU") >= 0 )) {
         bot.sendMessage({
             to: channelID,
             message: "http://4.bp.blogspot.com/-XWNXDprHibk/UYxniZERK6I/AAAAAAAAW1Y/RyvRcq_Q_cc/s640/vlcsnap-2011-11-10-19h19m39s159.png"
         });
-        console.log("I've sent a message.");
+        
     }
 
     //sample text
