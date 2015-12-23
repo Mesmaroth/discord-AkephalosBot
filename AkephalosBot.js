@@ -5,20 +5,28 @@ var bot = new DiscordClient({
     autorun: true
 }); 
 
-var checkCommand = 0;
-
-
-
-bot.on('ready', function() {
+bot.on('ready', function(user, userID, channelID, message, rawEvent) {
     console.log(bot.username + " - (" + bot.id + ")");
     console.log(bot.username + ": is Online");
 
     bot.setPresence({
     //idle_since: Date.now(),
-    game_id: 201    
+    game_id: 19
     }); 
 
+    // Number of times it says hello when first connecting.
+    
+    /*for(var x = 0;x<1;x++){
+        bot.sendMessage({
+            to: "102910652447752192",
+            message: "I am `Online`"
+        });
+
+    }*/
+
+
 });
+
 
 
 bot.on('message', function(user, userID, channelID, message, rawEvent) {
@@ -28,6 +36,23 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
         to: channelID,
          message: "<@" + userID + ">"+ "```Akephalos\nHere are my commands:\n\n1. @mentions: gives you a rude statement.\n2. !Sample text: Outputs Sample Text Youtube video.\n3. !ping: Out puts insult, ping does not work right now.\n4. Fuck you: displays Neil Degrass photo.\n5. Peace or Godnight: Saying peace or goodnight will result in Akephalos also saying goodbye.\n6. No invite?: Results in saying that, that's cold.\n7. !rekt: Display's rekt meme gif.\n8. 1v1: Bot will fight you. \n9. Why?: Go ahead ask me why.```"
         });
+    }
+
+    if (message === "!DOIT"){   
+        bot.getMessages({
+           channel: 102910652447752192,
+           limit: 100 //If 'limit' isn't added, it defaults to 50, the Discord default, 100 is the max.
+        }, function(messageArr) {
+            //Do something with your array of messages
+            bot.deleteMessage({
+                channel: 102910652447752192,
+                messageID: messageArr
+            });
+        });
+    }
+
+    if(message === "!Leave"){
+        bot.disconnect();
     }
 
     if (message === "!info") {
