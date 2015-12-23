@@ -5,20 +5,30 @@ var bot = new DiscordClient({
     autorun: true
 }); 
 
+var checkCommand = 0;
+
+
+
 bot.on('ready', function() {
     console.log(bot.username + " - (" + bot.id + ")");
     console.log(bot.username + ": is Online");
 
     bot.setPresence({
     //idle_since: Date.now(),
-    game_id: 201
-    });
- 
+    game_id: 201    
+    }); 
 
 });
 
 
-bot.on('message', function(user, userID, channelID, message, rawEvent, avatar) {
+bot.on('message', function(user, userID, channelID, message, rawEvent) {
+
+    if(message === "!Commands" || message === "!commands"){
+    bot.sendMessage({
+        to: channelID,
+         message: "<@" + userID + ">"+ "```Akephalos\nHere are my commands:\n\n1. @mentions: gives you a rude statement.\n2. !Sample text: Outputs Sample Text Youtube video.\n3. !ping: Out puts insult, ping does not work right now.\n4. Fuck you: displays Neil Degrass photo.\n5. Peace or Godnight: Saying peace or goodnight will result in Akephalos also saying goodbye.\n6. No invite?: Results in saying that, that's cold.\n7. !rekt: Display's rekt meme gif.\n8. 1v1: Bot will fight you. \n9. Why?: Go ahead ask me why.```"
+        });
+    }
 
     if (message === "!info") {
         bot.sendMessage({
@@ -31,7 +41,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, avatar) {
     if (message.indexOf("sucks") >= 0) {
         bot.sendMessage({
             to: channelID,
-            message: "you suck"
+            message: "<@" + userID + ">"+" you suck"
         });
         
     } 
@@ -51,7 +61,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, avatar) {
     if ( (message.indexOf("fuck you") >= 0 || message.indexOf("Fuck you")) && mentionedMe(rawEvent)) {
         bot.sendMessage({
             to: channelID,
-            message: "Why you mad!"
+            message: "<@" + userID + ">"+" Why you mad!"
         });
         
     }
@@ -64,7 +74,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, avatar) {
         
     }
 
-    if ( (message.indexOf("fuck you") >= 0) || (message.indexOf("Fuck you") >= 0) || (message.indexOf("FUCK YOU") >= 0 )) {
+    if ( message === "fuck you" || message === "Fuck you" || message === "FUCK YOU") {
         bot.sendMessage({
             to: channelID,
             message: "http://4.bp.blogspot.com/-XWNXDprHibk/UYxniZERK6I/AAAAAAAAW1Y/RyvRcq_Q_cc/s640/vlcsnap-2011-11-10-19h19m39s159.png"
@@ -84,13 +94,13 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, avatar) {
     if(message === "ping" || message === "!ping"){
         bot.sendMessage({
             to: channelID,
-            message: "Ping deez nuts in your mouth"
+            message: "<@" + userID + ">" + " Ping deez nuts in your mouth"
         });
     }
 
 
     // Say goodye, Also checks to see if peace is within the sentence
-    if(message === "peace" || message === "Peace" || message === "goodnight" || message ==="Goodnight" || (message.indexOf("peace") >= 0) ){
+    if(message === "peace" || message === "Peace" || message === "goodnight" || message ==="Goodnight"){
         bot.sendMessage({
             to: channelID,
             message: "Goodnight! :)"
@@ -116,10 +126,18 @@ bot.on('message', function(user, userID, channelID, message, rawEvent, avatar) {
     }
 
     // For when someone says !1v1
-    if (message.indexOf("1v1") >= 0 || message.indexOf("1V1") >= 0){
+    if (message ==="1v1" || message === "1V1"){
         bot.sendMessage({
             to: channelID,
-            message: "My nigga! Let's go then bitch!!"
+            message: "<@" + userID + ">"+" My nigga! Let's go then bitch!!"
+        });
+    }
+
+    // for when someone says why?
+    if (message === "Why?" || message === "why?" || message=="Why" || message === "Why"){
+        bot.sendMessage({
+            to: channelID,
+            message: "<@" + userID + ">" + " Because fuck you! That's why!"
         });
     }
 
