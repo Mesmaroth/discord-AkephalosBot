@@ -11,7 +11,7 @@ bot.on('ready', function(user, userID, channelID, message, rawEvent) {
 
     bot.setPresence({
     //idle_since: Date.now(),
-    game_id: 320
+    game: "Doom"
     }); 
 
     // Number of times it says hello when first connecting.
@@ -22,7 +22,7 @@ bot.on('ready', function(user, userID, channelID, message, rawEvent) {
         });
     }
 
-    // Reminds the channel to 
+    /* // Reminds the channel to 
     function remindChannel() {
         bot.sendMessage({
             to: "102910652447752192",   // test-area channel
@@ -30,19 +30,19 @@ bot.on('ready', function(user, userID, channelID, message, rawEvent) {
         });
     }      
         setInterval(remindChannel, 5400000); // 1.5 hours
-
+    */
 });
 
 
 bot.on('presence', function(user, userID, status, rawEvent) {
 
-    if(status === 'online')
+    /*if(status === 'online')
     {
         bot.sendMessage({
             to: "102910652447752192",
             message: "<@" + userID + ">" + " Greetings!"
         });
-    }
+    }*/
 
  });
 
@@ -72,7 +72,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
         
     } 
 
-    // check to see if bot is directed
+    // check to see if bot is mentioned
     function mentionedMe(rawEvent) {
     var mentionArr = rawEvent.d.mentions;
     for (var i=0; i<mentionArr.length; i++) {
@@ -86,7 +86,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     // if bot is given a direct message without having fuck you in it
     if ( (message.indexOf("fuck you") >= 0 || message.indexOf("Fuck you")) && mentionedMe(rawEvent)) {
         bot.sendMessage({
-            to: channelID,
+            to: channelID, 
             message: "<@" + userID + ">"+" Why you mad!"
         });
         
