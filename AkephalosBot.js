@@ -15,17 +15,36 @@ bot.on('ready', function(user, userID, channelID, message, rawEvent) {
     }); 
 
     // Number of times it says hello when first connecting.
-    
-    /*for(var x = 0;x<1;x++){
+    for(var x = 0;x<1;x++){
         bot.sendMessage({
-            to: "102910652447752192",
-            message: "I am `Online`"
+            to: "128707001986449409",     // 102910652447752192 #general
+            message: "`Online`= `true`"
         });
+    }
 
-    }*/
-
+    // Reminds the channel to 
+    function remindChannel() {
+        bot.sendMessage({
+            to: "102910652447752192",   // test-area channel
+            message: "To see my commands type `!Commands`"
+        });
+    }      
+        setInterval(remindChannel, 5400000); // 1.5 hours
 
 });
+
+
+bot.on('presence', function(user, userID, status, rawEvent) {
+
+    if(status === 'online')
+    {
+        bot.sendMessage({
+            to: "102910652447752192",
+            message: "<@" + userID + ">" + " Greetings!"
+        });
+    }
+
+ });
 
 
 
