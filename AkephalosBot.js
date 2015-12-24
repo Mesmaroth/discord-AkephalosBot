@@ -11,7 +11,7 @@ bot.on('ready', function(user, userID, channelID, message, rawEvent) {
 
     bot.setPresence({
     //idle_since: Date.now(),
-    game_id: 19
+    game_id: 320
     }); 
 
     // Number of times it says hello when first connecting.
@@ -63,14 +63,6 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
             message:"https://media.giphy.com/media/3rgXBOmTlzyFCURutG/giphy.gif"
         });
        }
-
-    if (message === "!info") {
-        bot.sendMessage({
-            to: channelID,
-            message: "This channel ID is: " + channelID + "."
-        });
-        
-    } 
 
     if (message.indexOf("sucks") >= 0) {
         bot.sendMessage({
