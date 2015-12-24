@@ -1,7 +1,7 @@
 var DiscordClient = require('discord.io');
 var bot = new DiscordClient({
-    email: "...",
-    password: "...",
+    email: "..."
+    password: "..."
     autorun: true
 }); 
 
@@ -38,22 +38,12 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
         });
     }
 
-    if (message === "!DOIT"){   
-        bot.getMessages({
-           channel: 102910652447752192,
-           limit: 100 //If 'limit' isn't added, it defaults to 50, the Discord default, 100 is the max.
-        }, function(messageArr) {
-            //Do something with your array of messages
-            bot.deleteMessage({
-                channel: 102910652447752192,
-                messageID: messageArr
-            });
+    if(message === "!yes" || message == "!Yes"){
+        bot.sendMessage({
+            to: channelID,
+            message:"https://giphy.com/gifs/excited-yes-jack-nicholson-3rgXBOmTlzyFCURutG "
         });
-    }
-
-    if(message === "!Leave"){
-        bot.disconnect();
-    }
+       }
 
     if (message === "!info") {
         bot.sendMessage({
