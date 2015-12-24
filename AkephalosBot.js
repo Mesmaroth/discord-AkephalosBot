@@ -1,7 +1,7 @@
 var DiscordClient = require('discord.io');
 var bot = new DiscordClient({
-    email: "..."
-    password: "..."
+    email: "...",
+    password: "...",
     autorun: true
 }); 
 
@@ -34,14 +34,14 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     if(message === "!Commands" || message === "!commands"){
     bot.sendMessage({
         to: channelID,
-         message: "<@" + userID + ">"+ "```Akephalos\nHere are my commands:\n\n1. @mentions: gives you a rude statement.\n2. !Sample text: Outputs Sample Text Youtube video.\n3. !ping: Out puts insult, ping does not work right now.\n4. Fuck you: displays Neil Degrass photo.\n5. Peace or Godnight: Saying peace or goodnight will result in Akephalos also saying goodbye.\n6. No invite?: Results in saying that, that's cold.\n7. !rekt: Display's rekt meme gif.\n8. 1v1: Bot will fight you. \n9. Why?: Go ahead ask me why.```"
+         message: "<@" + userID + ">"+ "```Akephalos\nHere are my commands:\n\n1. @mentions: gives you a rude statement.\n2. !Sample text: Outputs Sample Text Youtube video.\n3. !ping: Out puts insult, ping does not work right now.\n4. Fuck you: displays Neil Degrass photo.\n5. Peace or Godnight: Saying peace or goodnight will result in Akephalos also saying goodbye.\n6. No invite?: Results in saying that, that's cold.\n7. !rekt: Display's rekt meme gif.\n8. 1v1: Bot will fight you. \n9.!Yes: Creepy Jack gif\n10. Why?: Go ahead ask me why.```"
         });
     }
 
     if(message === "!yes" || message == "!Yes"){
         bot.sendMessage({
             to: channelID,
-            message:"https://giphy.com/gifs/excited-yes-jack-nicholson-3rgXBOmTlzyFCURutG "
+            message:"https://media.giphy.com/media/3rgXBOmTlzyFCURutG/giphy.gif"
         });
        }
 
