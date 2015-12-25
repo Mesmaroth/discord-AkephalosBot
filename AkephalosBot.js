@@ -5,7 +5,7 @@ var bot = new DiscordClient({
 }); 
 
 bot.on('ready', function(user, userID, channelID, message, rawEvent) {
-   console.log(bot.username + " - (" + bot.id + ")" + "[[" + bot.internals.token + "]]");
+   console.log(bot.username + " - (" + bot.id + ")" + "Token: " + "[[" + bot.internals.token + "]]");
 
     bot.setPresence({
     //idle_since: Date.now(),
@@ -16,7 +16,7 @@ bot.on('ready', function(user, userID, channelID, message, rawEvent) {
     for(var x = 0;x<1;x++){
         bot.sendMessage({
             to: "128707001986449409",     // 102910652447752192 #general
-            message: "`Online`= `true`"
+            message: "Akephalos: Ready"
         });
     }
 
@@ -24,23 +24,28 @@ bot.on('ready', function(user, userID, channelID, message, rawEvent) {
     function remindChannel() {
         bot.sendMessage({
             to: "102910652447752192",   // test-area channel
-            message: "To see my commands type *!Commands*"
+            message: "To see my commands type *!Commands*",
+            typing: true
         });
     }      
-        setInterval(remindChannel, 7200000); // @ every 2 hours
+    setInterval(remindChannel, 7200000); // @ every 2 hours
+
+
+
+
 });
 
 
 bot.on('presence', function(user, userID, status, rawEvent) {
 
-    /*  if(status === 'online')
+      if(status === 'online')
         {
             bot.sendMessage({
                 to: "102910652447752192",
-                message: "<@" + userID + ">" + " Greetings!"
+                message: "<@" + userID + ">" + " Greetings!",
+                typing: true
             });
         }
-    */
  });
 
 
@@ -64,10 +69,58 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     if (message.indexOf("sucks") >= 0) {
         bot.sendMessage({
             to: channelID,
-            message: "<@" + userID + ">"+" you suck"
+            message: "<@" + userID + ">"+" you suck",
+            typing: true
         });
         
     } 
+
+    if (message === "!delete")
+    {
+         bot.getMessages({
+            channel: channelID,
+            limit: 100 //If 'limit' isn't added, it defaults to 50, the Discord default, 100 is the max.
+        }, function(messageArr) {
+            //Do something with your array of messages
+            //console.log(messageArr[0]);
+            for(var i=0;i<100;i++)
+            {
+                var ID = messageArr[i].id;
+                bot.deleteMessage({
+                    channel: channelID,
+                    messageID: ID
+                });            
+            }
+        });
+    }
+
+    function delHistory()
+    {
+        console.log("Deleting history now!")
+        bot.getMessages({
+            channel: channelID,
+            limit: 100 //If 'limit' isn't added, it defaults to 50, the Discord default, 100 is the max.
+        }, function(messageArr) {
+            //Do something with your array of messages
+            //console.log(messageArr[0]);
+            for(var i=0;i<100;i++)
+            {
+                var ID = messageArr[i].id;
+                bot.deleteMessage({
+                    channel: channelID,
+                    messageID: ID
+                });            
+            }
+        });
+
+    }
+
+    if (message === "!del")
+    {
+        console.log("Deletion activated")
+        setInterval(delHistory, 15000);
+    }
+
 
     // check to see if bot is mentioned
     function mentionedMe(rawEvent) {
@@ -84,7 +137,8 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     if ( (message.indexOf("fuck you") >= 0 || message.indexOf("Fuck you") >=0) && mentionedMe(rawEvent)) {
         bot.sendMessage({
             to: channelID, 
-            message: "<@" + userID + ">"+" Why you mad!"
+            message: "<@" + userID + ">"+" Why you mad!",
+            typing: true
         });
         
     }
@@ -92,7 +146,8 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     {
         bot.sendMessage({
             to: channelID,
-            message: "Why you calling me? Fuck off!"
+            message: "Why you calling me? Fuck off!",
+            typing: true
         });
         
     }
@@ -109,7 +164,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     if(message === "!sample text" || message === "!Sample text"){
         bot.sendMessage({
             to: channelID,
-            message: "SampleText.MP4?\nhttps://www.youtube.com/watch?v=Tlr1L8FHp2U"
+            message: "SampleText.MP4?\nhttps://www.youtube.com/watch?v=Tlr1L8FHp2U",
         });
     }
 
@@ -117,7 +172,8 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     if(message === "ping" || message === "!ping"){
         bot.sendMessage({
             to: channelID,
-            message: "<@" + userID + ">" + " Ping deez nuts in your mouth"
+            message: "<@" + userID + ">" + " Ping deez nuts in your mouth",
+            typing: true
         });
     }
 
@@ -126,7 +182,8 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     if(message === "peace" || message === "Peace" || message === "goodnight" || message ==="Goodnight"){
         bot.sendMessage({
             to: channelID,
-            message: "Goodnight! :)"
+            message: "Goodnight! :)",
+            typing: true
 
         });
     }
@@ -135,7 +192,8 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     if(message === "No invite?" || message === "no invite?" || message === "no invite!"){
         bot.sendMessage({
             to: channelID,
-            message:"That's cold blooded right there man."
+            message:"That's cold blooded right there man.",
+            typing: true
         });
     }
 
@@ -151,7 +209,8 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     if (message ==="1v1" || message === "1V1"){
         bot.sendMessage({
             to: channelID,
-            message: "<@" + userID + ">"+" My nigga! Let's go then bitch!!"
+            message: "<@" + userID + ">"+" My nigga! Let's go then bitch!!",
+            typing: true
         });
     }
 
@@ -159,7 +218,8 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     if (message === "Why?" || message === "why?" || message ==="Why" || message === "Why"){
         bot.sendMessage({
             to: channelID,
-            message: "<@" + userID + ">" + " Because fuck you! That's why!"
+            message: "<@" + userID + ">" + " Because fuck you! That's why!",
+            typing: true
         });
     }
 
