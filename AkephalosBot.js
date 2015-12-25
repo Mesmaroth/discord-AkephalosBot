@@ -22,28 +22,27 @@ bot.on('ready', function(user, userID, channelID, message, rawEvent) {
         });
     }
 
-    /* // Reminds the channel to 
+     // Reminds the channel to 
     function remindChannel() {
         bot.sendMessage({
             to: "102910652447752192",   // test-area channel
-            message: "To see my commands type `!Commands`"
+            message: "To see my commands type *!Commands*"
         });
     }      
-        setInterval(remindChannel, 5400000); // 1.5 hours
-    */
+        setInterval(remindChannel, 7200000); // @ every 2 hours
 });
 
 
 bot.on('presence', function(user, userID, status, rawEvent) {
 
-    /*if(status === 'online')
-    {
-        bot.sendMessage({
-            to: "102910652447752192",
-            message: "<@" + userID + ">" + " Greetings!"
-        });
-    }*/
-
+    /*  if(status === 'online')
+        {
+            bot.sendMessage({
+                to: "102910652447752192",
+                message: "<@" + userID + ">" + " Greetings!"
+            });
+        }
+    */
  });
 
 
@@ -57,7 +56,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
         });
     }
 
-    if(message === "!yes" || message == "!Yes"){
+    if(message === "!yes" || message === "!Yes"){
         bot.sendMessage({
             to: channelID,
             message:"https://media.giphy.com/media/3rgXBOmTlzyFCURutG/giphy.gif"
@@ -84,7 +83,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     } 
 
     // if bot is given a direct message without having fuck you in it
-    if ( (message.indexOf("fuck you") >= 0 || message.indexOf("Fuck you")) && mentionedMe(rawEvent)) {
+    if ( (message.indexOf("fuck you") >= 0 || message.indexOf("Fuck you") >=0) && mentionedMe(rawEvent)) {
         bot.sendMessage({
             to: channelID, 
             message: "<@" + userID + ">"+" Why you mad!"
@@ -109,7 +108,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     }
 
     //sample text
-    if(message === "!sample text" || message == "!Sample text"){
+    if(message === "!sample text" || message === "!Sample text"){
         bot.sendMessage({
             to: channelID,
             message: "SampleText.MP4?\nhttps://www.youtube.com/watch?v=Tlr1L8FHp2U"
@@ -125,7 +124,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     }
 
 
-    // Say goodye, Also checks to see if peace is within the sentence
+    // Say goodye, Also checks to see if peace is within the sentence 
     if(message === "peace" || message === "Peace" || message === "goodnight" || message ==="Goodnight"){
         bot.sendMessage({
             to: channelID,
@@ -135,16 +134,15 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     }
 
     // for when somone didn't invite someone
-    if(message === "No invite?" || message == "no invite?" || message === "no invite!"){
+    if(message === "No invite?" || message === "no invite?" || message === "no invite!"){
         bot.sendMessage({
             to: channelID,
-            message:"That's cold blooded right there man.",
-            tts: true
+            message:"That's cold blooded right there man."
         });
     }
 
     // For when someone says rekt
-    if(message === "!REKT" || message === "!Rekt" || message === "rekt" || message === "REKT" || message === "!rekt") {
+    if(message === "!REKT" || message === "!Rekt" || message === "rekt" || message === "REKT" || message === "!rekt" || message === "Rekt") {
         bot.sendMessage({
             to: channelID,
             message: "https://giphy.com/gifs/rekt-vSR0fhtT5A9by"
@@ -160,7 +158,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     }
 
     // for when someone says why?
-    if (message === "Why?" || message === "why?" || message=="Why" || message === "Why"){
+    if (message === "Why?" || message === "why?" || message ==="Why" || message === "Why"){
         bot.sendMessage({
             to: channelID,
             message: "<@" + userID + ">" + " Because fuck you! That's why!"
