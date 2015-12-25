@@ -1,13 +1,11 @@
 var DiscordClient = require('discord.io');
 var bot = new DiscordClient({
-    email: "...",
-    password: "...",
+    token: "...",
     autorun: true
 }); 
 
 bot.on('ready', function(user, userID, channelID, message, rawEvent) {
-    console.log(bot.username + " - (" + bot.id + ")");
-    console.log(bot.username + ": is Online");
+   console.log(bot.username + " - (" + bot.id + ")" + "[[" + bot.internals.token + "]]");
 
     bot.setPresence({
     //idle_since: Date.now(),
