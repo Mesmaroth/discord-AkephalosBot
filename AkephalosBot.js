@@ -36,7 +36,6 @@ bot.on('presence', function(user, userID, status, gameName, rawEvent) {
             to: userID,
             message: "I see you went offline like a faggot. HA! "
         });
-        console.log("I've sent offline message");
     }
  });
 
@@ -68,15 +67,13 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     }
 
 
-    if (message === "!delete")
+    if ((message === "!delete" || message === "!Delete") && user === "Mesmaroth")
     {
          bot.getMessages({
             channel: channelID,
             limit: 100 //If 'limit' isn't added, it defaults to 50, the Discord default, 100 is the max.
         }, function(messageArr) {
-            //Do something with your array of messages
-            //console.log(messageArr[0]);
-            for(var i=0;i<5;i++)
+            for(var i=0;i<5;i++)            // Deletes the last 5 messages
             {
                 var ID = messageArr[i].id;
                 bot.deleteMessage({
@@ -86,44 +83,25 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
             }
         });
     }
-
-    function delHistory()
+    else if ((message === "!delete" || message === "!Delete") && user !== "Mesmaroth")
     {
-        console.log("Deleting history now!")
-        bot.getMessages({
-            channel: channelID,
-            limit: 100 //If 'limit' isn't added, it defaults to 50, the Discord default, 100 is the max.
-        }, function(messageArr) {
-            //Do something with your array of messages
-            //console.log(messageArr[0]);
-            for(var i=0;i<100;i++)
-            {
-                var ID = messageArr[i].id;
-                bot.deleteMessage({
-                    channel: channelID,
-                    messageID: ID
-                });            
-            }
+        bot.sendMessage({
+            to: channelID,
+            message: "<@" + userID + ">" + " You are not authorized to use this command.",
+            typing: true
         });
-
-    }
-
-    if (message === "!del")
-    {
-        console.log("Deletion activated")
-        setInterval(delHistory, 15000);
     }
 
 
     // check to see if bot is mentioned
     function mentionedMe(rawEvent) {
-    var mentionArr = rawEvent.d.mentions;
-    for (var i=0; i<mentionArr.length; i++) {
-        if (mentionArr[i].id === bot.id) {
-            return true;
+        var mentionArr = rawEvent.d.mentions;
+        for (var i=0; i<mentionArr.length; i++) {
+            if (mentionArr[i].id === bot.id) {
+                return true;
+            }
         }
-    }
-    return false;
+        return false;
     } 
 
     // if bot is given a direct message without having fuck you in it
@@ -171,11 +149,11 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     }
 
 
-    // Say goodye, Also checks to see if peace is within the sentence 
-    if(message === "peace" || message === "Peace" || message === "goodnight" || message ==="Goodnight"){
+    // Say goodye
+    if(message.indexOf("peace") >= 0 || message.indexOf("Peace") >= 0 || message === "goodnight" || message ==="Goodnight"){
         bot.sendMessage({
             to: channelID,
-            message: "Goodnight! :)",
+            message: "Bye! :)",
             typing: true
 
         });
