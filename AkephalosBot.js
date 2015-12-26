@@ -4,27 +4,18 @@ var bot = new DiscordClient({
     autorun: true
 }); 
 
-bot.on('ready', function(user, userID, channelID, message, rawEvent) {
+bot.on('ready', function(rawEvent) {
    console.log(bot.username + " - (" + bot.id + ")" + "Token: " + "[[" + bot.internals.token + "]]");
-
+   console.log(rawEvent.d.user.username);
     bot.setPresence({
-    //idle_since: Date.now(),
     game: "Doom"
-    }); 
-
-    // Number of times it says hello when first connecting.
-    for(var x = 0;x<1;x++){
-        bot.sendMessage({
-            to: "128707001986449409",     // 102910652447752192 #general
-            message: "Akephalos: Ready"
-        });
-    }
+    });
 
      // Reminds the channel to 
     function remindChannel() {
         bot.sendMessage({
             to: "102910652447752192",   // test-area channel
-            message: "To see my commands type *!Commands*",
+            message: "To see my commands type: *!Commands*",
             typing: true
         });
     }      
@@ -36,16 +27,17 @@ bot.on('ready', function(user, userID, channelID, message, rawEvent) {
 });
 
 
-bot.on('presence', function(user, userID, status, rawEvent) {
+bot.on('presence', function(user, userID, status, gameName, rawEvent) {
 
-      if(status === 'online')
-        {
-            bot.sendMessage({
-                to: "102910652447752192",
-                message: "<@" + userID + ">" + " Greetings!",
-                typing: true
-            });
-        }
+    // Special message for xTris10x
+    if (user === "xTris10x" && status !== "online")
+    {
+        bot.sendMessage({
+            to: userID,
+            message: "I see you went offline like a faggot. HA! "
+        });
+        console.log("I've sent offline message");
+    }
  });
 
 
@@ -55,7 +47,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     if(message === "!Commands" || message === "!commands"){
     bot.sendMessage({
         to: channelID,
-         message: "<@" + userID + ">"+ "```Akephalos\nHere are my commands:\n\n1. @mentions: gives you a rude statement.\n2. !Sample text: Outputs Sample Text Youtube video.\n3. !ping: Out puts insult, ping does not work right now.\n4. Fuck you: displays Neil Degrass photo.\n5. Peace or Godnight: Saying peace or goodnight will result in Akephalos also saying goodbye.\n6. No invite?: Results in saying that, that's cold.\n7. !rekt: Display's rekt meme gif.\n8. 1v1: Bot will fight you. \n9.!Yes: Creepy Jack gif\n10. Why?: Go ahead ask me why.```"
+         message: "<@" + userID + ">"+ "```Akephalos\nHere are my commands:\n\n1. @mentions: gives you a rude statement.\n2. !Sample text: Outputs Sample Text Youtube video.\n3. !ping: See ping status\n4. Peace or Godnight: Saying peace or goodnight will result in Akephalos also saying goodbye.\n5. No invite?: Results in saying that, that's cold.\n6. !rekt: Display's rekt meme gif.\n7. 1V1: Bot will fight you.\n8. !Yes: Creepy Jack gif\n9. Why?: Go ahead ask me why.```"
         });
     }
 
@@ -73,7 +65,8 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
             typing: true
         });
         
-    } 
+    }
+
 
     if (message === "!delete")
     {
@@ -83,7 +76,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
         }, function(messageArr) {
             //Do something with your array of messages
             //console.log(messageArr[0]);
-            for(var i=0;i<100;i++)
+            for(var i=0;i<5;i++)
             {
                 var ID = messageArr[i].id;
                 bot.deleteMessage({
