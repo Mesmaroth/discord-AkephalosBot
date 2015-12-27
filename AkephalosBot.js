@@ -6,7 +6,6 @@ var bot = new DiscordClient({
 
 bot.on('ready', function(rawEvent) {
    console.log(bot.username + " - (" + bot.id + ")" + "Token: " + "[[" + bot.internals.token + "]]");
-   console.log(rawEvent.d.user.username);
     bot.setPresence({
     game: "Doom"
     });
@@ -29,16 +28,8 @@ bot.on('ready', function(rawEvent) {
 
 bot.on('presence', function(user, userID, status, gameName, rawEvent) {
 
-    // Special message for xTris10x
-    if (user === "xTris10x" && status !== "online")
-    {
-        bot.sendMessage({
-            to: userID,
-            message: "I see you went offline like a faggot. HA! "
-        });
-    }
+    
  });
-
 
 
 bot.on('message', function(user, userID, channelID, message, rawEvent) {
