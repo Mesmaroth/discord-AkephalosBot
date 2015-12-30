@@ -231,7 +231,7 @@ if(message=== "!rawEvent")
     }
 
     // For when someone says !1v1
-    if (message.toLowerCase()=== "1v1") {
+    if (message.toLowerCase()=== "1v1" || message.toLowerCase() === "!1v1") {
         bot.sendMessage({
             to: channelID,
             message: "<@" + userID + ">"+" My nigga! Let's go then bitch!!",
