@@ -2,13 +2,14 @@ var DiscordClient = require('discord.io');
 var bot = new DiscordClient({
     token: "...",
     autorun: true
-}); 
+});
+
 
 bot.on('ready', function(rawEvent) {
-   console.log(bot.username + " - (" + bot.id + ")" + "Token: " + "[[" + bot.internals.token + "]]");
-    bot.setPresence({
-    game: "Doom"
-    });
+    //bot.setName();
+    require('fs').writeFileSync('./bot.json', JSON.stringify(bot, null, '\t'))
+    console.log(bot.username + " - (" + bot.id + ")" + "Token: " + "[[" + bot.internals.token + "]]");
+    bot.setPresence({game: "Doom"});
 
      // Reminds the channel to 
     function remindChannel() {
@@ -33,14 +34,14 @@ bot.on('presence', function(user, userID, status, gameName, rawEvent) {
 
 bot.on('message', function(user, userID, channelID, message, rawEvent) {
 
-    if(message.toLowerCase() === "!commands"){
+    if(message.toLowerCase() === "!commands") {
     bot.sendMessage({
         to: channelID,
-         message: "<@" + userID + ">"+ "```Akephalos\nHere are my commands:\n\n1. @mentions: gives you a rude statement.\n2. !Sample text: Outputs Sample Text Youtube video.\n3. !ping: See ping status\n4. Peace or Godnight: Saying peace or goodnight will result in Akephalos also saying goodbye.\n5. No invite?: Results in saying that, that's cold.\n6. !rekt: Display's rekt meme gif.\n7. 1V1: Bot will fight you.\n8. !Yes: Creepy Jack gif\n9. Why?: Go ahead ask me why.```"
+         message: "<@" + userID + ">"+ "```Akephalos\nHere are my commands:\n\n1. @mentions: gives you a rude statement.\n2. !Sample text: Outputs Sample Text Youtube video.\n3. !ping: See ping status\n4. Peace or Godnight: Saying peace or goodnight will result in Akephalos also saying goodbye.\n5. No invite?: Results in saying that, that's cold.\n6. !rekt: Display's rekt meme gif.\n7. 1V1: Bot will fight you.\n8. !Yes: Creepy Jack gif\n9. Why?: Go ahead ask me why.\n10. !doit: JUST DO IT!```"
         });
     }
 
-    if(message.toLowerCase() === "!yes"){
+    if(message.toLowerCase() === "!yes") {
         bot.sendMessage({
             to: channelID,
             message:"https://media.giphy.com/media/3rgXBOmTlzyFCURutG/giphy.gif"
@@ -48,24 +49,22 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
        }
 
 
-    if ((message.toLowerCase() === "!delete") && user === "Mesmaroth")
-    {
+    if ((message.toLowerCase() === "!delete") && user === "Mesmaroth") {
          bot.getMessages({
             channel: channelID,
             limit: 100 //If 'limit' isn't added, it defaults to 50, the Discord default, 100 is the max.
         }, function(messageArr) {
-            for(var i=0;i<5;i++)            // Deletes the last 5 messages
+            for(var i = 0; i < messageArr.length; i++)
             {
-                var ID = messageArr[i].id;
+                var msgID = messageArr[i].id;
                 bot.deleteMessage({
                     channel: channelID,
-                    messageID: ID
-                });            
+                    messageID: msgID
+                })
             }
         });
     }
-    else if (message.toLowerCase() === "!delete" && user !== "Mesmaroth")
-    {
+    else if((message.toLowerCase() === "!delete") && user !== "Mesmaroth") {
         bot.sendMessage({
             to: channelID,
             message: "<@" + userID + ">" + " You are not authorized to use this command.",
@@ -73,6 +72,82 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
         });
     }
 
+// Delete Bot messages only.
+if(message.toLowerCase() === "!delmsgakephalos" && user === "Mesmaroth"){
+    bot.getMessages({
+        channel: channelID,
+        limit: 100
+    }, function(messageArr){
+        for(var i = 0; i < messageArr.length; i++) {
+            if(messageArr[i].author.username === 'Akephalos (Bot)') {
+                bot.deleteMessage({
+                    channel: channelID,
+                    messageID: messageArr[i].id
+                });
+            }
+        }
+    });
+}
+    // Delete Mesmaroth messages only
+    if(message.toLowerCase() === "!delmsgmes" && user === "Mesmaroth") {
+        bot.getMessages({
+            channel: channelID,
+            limit: 100
+        }, function(messageArr){
+            var msgsDeleted = 0;
+            for(var i = 0; i < messageArr.length; i++){
+                if(messageArr[i].author.username === 'Mesmaroth'){
+                    bot.deleteMessage({
+                        channel: channelID,
+                        messageID: messageArr[i].id
+                    });
+                    msgsDeleted+=1;
+                }
+            }
+            console.log("Deleted "+ (msgsDeleted-1) + " messages for " + user);
+        });
+    }
+
+// Delete gun messages only
+if(message.toLowerCase() === "$sudo rm gun -r" && user === "Gun") {
+    bot.getMessages({
+        channel: channelID,
+        limit: 100
+    }, function(messageArr){
+        var msgsDeleted = 0;
+        for(var i = 0; i < messageArr.length; i++){
+            if(messageArr[i].author.username === 'Gun'){
+                bot.deleteMessage({
+                    channel: channelID,
+                    messageID: messageArr[i].id
+                });
+                msgsDeleted+=1;
+            }
+        }
+        console.log("Deleted "+ (msgsDeleted-1) + " messages for " + user); // not including command request
+    });
+}
+else if(message.toLowerCase() === "$sudo rm gun -r" && user !== "Gun") {
+    bot.sendMessage({
+        to: channelID,
+        message: "<@"+userID + ">" + "You are not authorized to do that.",
+        typing: true
+    });
+}
+
+if(message === "!getMsgs") {
+    bot.getMessages({
+        channel: channelID,
+        limit: 50
+    }, function(messageArr){
+        console.log(messageArr);
+    });
+}
+if(message=== "!rawEvent")
+{
+    console.log(rawEvent);
+}
+// --------------------------------------
 
     // check to see if bot is mentioned
     function mentionedMe(rawEvent) {
@@ -86,18 +161,14 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     } 
 
     // if bot is mentioned with having FU;
-    if ( message.toLowerCase() === ("<@" + bot.id + ">"+ "Fuck you")){
+    if ( message.toLowerCase() === "<@" + bot.id + ">"+ " fuck you!") {
         bot.sendMessage({
             to: channelID, 
             message: "<@" + userID + ">"+" Why you mad!",
             typing: true
-        });
-        console.log(bot.id);
-        console.log("mentions failed");
-        
+        });        
     }
-    else if (mentionedMe(rawEvent))
-    {
+    else if (mentionedMe(rawEvent)) {
         bot.sendMessage({
             to: channelID,
             message: "Why you calling me? Fuck off!",
@@ -115,7 +186,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     }
 
     //sample text
-    if(message.toLowerCase() === "!sample text" || message.toLowerCase() === "!sp"){
+    if(message.toLowerCase() === "!sample text" || message.toLowerCase() === "!sp") {
         bot.sendMessage({
             to: channelID,
             message: "SampleText.MP4?\nhttps://www.youtube.com/watch?v=Tlr1L8FHp2U",
@@ -123,7 +194,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     }
 
     //check ping
-    if(message.toLowerCase() === "!ping"){
+    if(message.toLowerCase() === "!ping") {
         bot.sendMessage({
             to: channelID,
             message: "<@" + userID + ">" + " Ping deez nuts in your mouth",
@@ -133,7 +204,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
 
 
     // Say goodye
-    if(message.toLowerCase()==="peace" || message.toLowerCase()==="goodnight"){
+    if(message.toLowerCase()==="peace" || message.toLowerCase()==="goodnight") {
         bot.sendMessage({
             to: channelID,
             message: "Bye! :)",
@@ -143,7 +214,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     }
 
     // for when somone didn't invite someone
-    if(message.toLowerCase() === "no invite?"){
+    if(message.toLowerCase() === "no invite?") {
         bot.sendMessage({
             to: channelID,
             message:"That's cold blooded right there man.",
@@ -160,7 +231,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     }
 
     // For when someone says !1v1
-    if (message.toLowerCase()=== "1v1"){
+    if (message.toLowerCase()=== "1v1") {
         bot.sendMessage({
             to: channelID,
             message: "<@" + userID + ">"+" My nigga! Let's go then bitch!!",
@@ -169,11 +240,17 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     }
 
     // for when someone says why?
-    if (message.toLowerCase() === "why?"){
+    if (message.toLowerCase() === "why?") {
         bot.sendMessage({
             to: channelID,
             message: "<@" + userID + ">" + " Because fuck you! That's why!",
             typing: true
+        });
+    }
+    if(message.toLowerCase() === "!doit") {
+        bot.sendMessage({
+            to: channelID,
+            message: "https://media.giphy.com/media/TCaq4FekwSV5m/giphy.gif"
         });
     }
 
