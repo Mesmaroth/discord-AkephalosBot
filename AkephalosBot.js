@@ -6,7 +6,6 @@ var bot = new DiscordClient({
 
 
 bot.on('ready', function(rawEvent) {
-    //bot.setName();
     require('fs').writeFileSync('./bot.json', JSON.stringify(bot, null, '\t'))
     console.log(bot.username + " - (" + bot.id + ")" + "Token: " + "[[" + bot.internals.token + "]]");
     bot.setPresence({game: "Doom"});
