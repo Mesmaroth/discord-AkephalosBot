@@ -9,7 +9,7 @@ bot.on('ready', function(rawEvent) {
     require('fs').writeFileSync('./bot.json', JSON.stringify(bot, null, '\t'))
     console.log(bot.username + " - (" + bot.id + ")" + "Token: " + "[[" + bot.internals.token + "]]");
     bot.setPresence({game: "Doom"});
-
+     
      // Reminds the channel to 
     function remindChannel() {
         bot.sendMessage({
@@ -33,6 +33,26 @@ bot.on('presence', function(user, userID, status, gameName, rawEvent) {
 
 bot.on('message', function(user, userID, channelID, message, rawEvent) {
 
+
+    if(message === "!me"){
+        bot.sendMessage({
+            to: channelID,
+            message: "```\nUsername: " + JSON.stringify(bot.servers["102910652447752192"].members[userID].user.username) +"\nID: "+bot.servers["102910652447752192"].members[userID].user.id +"\nAvatar: "+bot.servers["102910652447752192"].members[userID].user.avatar+"```"
+        });
+    }
+
+    if(message.toLowerCase()==="!listmembers"){
+        var listMembers = [];
+        for(var i in bot.servers["102910652447752192"].members){
+            listMembers.push(bot.servers["102910652447752192"].members[i].user.username);
+           }
+
+        bot.sendMessage({
+            to: channelID,
+            message: "```" + listMembers + "```"
+            });
+    }
+    // ------------------------------------------- 
     if(message.toLowerCase() === "!commands") {
     bot.sendMessage({
         to: channelID,
@@ -51,7 +71,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     if ((message.toLowerCase() === "!delete") && user === "Mesmaroth") {
          bot.getMessages({
             channel: channelID,
-            limit: 100 //If 'limit' isn't added, it defaults to 50, the Discord default, 100 is the max.
+            limit: 5 //If 'limit' isn't added, it defaults to 50, the Discord default, 100 is the max.
         }, function(messageArr) {
             for(var i = 0; i < messageArr.length; i++)
             {
@@ -78,7 +98,7 @@ if(message.toLowerCase() === "!delmsgakephalos" && user === "Mesmaroth"){
         limit: 100
     }, function(messageArr){
         for(var i = 0; i < messageArr.length; i++) {
-            if(messageArr[i].author.username === 'Akephalos (Bot)') {
+            if(messageArr[i].author.username === 'Akephalos(Bot)') {
                 bot.deleteMessage({
                     channel: channelID,
                     messageID: messageArr[i].id
