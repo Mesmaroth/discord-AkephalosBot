@@ -6,10 +6,9 @@ var bot = new DiscordClient({
 
 
 bot.on('ready', function(rawEvent) {
-    require('fs').writeFileSync('./bot.json', JSON.stringify(bot, null, '\t'))
+    require('fs').writeFileSync('./bot.json', JSON.stringify(bot,null,'\t'));
     console.log(bot.username + " - (" + bot.id + ")" + "Token: " + "[[" + bot.internals.token + "]]");
     bot.setPresence({game: "Doom"});
-     
      // Reminds the channel to 
     function remindChannel() {
         bot.sendMessage({
@@ -180,23 +179,15 @@ if(message=== "!rawEvent")
     } 
 
     // if bot is mentioned with having FU;
-    if ( message.toLowerCase() === "<@" + bot.id + ">"+ " fuck you!") {
+    if ( mentionedMe(rawEvent) && (message.search("fuck you") > 0 || message.search("FUCK YOU")>0)  ) {
         bot.sendMessage({
             to: channelID, 
             message: "<@" + userID + ">"+" Why you mad!",
             typing: true
         });        
     }
-    else if (mentionedMe(rawEvent)) {
-        bot.sendMessage({
-            to: channelID,
-            message: "Why you calling me? Fuck off!",
-            typing: true
-        });
-        
-    }
 
-    if ( message.toLowerCase() === "fuck you!") {
+    if ( message.toLowerCase() === "fuck you") {
         bot.sendMessage({
             to: channelID,
             message: "http://4.bp.blogspot.com/-XWNXDprHibk/UYxniZERK6I/AAAAAAAAW1Y/RyvRcq_Q_cc/s640/vlcsnap-2011-11-10-19h19m39s159.png"
