@@ -1,23 +1,22 @@
 var DiscordClient = require('discord.io');
+var colors = require('colors');
 var bot = new DiscordClient({
-    token: "...",
+    token: "{TOKEN}",
     autorun: true
 });
 
 
 bot.on('ready', function(rawEvent) {
-    require('fs').writeFileSync('./bot.json', JSON.stringify(bot,null,'\t'));
-    console.log(bot.username + " - (" + bot.id + ")" + "Token: " + "[[" + bot.internals.token + "]]");
+    console.log(bot.username.magenta + " - (" + bot.id.cyan + ")" + " Token: " + "[[" + bot.internals.token.green + "]]");
     bot.setPresence({game: "Doom"});
-     // Reminds the channel to 
-    function remindChannel() {
+     // Reminds the channel to    
+    setInterval(function(){
         bot.sendMessage({
             to: "102910652447752192",   // test-area channel
             message: "To see my commands type: *!Commands*",
             typing: true
         });
-    }      
-    setInterval(remindChannel, 7200000); // @ every 2 hours
+    },10800000); // @ every 3 hours
 });
 
 
@@ -27,13 +26,21 @@ bot.on('presence', function(user, userID, status, gameName, rawEvent) {
     
  });
 
+function getDate(){       // month-day-year
+    var d = new Date();
+    return d.toDateString().green;
+}
+
+function consoleMsgDel(user,msgDel){         // outputs any message deletion to console
+    return console.log("Deleted "+ (msgDel-1) + " messages for " + user.cyan + " at "+ getDate().green );
+}
 
 
 
 bot.on('message', function(user, userID, channelID, message, rawEvent) {
 
 
-    if(message === "!me"){
+    if(message.toLowerCase() === "!me"){
         bot.sendMessage({
             to: channelID,
             message: "```\nUsername: " + JSON.stringify(bot.servers["102910652447752192"].members[userID].user.username) +"\nID: "+bot.servers["102910652447752192"].members[userID].user.id +"\nAvatar: "+bot.servers["102910652447752192"].members[userID].user.avatar+"```"
@@ -51,6 +58,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
             message: "```" + listMembers + "```"
             });
     }
+
     // ------------------------------------------- 
     if(message.toLowerCase() === "!commands") {
     bot.sendMessage({
@@ -91,80 +99,75 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     }
 
 // Delete Bot messages only.
-if(message.toLowerCase() === "!delmsgakephalos" && user === "Mesmaroth"){
-    bot.getMessages({
-        channel: channelID,
-        limit: 100
-    }, function(messageArr){
-        for(var i = 0; i < messageArr.length; i++) {
-            if(messageArr[i].author.username === 'Akephalos(Bot)') {
-                bot.deleteMessage({
-                    channel: channelID,
-                    messageID: messageArr[i].id
-                });
+    if(message.toLowerCase() === "!delmsgakephalos" && user === "Mesmaroth"){
+        bot.getMessages({
+            channel: channelID,
+            limit: 100
+        }, function(messageArr){
+            var msgsDel = 0;
+            for(var i = 0; i < messageArr.length; i++) {
+                if(messageArr[i].author.username === 'Akephalos(Bot)') {
+                    bot.deleteMessage({
+                        channel: channelID,
+                        messageID: messageArr[i].id
+                    });
+                    msgsDel+=1;
+                }
             }
-        }
-    });
-}
+            consoleMsgDel(bot.username, msgsDel);
+        });
+    }   
     // Delete Mesmaroth messages only
     if(message.toLowerCase() === "!delmsgmes" && user === "Mesmaroth") {
         bot.getMessages({
             channel: channelID,
             limit: 100
         }, function(messageArr){
-            var msgsDeleted = 0;
+            var msgsDel = 0;
             for(var i = 0; i < messageArr.length; i++){
                 if(messageArr[i].author.username === 'Mesmaroth'){
                     bot.deleteMessage({
                         channel: channelID,
                         messageID: messageArr[i].id
                     });
-                    msgsDeleted+=1;
+                    msgsDel+=1;
                 }
             }
-            console.log("Deleted "+ (msgsDeleted-1) + " messages for " + user);
+            consoleMsgDel(user,msgsDel);
+        });
+    }
+    else if(message.toLowerCase() === "!delmsgmes" && user !== "Mesmaroth"){
+        bot.sendMessage({
+            to: channelID,
+            message: "<@"+userID + ">" + "You are not authorized to do that."
         });
     }
 
 // Delete gun messages only
-if(message.toLowerCase() === "$sudo rm gun -r" && user === "Gun") {
-    bot.getMessages({
-        channel: channelID,
-        limit: 100
-    }, function(messageArr){
-        var msgsDeleted = 0;
-        for(var i = 0; i < messageArr.length; i++){
-            if(messageArr[i].author.username === 'Gun'){
-                bot.deleteMessage({
-                    channel: channelID,
-                    messageID: messageArr[i].id
-                });
-                msgsDeleted+=1;
+    if(message.toLowerCase() === "$sudo rm gun -r" && user === "Gun") {
+        bot.getMessages({
+            channel: channelID,
+            limit: 100
+        }, function(messageArr){
+            var msgsDel = 0;
+            for(var i = 0; i < messageArr.length; i++){
+                if(messageArr[i].author.username === 'Gun'){
+                    bot.deleteMessage({
+                        channel: channelID,
+                        messageID: messageArr[i].id
+                    });
+                    msgsDel+=1;
+                }
             }
-        }
-        console.log("Deleted "+ (msgsDeleted-1) + " messages for " + user); // not including command request
-    });
-}
-else if(message.toLowerCase() === "$sudo rm gun -r" && user !== "Gun") {
-    bot.sendMessage({
-        to: channelID,
-        message: "<@"+userID + ">" + "You are not authorized to do that.",
-        typing: true
-    });
-}
-
-if(message === "!getMsgs") {
-    bot.getMessages({
-        channel: channelID,
-        limit: 50
-    }, function(messageArr){
-        console.log(messageArr);
-    });
-}
-if(message=== "!rawEvent")
-{
-    console.log(rawEvent);
-}
+            consoelMsgDel(user,msgsDel);
+        });
+    }
+    else if(message.toLowerCase() === "$sudo rm gun -r" && user !== "Gun") {
+        bot.sendMessage({
+            to: channelID,
+            message: "<@"+userID + ">" + "You are not authorized to do that."
+        });
+    }
 // --------------------------------------
 
     // check to see if bot is mentioned
@@ -192,7 +195,6 @@ if(message=== "!rawEvent")
             to: channelID,
             message: "http://4.bp.blogspot.com/-XWNXDprHibk/UYxniZERK6I/AAAAAAAAW1Y/RyvRcq_Q_cc/s640/vlcsnap-2011-11-10-19h19m39s159.png"
         });
-        
     }
 
     //sample text
@@ -265,4 +267,3 @@ if(message=== "!rawEvent")
     }
 
 });
-
