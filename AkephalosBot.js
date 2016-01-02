@@ -9,14 +9,7 @@ var bot = new DiscordClient({
 bot.on('ready', function(rawEvent) {
     console.log(bot.username.magenta + " - (" + bot.id.cyan + ")" + " Token: " + "[[" + bot.internals.token.green + "]]");
     bot.setPresence({game: "Doom"});
-     // Reminds the channel to    
-    setInterval(function(){
-        bot.sendMessage({
-            to: "102910652447752192",   // test-area channel
-            message: "To see my commands type: *!Commands*",
-            typing: true
-        });
-    },10800000); // @ every 3 hours
+     // Reminds the channel to
 });
 
 
