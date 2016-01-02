@@ -19,6 +19,14 @@ bot.on('presence', function(user, userID, status, gameName, rawEvent) {
     
  });
 
+
+
+
+bot.on('disconnect', function(rawEvent){
+    console.log("Bot has disconnected from the server. \tRetrying...");
+    setTimeOut(bot.connect(),10000);
+});
+
 function getDate(){       // month-day-year
     var d = new Date();
     return d.toDateString().green;
