@@ -5,22 +5,11 @@ var bot = new DiscordClient({
     autorun: true
 });
 
-
 bot.on('ready', function(rawEvent) {
     console.log(bot.username.magenta + " - (" + bot.id.cyan + ")" + " Token: " + "[[" + bot.internals.token.green + "]]");
+    require('fs').writeFileSync('TOKEN',"TOKEN: "+bot.internals.token);
     bot.setPresence({game: "Doom"});
-     // Reminds the channel to
 });
-
-
-
-bot.on('presence', function(user, userID, status, gameName, rawEvent) {
-
-    
- });
-
-
-
 
 bot.on('disconnect', function(rawEvent){
     console.log("Bot has disconnected from the server. \tRetrying...");
@@ -35,7 +24,6 @@ function getDate(){       // month-day-year
 function consoleMsgDel(user,msgDel){         // outputs any message deletion to console
     return console.log("Deleted "+ (msgDel-1) + " messages for " + user.cyan + " at "+ getDate().green );
 }
-
 
 
 bot.on('message', function(user, userID, channelID, message, rawEvent) {
@@ -59,7 +47,6 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
             message: "```" + listMembers + "```"
             });
     }
-
     // ------------------------------------------- 
     if(message.toLowerCase() === "!commands") {
     bot.sendMessage({
@@ -81,8 +68,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
             channel: channelID,
             limit: 5 //If 'limit' isn't added, it defaults to 50, the Discord default, 100 is the max.
         }, function(messageArr) {
-            for(var i = 0; i < messageArr.length; i++)
-            {
+            for(var i = 0; i < messageArr.length; i++){
                 var msgID = messageArr[i].id;
                 bot.deleteMessage({
                     channel: channelID,
@@ -100,7 +86,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     }
 
 // Delete Bot messages only.
-    if(message.toLowerCase() === "!delmsgakephalos" && user === "Mesmaroth"){
+    if(message.toLowerCase() === "!delmsgakebot" && user === "Mesmaroth"){
         bot.getMessages({
             channel: channelID,
             limit: 100
