@@ -7,7 +7,6 @@ var bot = new DiscordClient({
 
 bot.on('ready', function(rawEvent) {
     console.log(bot.username.magenta + " - (" + bot.id.cyan + ")" + " Token: " + "[[" + bot.internals.token.green + "]]");
-    require('fs').writeFileSync('TOKEN',"TOKEN: "+bot.internals.token);
     bot.setPresence({game: "Doom"});
 });
 
@@ -29,10 +28,12 @@ function consoleMsgDel(user,msgDel){         // outputs any message deletion to 
 bot.on('message', function(user, userID, channelID, message, rawEvent) {
 
 
-    if(message.toLowerCase() === "!me"){
+    if(message.toLowerCase() === "!me"){            // Displays your information to the person that called it.
         bot.sendMessage({
             to: channelID,
-            message: "```\nUsername: " + JSON.stringify(bot.servers["102910652447752192"].members[userID].user.username) +"\nID: "+bot.servers["102910652447752192"].members[userID].user.id +"\nAvatar: "+bot.servers["102910652447752192"].members[userID].user.avatar+"```"
+            message: "```\nUsername: " + JSON.stringify(bot.servers["102910652447752192"].members[userID].user.username) +
+            "\nID: "+bot.servers["102910652447752192"].members[userID].user.id +
+            "\nAvatar: "+"https://cdn.discordapp.com/avatars/"+bot.servers["102910652447752192"].members[userID].user.id+"/"+bot.servers["102910652447752192"].members[userID].user.avatar+".jpg ```"
         });
     }
 
@@ -48,11 +49,50 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
             });
     }
     // ------------------------------------------- 
-    if(message.toLowerCase() === "!commands") {
-    bot.sendMessage({
-        to: channelID,
-         message: "<@" + userID + ">"+ "```Akephalos\nHere are my commands:\n\n1. @mentions: gives you a rude statement.\n2. !Sample text: Outputs Sample Text Youtube video.\n3. !ping: See ping status\n4. Peace or Godnight: Saying peace or goodnight will result in Akephalos also saying goodbye.\n5. No invite?: Results in saying that, that's cold.\n6. !rekt: Display's rekt meme gif.\n7. 1V1: Bot will fight you.\n8. !Yes: Creepy Jack gif\n9. Why?: Go ahead ask me why.\n10. !doit: JUST DO IT!```"
-        });
+    if(rawEvent.d.author.username !== bot.username){                 // Does not check for bot's own messages.
+        if(message.toLowerCase() === "!commands") {
+        bot.sendMessage({
+            to: channelID,
+             message: "<@" + userID + ">"+ "```Akephalos\nHere are my commands:\n\n1. !botInfo: About me\n"+
+             "2. !me: View your information\n"+
+             "3. !Sample text: Outputs Sample Text Youtube video.\n"+
+             "4. !ping: See ping status\n5. Peace or Goodnight: I will say bye!\n" +
+             "6. No invite?: Results in saying that, that's cold.\n7. !rekt: Display's rekt meme gif.\n" +
+             "8. 1V1: Bot will fight you.\n9. !Yes: Creepy Jack gif\n"+
+             "10. Why?: Go ahead ask me why.\n11. !doit: JUST DO IT!"+
+             "12. !reverse: To reverse your message``"
+            });
+        }
+
+        if(message.search("!reverse") === 0){
+            var userString = message.slice(8);
+            var newWord = [];
+            for(var i = userString.length; i>0;i--){
+                newWord.push(userString[i-1]);
+            }
+            bot.sendMessage({
+                to: channelID,
+                message: newWord.join("")
+            });
+        }
+
+
+    // for when somone didn't invite someone
+         if(message.toLowerCase().search("no invite") >= 0) {
+            bot.sendMessage({
+                to: channelID,
+                message:"That's cold blooded right there man.",
+                typing: true
+            });
+        }
+
+        if(message.toLowerCase() === "!botinfo"){
+            bot.sendMessage({
+                to: channelID,
+                message: "```\nUsername: "+bot.username+"\nAuthor: Mesmaroth\nWritten in: Javascript\nLibrary: Discord.io by izy521\nAvatar: https://cdn.discordapp.com/avatars/"+bot.id+"/"+bot.avatar+".jpg\nThanks to: izy521, treexxjay, negativereview, yukine.```"
+            })
+        }
+
     }
 
     if(message.toLowerCase() === "!yes") {
@@ -158,7 +198,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
 // --------------------------------------
 
     // check to see if bot is mentioned
-    function mentionedMe(rawEvent) {
+    function mentionedBot(rawEvent) {
         var mentionArr = rawEvent.d.mentions;
         for (var i=0; i<mentionArr.length; i++) {
             if (mentionArr[i].id === bot.id) {
@@ -169,13 +209,14 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     } 
 
     // if bot is mentioned with having FU;
-    if ( mentionedMe(rawEvent) && (message.search("fuck you") > 0 || message.search("FUCK YOU")>0)  ) {
+    
+    if ( mentionedBot(rawEvent) && (message.toLowerCase().search("fuck you") > bot.username.length+2) ) {
         bot.sendMessage({
             to: channelID, 
             message: "<@" + userID + ">"+" Why you mad!",
             typing: true
-        });        
-    }
+        });
+    }        
 
     if ( message.toLowerCase() === "fuck you") {
         bot.sendMessage({
@@ -212,14 +253,6 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
         });
     }
 
-    // for when somone didn't invite someone
-    if(message.toLowerCase() === "no invite?") {
-        bot.sendMessage({
-            to: channelID,
-            message:"That's cold blooded right there man.",
-            typing: true
-        });
-    }
 
     // For when someone says rekt
     if(message.toLowerCase() === "!rekt" || message.toLowerCase() === "rekt") {
@@ -246,11 +279,20 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
             typing: true
         });
     }
+
     if(message.toLowerCase() === "!doit") {
         bot.sendMessage({
             to: channelID,
             message: "https://media.giphy.com/media/TCaq4FekwSV5m/giphy.gif"
         });
     }
+
+    if(message.toLowerCase() === "!who" || message.toLowerCase() === "!cena"){
+        bot.sendMessage({
+            to: channelID,
+            message: "http://cdn.makeagif.com/media/9-13-2015/28JfPx.gif"
+        });
+    }
+   
 
 });
