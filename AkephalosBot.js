@@ -5,23 +5,6 @@ var bot = new DiscordClient({
     autorun: true
 });
 
-bot.on('ready', function(rawEvent) {
-    var getDate = new Date();
-    console.log(bot.username.magenta + " - (" + bot.id.cyan + ")" + " Token: " + "[[" + bot.internals.token.green + "]]");
-    bot.setPresence({game: "Doom"});
-
-    require('fs').writeFileSync('bot.JSON',"Updated at: "+getDate.toDateString()+"\n\n"+JSON.stringify(bot,null,'\t'));
-    console.log("Succesfully written Bot properties at "+"bot.JSON".green);
-
-
-    bot.joinVoiceChannel("134125693104685056");
-});
-
-bot.on('disconnected', function(){
-    console.log("Bot has"+" disconnected ".red + "from the server. \tRetrying...");
-    setInterval(bot.connect(), 15000)
-});
-
 function getDate(){       // month-day-year
     var d = new Date();
     var dHours = (d.getHours()-12).toString();
@@ -29,9 +12,26 @@ function getDate(){       // month-day-year
     return d.toDateString().green+" at "+dHours.green+":"+dMinutes.green;
 }
 
-function consoleMsgDel(user,msgDel){         // outputs any message deletion to console
+function consoleMsgDel(user,msgDel){         // logs any message deletion to console
     return console.log("Deleted "+ (msgDel-1) + " messages for " + user.cyan + " at "+ getDate().green );
 }
+
+bot.on('ready', function(rawEvent) {
+    var getDate = new Date();
+    console.log(bot.username.magenta + " - (" + bot.id.cyan + ")" + " Token: " + "[[" + bot.internals.token.green + "]]");
+    bot.setPresence({game: "Half-Life"});
+
+    require('fs').writeFile('bot.JSON',"Updated at: "+getDate.toDateString()+"\n\n"+JSON.stringify(bot,null,'\t'));
+    console.log("Succesfully written Bot properties at "+"bot.JSON".green);
+
+
+    //bot.joinVoiceChannel("134125693104685056");
+});
+
+bot.on('disconnected', function(){
+    console.log("Bot has"+" disconnected ".red + "from the server. \tRetrying...");
+    setInterval(bot.connect(), 15000)
+});
 
 bot.on('message', function(user, userID, channelID, message, rawEvent) {
 
@@ -67,14 +67,16 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
         if(message.toLowerCase() === "!commands") {
         bot.sendMessage({
             to: channelID,
-             message: "<@" + userID + "> "+ "```Akephalos\nHere are my commands:\n\n1. !botInfo: About me\n"+
+             message: "<@" + userID + "> "+ "```Akephalos\nBot Commands:\n\n1. !botInfo: About me\n"+
              "2. !me: View your information\n"+
              "3. !Sample text: Outputs Sample Text Youtube video.\n"+
              "4. !ping: See ping status\n5. Peace or Goodnight: I will say bye!\n" +
-             "6. No invite?: Results in saying that, that's cold.\n7. !rekt: Display's rekt meme gif.\n" +
+             "6. No invite?: That's just cold.\n7. !rekt: Display's rekt meme gif.\n" +
              "8. 1V1: Bot will fight you.\n9. !Yes: Creepy Jack gif\n"+
              "10. Why?: Go ahead ask me why.\n11. !doit: JUST DO IT!\n"+
-             "12. !reverse: To reverse your message```"
+             "12. !reverse: To reverse your message\n\n"+
+             "Music Commands:\n\n1. !songlist: List songs to play.\n"+
+             "2. !play #: Play a song by there number.\n3. !stop: Stop playing current music.```"
             });
         }
 
@@ -89,19 +91,9 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
                 message: newWord.join("")
             });
         }
+
         // SONGS
-        var songList = [
-        "Vinterkvarteret - Goodbye Horses(Instrumental)",
-        "Bonobo - Pieces - Featuring Cornelia",
-        "U2 - I Still Haven't Found What I'm Looking For",
-        "U2 - With or without you",
-        "Chaos Chaos (formerly Smoosh) - Do You Feel It",
-        "Mazzy Star - Look On Down From The Bridge",
-        "kansas-carry on wayward son",
-        "Coldplay - A Sky Full Of Stars",
-        "Journey - Don't Stop Believin",
-        "Spongebob - Sweetvictory",
-        "Eric Rigo - Back Home"]
+        var songList = require('fs').readdirSync('music/');
 
         // play MUSIC
         bot.getAudioContext({channel: "134125693104685056", stereo: true}, function(stream){
@@ -109,10 +101,10 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
                 var songNum = message.slice(6);               
                 if(typeof Number(songNum) === 'number' && Number(songNum) <= songList.length && Number(songNum) > 0){
                     songNum = Number(songNum);
-                    stream.playAudioFile("music/"+songList[songNum-1]+".mp3");
+                    stream.playAudioFile("music/"+songList[songNum-1]);
                     bot.sendMessage({
                         to: "102910652447752192",
-                        message: "♫Now playing: "+songList[songNum-1]+"♫"
+                        message: "♫Now playing: "+songList[songNum-1]+" ♫"
                     });
                 }
             }
@@ -130,14 +122,16 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
         }
 
         if(message.toLowerCase()==="!songlist"){
-            var listSongs = "";
+            for(var i = 0; i < songList.length; i++){
+                songList[i]=((i+1)+" - "+ songList[i]);
+            }
             bot.sendMessage({
                 to: channelID,
-                message: "```\nSongList\n"+songList.join("\n")+"```"
+                message: "```\nSongList  Use `!play #` command.\n"+songList.join("\n")+"```"
             });
         }
-    // ---------------------------
-    // for when somone didn't invite someone
+
+            // for when somone didn't invite someone
          if(message.toLowerCase().search("no invite") >= 0) {
             bot.sendMessage({
                 to: channelID,
@@ -154,12 +148,39 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
                 "/"+bot.avatar+".jpg\nThanks to: izy521, treexxjay, negativereview, yukine.```"
             })
         }
-        // TEST
-        if(message.search("!test") === 0){
+
+        if (message.search("!delete") === 0 && user === "Mesmaroth") {
+        var messageNum = message.slice(7);
+         bot.getMessages({
+            channel: channelID,
+            limit: (Number(messageNum)+1)       //If 'limit' isn't added, it defaults to 50, the Discord default, 100 is the max.
+        }, function (messageArr) {
+            for(var i = 0; i < messageArr.length; i++){
+                var msgID = messageArr[i].id;
+                bot.deleteMessage({
+                    channel: channelID,
+                    messageID: msgID
+                    });
+                }
+            });
+        }
+
+        if(message === "!getMsg"){
+            bot.getMessages({
+                channel: channelID,
+                limit: 5
+            }, function (messageArr){
+               for(var i in messageArr){
+                console.log(messageArr[i]);
+               }
+            });
+        }
+
+        // TEST: Displays other users status when mentioning them. !check @Bot
+        if(message.search("!check") === 0){
             var mentionsArr = rawEvent.d.mentions;
             if(mentionsArr.length > 0){
                 var usrMentionID = mentionsArr[0].id;
-                console.log(usrMentionID);
                 bot.sendMessage({
                     to: channelID,
                     message: "```\nUser: "+bot.servers["102910652447752192"].members[usrMentionID].user.username+"\nStatus: "+bot.servers["102910652447752192"].members[usrMentionID]["status"]+"\n```"
@@ -167,7 +188,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
             }
         }
 
-    } // --- End of non-msgBot check
+    } // -------------------------End of non-msgBot check
 
     if(message.toLowerCase() === "!yes") {
         bot.sendMessage({
@@ -176,34 +197,12 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
         });
        }
 
-    if ((message.toLowerCase() === "!delete") && user === "Mesmaroth") {
-         bot.getMessages({
-            channel: channelID,
-            limit: 5 //If 'limit' isn't added, it defaults to 50, the Discord default, 100 is the max.
-        }, function(messageArr) {
-            for(var i = 0; i < messageArr.length; i++){
-                var msgID = messageArr[i].id;
-                bot.deleteMessage({
-                    channel: channelID,
-                    messageID: msgID
-                })
-            }
-        });
-    }
-    else if((message.toLowerCase() === "!delete") && user !== "Mesmaroth") {
-        bot.sendMessage({
-            to: channelID,
-            message: "<@" + userID + ">" + " You are not authorized to use this command.",
-            typing: true
-        });
-    }
-
 // Delete Bot messages only.
     if(message.toLowerCase() === "!delmsgbot" && user === "Mesmaroth"){
         bot.getMessages({
             channel: channelID,
             limit: 100
-        }, function(messageArr){
+        }, function (messageArr){
             var msgsDel = 0;
             for(var i = 0; i < messageArr.length; i++) {
                 if(messageArr[i].author.username === bot.username) {
@@ -214,7 +213,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
                     msgsDel+=1;
                 }
             }
-            console.log("Deleted "+msgsDel+" messages for "+bot.username.cyan+" at "+getDate());
+            consoleMsgDel(user,msgDel);
         });
     }
     else if(message.toLowerCase() === "!delmsgbot" && user !== "Mesmaroth"){
@@ -229,7 +228,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
         bot.getMessages({
             channel: channelID,
             limit: 100
-        }, function(messageArr){
+        }, function (messageArr){
             var msgsDel = 0;
             for(var i = 0; i < messageArr.length; i++){
                 if(messageArr[i].author.username === user){
@@ -255,7 +254,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
         bot.getMessages({
             channel: channelID,
             limit: 100
-        }, function(messageArr){
+        }, function (messageArr){
             var msgsDel = 0;
             for(var i = 0; i < messageArr.length; i++){
                 if(messageArr[i].author.username === 'Gun'){
@@ -288,7 +287,6 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
     } 
 
     // if bot is mentioned with having FU;
-    
     if ( mentionedBot(rawEvent) && (message.toLowerCase().search("fuck you") > bot.username.length+2) ) {
         bot.sendMessage({
             to: channelID, 
@@ -370,6 +368,5 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
             message: "http://cdn.makeagif.com/media/9-13-2015/28JfPx.gif"
         });
     }
-   
 
 });
