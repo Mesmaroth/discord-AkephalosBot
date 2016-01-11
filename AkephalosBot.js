@@ -16,23 +16,33 @@ function consoleMsgDel(user,msgDel){         // logs any message deletion to con
     return console.log("Deleted "+ (msgDel-1) + " messages for " + user.cyan + " at "+ getDate().green );
 }
 
+function musicBot(message){
+    var songList = require('fs').readdirSync('music/');
+    bot.getAudioContext({channel: "134125693104685056", stero: true}, function (stream){
+        if(message.search("!play") === 0){
+            var songNum = message.slice(6);
+            stream.playAudioFile('music/'+songList[Number(songNum)-1]);
+        }
+    });
+}
+
 bot.on('ready', function(rawEvent) {
     var getDate = new Date();
     console.log(bot.username.magenta + " - (" + bot.id.cyan + ")" + " Token: " + "[[" + bot.internals.token.green + "]]");
-    bot.setPresence({game: "Half-Life"});
+    bot.setPresence({game: "Starcraft II"});
 
     require('fs').writeFile('bot.JSON',"Updated at: "+getDate.toDateString()+"\n\n"+JSON.stringify(bot,null,'\t'));
     console.log("Succesfully written Bot properties at "+"bot.JSON".green);
 
 
-    //bot.joinVoiceChannel("134125693104685056");
 });
 
 bot.on('disconnected', function(){
-    console.log("Bot has"+" disconnected ".red + "from the server. \tRetrying...");
+    console.log("Bot has"+" disconnected ".red + "from the server  Retrying...");
     setInterval(bot.connect(), 15000)
 });
 
+var isInChannel = false;
 bot.on('message', function(user, userID, channelID, message, rawEvent) {
 
     if(message.toLowerCase()==="!neil"){
@@ -91,43 +101,34 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
                 message: newWord.join("")
             });
         }
-
-        // SONGS
-        var songList = require('fs').readdirSync('music/');
-
-        // play MUSIC
-        bot.getAudioContext({channel: "134125693104685056", stereo: true}, function(stream){
-            if(message.search("!play") === 0){
-                var songNum = message.slice(6);               
-                if(typeof Number(songNum) === 'number' && Number(songNum) <= songList.length && Number(songNum) > 0){
-                    songNum = Number(songNum);
-                    stream.playAudioFile("music/"+songList[songNum-1]);
-                    bot.sendMessage({
-                        to: "102910652447752192",
-                        message: "♫Now playing: "+songList[songNum-1]+" ♫"
-                    });
-                }
-            }
-
-            if(message==="!stop"){
-                stream.stopAudioFile();
-            }
-        });
-
-        if(message==="!leavevc" && user === "Mesmaroth"){
-            bot.leaveVoiceChannel("134125693104685056")
+        // MUSIC
+        if(isInChannel === true){
+            musicBot(message);
         }
-        if(message==="!joinvc" && user === "Mesmaroth"){
+        if(isInChannel === false && message.search("!play") === 0){
+            bot.sendMessage({
+                to: channelID,
+                message: "I am not in the voice channel."
+            })
+        }
+
+        if(message==="!leavevc"){
+            bot.leaveVoiceChannel("134125693104685056")
+            isInChannel = false;
+        }
+        if(message==="!joinvc"){
             bot.joinVoiceChannel("134125693104685056");
+            isInChannel = true;
         }
 
         if(message.toLowerCase()==="!songlist"){
-            for(var i = 0; i < songList.length; i++){
-                songList[i]=((i+1)+" - "+ songList[i]);
+            var listSongs = require('fs').readdirSync('music/');
+            for(var i = 0; i < listSongs.length; i++){
+                listSongs[i]=((i+1)+" - "+ listSongs[i]);
             }
             bot.sendMessage({
                 to: channelID,
-                message: "```\nSongList  Use `!play #` command.\n"+songList.join("\n")+"```"
+                message: "```\nSongList  Use `!play #` command.\n"+listSongs.join("\n")+"```"
             });
         }
 
