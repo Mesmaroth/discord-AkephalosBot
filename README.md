@@ -1,5 +1,7 @@
 # Discord-AkephalosBot (Node.js)
 
-Library: Discord.io
+A simple bot written in JavaScript for [Discord](http://www.discord.gg)
 
-A simple bot written in Java Script for [Discord](http://www.discord.gg)
+Library: [Discord.io](https://github.com/izy521/discord.io)
+### Requires: 
+ - Colors module: `npm install colors`
