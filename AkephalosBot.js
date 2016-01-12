@@ -34,7 +34,7 @@ function musicBot(message){
 bot.on('ready', function(rawEvent) {
     var getDate = new Date();
     console.log(bot.username.magenta + " - (" + bot.id.cyan + ")" + " Token: " + "[[" + bot.internals.token.green + "]]");
-    bot.setPresence({game: "Starcraft II"});
+    bot.setPresence({game: "Half-Life"});
 
     require('fs').writeFile('bot.JSON',"Updated at: "+getDate.toDateString()+"\n\n"+JSON.stringify(bot,null,'\t'));
     console.log("Succesfully written Bot properties at "+"bot.JSON".green);
