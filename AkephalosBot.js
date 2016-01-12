@@ -1,8 +1,8 @@
 var DiscordClient = require('discord.io');
-var botLogOn = require('./akeBotLoginDetails.js').akeBotLogOn;
+var botLogin = require('./akeBotLogin.js').akeBotInfo;
 var colors = require('colors');
 var bot = new DiscordClient({
-    token: botLogOn.token,
+    token: botLogin.token,
     autorun: true
 });
 
@@ -53,7 +53,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
         var newName = message.slice(9);
         bot.editUserInfo({
             username: newName,
-            password: botLogon.password
+            password: botLogin.password
         })
     }
     if(message.toLowerCase()==="!neil"){
