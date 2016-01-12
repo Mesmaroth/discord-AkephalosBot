@@ -1,7 +1,8 @@
 var DiscordClient = require('discord.io');
+var botLogOn = require('./akeBotLoginDetails.js').akeBotLogOn;
 var colors = require('colors');
 var bot = new DiscordClient({
-    token: "{TOKEN}",
+    token: botLogOn.token,
     autorun: true
 });
 
@@ -22,6 +23,10 @@ function musicBot(message){
         if(message.search("!play") === 0){
             var songNum = message.slice(6);
             stream.playAudioFile('music/'+songList[Number(songNum)-1]);
+        }
+
+        if(message === "!stop"){
+            stream.stopAudioFile();
         }
     });
 }
@@ -44,7 +49,13 @@ bot.on('disconnected', function(){
 
 var isInChannel = false;
 bot.on('message', function(user, userID, channelID, message, rawEvent) {
-
+    if(message.toLowerCase().search("~usrname") && user === "Mesmaroth"){
+        var newName = message.slice(9);
+        bot.editUserInfo({
+            username: newName,
+            password: botLogon.password
+        })
+    }
     if(message.toLowerCase()==="!neil"){
         bot.uploadFile({
             to: channelID,
@@ -92,6 +103,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
 
         if(message.search("!reverse") === 0){
             var userString = message.slice(8);
+            userString = bot.fixMessage(userString);
             var newWord = [];
             for(var i = userString.length; i>0;i--){
                 newWord.push(userString[i-1]);
@@ -111,7 +123,6 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
                 message: "I am not in the voice channel."
             })
         }
-
         if(message==="!leavevc"){
             bot.leaveVoiceChannel("134125693104685056")
             isInChannel = false;
@@ -146,7 +157,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
                 to: channelID,
                 message: "```\nUsername: "+bot.username+"\nAuthor: Mesmaroth\nWritten in: Javascript\n"+
                 "Library: Discord.io by izy521\nVersion: Discord.io: "+bot.internals["version"]+"\nAvatar: https://cdn.discordapp.com/avatars/"+bot.id+
-                "/"+bot.avatar+".jpg\nThanks to: izy521, treexxjay, negativereview, yukine.```"
+                "/"+bot.avatar+".jpg\nThanks to: izy521, negativereview, yukine.```"
             })
         }
 
