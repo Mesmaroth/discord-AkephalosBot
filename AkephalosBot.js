@@ -6,15 +6,15 @@ var bot = new DiscordClient({
     autorun: true
 });
 
-function getDate(){       // month-day-year
+function botGetDate(){       // month-day-year
     var d = new Date();
-    var dHours = (d.getHours()-12).toString();
+    var dHours = ((d.getHours() < 12) ? d.getHours().toString() : (d.getHours()-12).toString());
     var dMinutes = (d.getMinutes()<10) ? "0"+d.getMinutes().toString() : d.getMinutes().toString();
     return d.toDateString().green+" at "+dHours.green+":"+dMinutes.green;
 }
 
 function consoleMsgDel(user,msgDel){         // logs any message deletion to console
-    return console.log("Deleted "+ (msgDel-1) + " messages for " + user.cyan + " at "+ getDate().green );
+    return console.log("Deleted "+ (msgDel-1) + " messages for " + user.cyan + " at "+ botGetDate().green );
 }
 
 function musicBot(message){
@@ -49,13 +49,6 @@ bot.on('disconnected', function(){
 
 var isInChannel = false;
 bot.on('message', function(user, userID, channelID, message, rawEvent) {
-    if(message.toLowerCase().search("~usrname") && user === "Mesmaroth"){
-        var newName = message.slice(9);
-        bot.editUserInfo({
-            username: newName,
-            password: botLogin.password
-        })
-    }
     if(message.toLowerCase()==="!neil"){
         bot.uploadFile({
             to: channelID,
@@ -98,6 +91,21 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
              "12. !reverse: To reverse your message\n\n"+
              "Music Commands:\n\n1. !songlist: List songs to play.\n"+
              "2. !play #: Play a song by there number.\n3. !stop: Stop playing current music.```"
+            });
+        }
+
+        if(message.toLowerCase().search("~usrname") == 0 && user === "Mesmaroth"){
+            var newName = message.slice(9);
+            console.log("Changed name at: "+ botGetDate());
+            bot.editUserInfo({
+                username: newName,
+                password: botLogin.password
+            });
+        }
+        else if (message.toLowerCase().search("~usrname") == 0 && user !== "Mesmaroth") {
+            bot.sendMessage({
+                to: channelID,
+                message: "You are not allowed to do that."
             });
         }
 
