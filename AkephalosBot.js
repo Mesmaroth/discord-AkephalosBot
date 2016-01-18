@@ -13,6 +13,41 @@ function botGetDate(){       // month-day-year
     return d.toDateString().green+" at "+dHours.green+":"+dMinutes.green;
 }
 
+bot.on('ready', function (rawEvent) {
+    var getDate = new Date();
+    console.log(bot.username.magenta + " - (" + bot.id.cyan + ")" + " Token: " + "[[" + bot.internals.token.green + "]]");
+    bot.setPresence({game: "Half-Life"});
+    require('fs').writeFile('bot.JSON',"Updated at: "+getDate.toDateString()+"\n\n"+JSON.stringify(bot,null,'\t'));
+});
+
+bot.on('disconnected', function(){
+    console.log("Bot has "+"disconnected".red + " from the server  Retrying...");
+    setInterval(bot.connect(), 15000)
+});
+
+function getMorning (){
+    var d = new Date();
+    if (d.getHours() < 12 && d.getHours() >=8){
+        return true;
+    }
+    return false;
+}
+
+var setMorning = false;
+bot.on('presence', function (user, userID, status, gameName, rawEvent){
+    if(setMorning === false && getMorning() === true && status === 'online' && user === "xTris10x"){
+        bot.sendMessage({
+            to: "102910652447752192",
+            message: "<@"+userID+">"+" morning. https://media.giphy.com/media/Xs9JV74p71qQU/giphy.gif"
+        });
+        setMorning = true;
+    }
+
+    if(status === 'online' && getMorning() === false){  // Reset morning 
+        setMorning = false;
+    }
+});
+
 function consoleMsgDel(user,msgDel){         // logs any message deletion to console
     return console.log("Deleted "+ (msgDel-1) + " messages for " + user.cyan + " at "+ botGetDate().green );
 }
@@ -24,38 +59,14 @@ function musicBot(message){
             var songNum = message.slice(6);
             stream.playAudioFile('music/'+songList[Number(songNum)-1]);
         }
-
         if(message === "!stop"){
             stream.stopAudioFile();
         }
     });
 }
 
-bot.on('ready', function(rawEvent) {
-    var getDate = new Date();
-    console.log(bot.username.magenta + " - (" + bot.id.cyan + ")" + " Token: " + "[[" + bot.internals.token.green + "]]");
-    bot.setPresence({game: "Half-Life"});
-
-    require('fs').writeFile('bot.JSON',"Updated at: "+getDate.toDateString()+"\n\n"+JSON.stringify(bot,null,'\t'));
-    console.log("Succesfully written Bot properties at "+"bot.JSON".green);
-
-
-});
-
-bot.on('disconnected', function(){
-    console.log("Bot has"+" disconnected ".red + "from the server  Retrying...");
-    setInterval(bot.connect(), 15000)
-});
-
-var isInChannel = false;
-bot.on('message', function(user, userID, channelID, message, rawEvent) {
-    if(message.toLowerCase()==="!neil"){
-        bot.uploadFile({
-            to: channelID,
-            file: require('fs').createReadStream("pictures/1Neil.png")
-            });
-    }
-
+var isInVChannel = false; // voice channel bool for music bot
+bot.on('message', function (user, userID, channelID, message, rawEvent) {
     if(message.toLowerCase() === "!me"){            // Displays your information to the person that called it.
         bot.sendMessage({
             to: channelID,
@@ -73,7 +84,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
 
         bot.sendMessage({
             to: channelID,
-            message: "```" + listMembers + "```"
+            message: "\n**Members:**\n```" + listMembers.join("\n") + "```"
             });
     }
     // ------------------------------------------- 
@@ -88,7 +99,8 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
              "6. No invite?: That's just cold.\n7. !rekt: Display's rekt meme gif.\n" +
              "8. 1V1: Bot will fight you.\n9. !Yes: Creepy Jack gif\n"+
              "10. Why?: Go ahead ask me why.\n11. !doit: JUST DO IT!\n"+
-             "12. !reverse: To reverse your message\n\n"+
+             "12. !reverse: To reverse your message"+
+             "13. !listmembers: See all members\n\n"+
              "Music Commands:\n\n1. !songlist: List songs to play.\n"+
              "2. !play #: Play a song by there number.\n3. !stop: Stop playing current music.```"
             });
@@ -96,7 +108,7 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
 
         if(message.toLowerCase().search("~usrname") == 0 && user === "Mesmaroth"){
             var newName = message.slice(9);
-            console.log("Changed name at: "+ botGetDate());
+            console.log("Changed name at: "+ botGetDate() + " to " + newName.cyan);
             bot.editUserInfo({
                 username: newName,
                 password: botLogin.password
@@ -122,10 +134,10 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
             });
         }
         // MUSIC
-        if(isInChannel === true){
+        if(isInVChannel === true){
             musicBot(message);
         }
-        if(isInChannel === false && message.search("!play") === 0){
+        if(isInVChannel === false && message.search("!play") === 0){
             bot.sendMessage({
                 to: channelID,
                 message: "I am not in the voice channel."
@@ -133,16 +145,17 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
         }
         if(message==="!leavevc"){
             bot.leaveVoiceChannel("134125693104685056")
-            isInChannel = false;
+            isInVChannel = false;
         }
         if(message==="!joinvc"){
             bot.joinVoiceChannel("134125693104685056");
-            isInChannel = true;
+            isInVChannel = true;
         }
 
         if(message.toLowerCase()==="!songlist"){
             var listSongs = require('fs').readdirSync('music/');
-            for(var i = 0; i < listSongs.length; i++){
+            var listSize = listSongs.length;
+            for(var i = 0; i < listSize; i++){
                 listSongs[i]=((i+1)+" - "+ listSongs[i]);
             }
             bot.sendMessage({
@@ -175,7 +188,8 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
             channel: channelID,
             limit: (Number(messageNum)+1)       //If 'limit' isn't added, it defaults to 50, the Discord default, 100 is the max.
         }, function (messageArr) {
-            for(var i = 0; i < messageArr.length; i++){
+            var arrSize = messageArr.length;
+            for(var i = 0; i < arrSize; i++){
                 var msgID = messageArr[i].id;
                 bot.deleteMessage({
                     channel: channelID,
@@ -208,6 +222,16 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
             }
         }
 
+        // For when someone says !1v1
+        if (message.toLowerCase().search("1v1") >= 0) {
+            var listMsgs = ["My nigga! Let's go then bitch!!", " nah you scared...", " you don't want that."]
+            var msg = listMsgs[Math.floor(Math.random()*listMsgs.length)];
+            bot.sendMessage({
+                to: channelID,
+                message: "<@" + userID + ">" + " " + msg,
+                typing: true
+            });
+        }
     } // -------------------------End of non-msgBot check
 
     if(message.toLowerCase() === "!yes") {
@@ -322,6 +346,13 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
         });
     }
 
+    if(message.toLowerCase()==="!neil"){
+        bot.uploadFile({
+            to: channelID,
+            file: require('fs').createReadStream("pictures/1Neil.png")
+            });
+    }
+
     //sample text
     if(message.toLowerCase() === "!sample text" || message.toLowerCase() === "!sp") {
         bot.sendMessage({
@@ -354,15 +385,6 @@ bot.on('message', function(user, userID, channelID, message, rawEvent) {
         bot.sendMessage({
             to: channelID,
             message: "https://giphy.com/gifs/rekt-vSR0fhtT5A9by"
-        });
-    }
-
-    // For when someone says !1v1
-    if (message.toLowerCase()=== "1v1" || message.toLowerCase() === "!1v1") {
-        bot.sendMessage({
-            to: channelID,
-            message: "<@" + userID + ">"+" My nigga! Let's go then bitch!!",
-            typing: true
         });
     }
 
