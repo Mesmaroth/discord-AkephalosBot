@@ -12,12 +12,13 @@ function botGetDate(){       // month-day-year
     var dMinutes = (d.getMinutes()<10) ? "0"+d.getMinutes().toString() : d.getMinutes().toString();
     return d.toDateString().green+" at "+dHours.green+":"+dMinutes.green;
 }
-
+var gameList = ["Half-Life", "Portal", "World of Warcraft", "DayZ", "Smite"];
 bot.on('ready', function (rawEvent) {
     var getDate = new Date();
+    console.log("Discord.io - Version: "+ bot.internals.version.green);
     console.log(bot.username.magenta + " - (" + bot.id.cyan + ")" + " Token: " + "[[" + bot.internals.token.green + "]]");
-    bot.setPresence({game: "Half-Life"});
-    require('fs').writeFile('bot.JSON',"Updated at: "+getDate.toDateString()+"\n\n"+JSON.stringify(bot,null,'\t'));
+    bot.setPresence({game: gameList[Math.floor(Math.random()*gameList.length)]});
+    //require('fs').writeFileSync('bot.JSON',"Updated at: "+getDate.toDateString()+"\n\n"+JSON.stringify(bot,null,'\t'));
 });
 
 bot.on('disconnected', function(){
@@ -34,6 +35,7 @@ function getMorning (){
 }
 
 var setMorning = false;
+
 bot.on('presence', function (user, userID, status, gameName, rawEvent){
     if(setMorning === false && getMorning() === true && status === 'online' && user === "xTris10x"){
         bot.sendMessage({
@@ -52,21 +54,28 @@ function consoleMsgDel(user,msgDel){         // logs any message deletion to con
     return console.log("Deleted "+ (msgDel-1) + " messages for " + user.cyan + " at "+ botGetDate().green );
 }
 
-function musicBot(message){
-    var songList = require('fs').readdirSync('music/');
-    bot.getAudioContext({channel: "134125693104685056", stero: true}, function (stream){
-        if(message.search("!play") === 0){
-            var songNum = message.slice(6);
-            stream.playAudioFile('music/'+songList[Number(songNum)-1]);
-        }
-        if(message === "!stop"){
+var mBot = {
+    vChannel: "",
+    playSong: function (message){
+        var songList = require('fs').readdirSync('music/')
+        bot.getAudioContext({channel: this.vChannel, stero: true}, function(stream){
             stream.stopAudioFile();
-        }
-    });
+            var songNum = Number(message.slice(6));
+            stream.playAudioFile('music/' + songList[songNum-1] );
+            this.isPlaying = true;
+        });
+    },
+    stopSong: function (){
+        bot.getAudioContext({channel: this.vChannel, stero: true}, function(stream){
+            stream.stopAudioFile();
+        });
+    }
 }
 
 var isInVChannel = false; // voice channel bool for music bot
+
 bot.on('message', function (user, userID, channelID, message, rawEvent) {
+    var songList = require('fs').readdirSync('music/');
     if(message.toLowerCase() === "!me"){            // Displays your information to the person that called it.
         bot.sendMessage({
             to: channelID,
@@ -134,29 +143,34 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
             });
         }
         // MUSIC
-        if(isInVChannel === true){
-            musicBot(message);
+            if(message.toLowerCase().search("!play") === 0){
+            mBot.playSong(message);
         }
-        if(isInVChannel === false && message.search("!play") === 0){
-            bot.sendMessage({
-                to: channelID,
-                message: "I am not in the voice channel."
-            })
+        if(message.toLowerCase()==="!joinvc"){
+          mBot.vChannel = "102910652766519296"
+          bot.joinVoiceChannel(mBot.vChannel);
+          isInVChannel = true;
         }
-        if(message==="!leavevc"){
-            bot.leaveVoiceChannel("134125693104685056")
-            isInVChannel = false;
-        }
-        if(message==="!joinvc"){
-            bot.joinVoiceChannel("134125693104685056");
+
+        if(message.toLowerCase() === "!vc"){
+            mBot.vChannel = "134125693104685056"  // Test channel
+            bot.joinVoiceChannel(mBot.vChannel);
             isInVChannel = true;
         }
 
-        if(message.toLowerCase()==="!songlist"){
+        if(message.toLowerCase() === "!stop"){
+            mBot.stopSong();
+        }
+
+        if(message.toLowerCase()==="!leavevc" || message.toLowerCase()==="!lvc"){
+            bot.leaveVoiceChannel(mBot.vChannel)
+        }
+
+        if(message.toLowerCase()==="!songlist" || message.toLowerCase() === "!listsongs" || message.toLowerCase() === "!songs"){
             var listSongs = require('fs').readdirSync('music/');
             var listSize = listSongs.length;
             for(var i = 0; i < listSize; i++){
-                listSongs[i]=((i+1)+" - "+ listSongs[i]);
+                listSongs[i]=(i+1)+" - "+ listSongs[i];
             }
             bot.sendMessage({
                 to: channelID,
@@ -187,7 +201,8 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
          bot.getMessages({
             channel: channelID,
             limit: (Number(messageNum)+1)       //If 'limit' isn't added, it defaults to 50, the Discord default, 100 is the max.
-        }, function (messageArr) {
+        }, function (error, messageArr) {            
+            if(error) return console.log(error);
             var arrSize = messageArr.length;
             for(var i = 0; i < arrSize; i++){
                 var msgID = messageArr[i].id;
@@ -199,14 +214,15 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
             });
         }
 
-        if(message === "!getMsg"){
+        if (message == "!getMsgs"){
             bot.getMessages({
                 channel: channelID,
-                limit: 5
-            }, function (messageArr){
-               for(var i in messageArr){
-                console.log(messageArr[i]);
-               }
+                limit: 50
+            }, function (error, messageArr){
+                if (error) return console.log(error);
+                console.log(messageArr);
+                console.log(typeof messageArr);
+                console.log(messageArr.length)
             });
         }
 
@@ -246,7 +262,8 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         bot.getMessages({
             channel: channelID,
             limit: 100
-        }, function (messageArr){
+        }, function (error, messageArr){
+            if(error) return console.log(error);
             var msgsDel = 0;
             for(var i = 0; i < messageArr.length; i++) {
                 if(messageArr[i].author.username === bot.username) {
@@ -272,7 +289,8 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         bot.getMessages({
             channel: channelID,
             limit: 100
-        }, function (messageArr){
+        }, function (error, messageArr){
+            if (error) return console.log(error);
             var msgsDel = 0;
             for(var i = 0; i < messageArr.length; i++){
                 if(messageArr[i].author.username === user){
@@ -298,7 +316,8 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         bot.getMessages({
             channel: channelID,
             limit: 100
-        }, function (messageArr){
+        }, function (error, messageArr){
+            if(error) return console.log(error);
             var msgsDel = 0;
             for(var i = 0; i < messageArr.length; i++){
                 if(messageArr[i].author.username === 'Gun'){
@@ -350,6 +369,12 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         bot.uploadFile({
             to: channelID,
             file: require('fs').createReadStream("pictures/1Neil.png")
+            }, function (error, response){
+                if(error) return console.log(error);
+                bot.sendMessage({
+                    to: channelID,
+                    message: response
+                });
             });
     }
 
@@ -392,8 +417,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
     if (message.toLowerCase() === "why?") {
         bot.sendMessage({
             to: channelID,
-            message: "<@" + userID + ">" + " Because fuck you! That's why!",
-            typing: true
+            message: "<@" + userID + ">" + " Because fuck you! That's why!"
         });
     }
 
