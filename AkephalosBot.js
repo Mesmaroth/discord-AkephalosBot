@@ -6,12 +6,28 @@ var bot = new DiscordClient({
     autorun: true
 });
 
-function botGetDate(){       // month-day-year
+function printDateTime(){       // month-day-year time for CLI
     var d = new Date();
     var dHours = ((d.getHours() < 12) ? d.getHours().toString() : (d.getHours()-12).toString());
     var dMinutes = (d.getMinutes()<10) ? "0"+d.getMinutes().toString() : d.getMinutes().toString();
     return d.toDateString().green+" at "+dHours.green+":"+dMinutes.green;
 }
+
+function botGetDate(){
+    var d = new Date();
+    return d.toDateString();
+}
+
+function botGetTime(){
+    var d = new Date();
+    var dHours = d.getHours().toString();
+    var dMinutes = (d.getMinutes()<10) ? "0"+d.getMinutes().toString() : d.getMinutes().toString();
+    if(dHours < 12)
+        return dHours + ":" + dMinutes + " AM";
+    else if (dHours > 12)
+        return (dHours-12) + ":" + dMinutes + " PM";
+}
+
 var gameList = ["Half-Life", "Portal", "World of Warcraft", "DayZ", "Smite"];
 bot.on('ready', function (rawEvent) {
     var getDate = new Date();
@@ -51,18 +67,22 @@ bot.on('presence', function (user, userID, status, gameName, rawEvent){
 });
 
 function consoleMsgDel(user,msgDel){         // logs any message deletion to console
-    return console.log("Deleted "+ (msgDel-1) + " messages for " + user.cyan + " at "+ botGetDate().green );
+    return console.log("Deleted "+ (msgDel-1) + " messages for " + user.cyan + " at "+ getDateConsole().green );
 }
 
 var mBot = {
     vChannel: "",
-    playSong: function (message){
+    playSong: function (message, user){
         var songList = require('fs').readdirSync('music/')
         bot.getAudioContext({channel: this.vChannel, stero: true}, function(stream){
-            stream.stopAudioFile();
+            //stream.stopAudioFile();
             var songNum = Number(message.slice(6));
             stream.playAudioFile('music/' + songList[songNum-1] );
             this.isPlaying = true;
+            bot.sendMessage({
+                to: "148891779364683776",
+                message: "**"+user+"**" + " requested:  " + "*"+songList[songNum-1]+"*"
+            });
         });
     },
     stopSong: function (){
@@ -109,7 +129,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
              "8. 1V1: Bot will fight you.\n9. !Yes: Creepy Jack gif\n"+
              "10. Why?: Go ahead ask me why.\n11. !doit: JUST DO IT!\n"+
              "12. !reverse: To reverse your message"+
-             "13. !listmembers: See all members\n\n"+
+             "13. !listmembers: See all members\n 14. !date: Show date\n15. !time: Show time\n\n"+
              "Music Commands:\n\n1. !songlist: List songs to play.\n"+
              "2. !play #: Play a song by there number.\n3. !stop: Stop playing current music.```"
             });
@@ -117,7 +137,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 
         if(message.toLowerCase().search("~usrname") == 0 && user === "Mesmaroth"){
             var newName = message.slice(9);
-            console.log("Changed name at: "+ botGetDate() + " to " + newName.cyan);
+            console.log("Changed name at: "+ consoleMsgDel() + " to " + newName.cyan);
             bot.editUserInfo({
                 username: newName,
                 password: botLogin.password
@@ -143,9 +163,10 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
             });
         }
         // MUSIC
-            if(message.toLowerCase().search("!play") === 0){
-            mBot.playSong(message);
+        if(message.toLowerCase().search("!play") === 0){
+            mBot.playSong(message, user);
         }
+
         if(message.toLowerCase()==="!joinvc"){
           mBot.vChannel = "102910652766519296"
           bot.joinVoiceChannel(mBot.vChannel);
@@ -239,7 +260,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         }
 
         // For when someone says !1v1
-        if (message.toLowerCase().search("1v1") >= 0) {
+        if (message.toLowerCase() === "1v1") {
             var listMsgs = ["My nigga! Let's go then bitch!!", " nah you scared...", " you don't want that."]
             var msg = listMsgs[Math.floor(Math.random()*listMsgs.length)];
             bot.sendMessage({
@@ -248,6 +269,21 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
                 typing: true
             });
         }
+
+        if(message.toLowerCase() === "!date"){
+            bot.sendMessage({
+                to: channelID,
+                message: botGetDate()
+            });
+        }
+
+        if(message.toLowerCase() === "!time"){
+            bot.sendMessage({
+                to: channelID,
+                message: botGetTime()
+            });
+        }
+
     } // -------------------------End of non-msgBot check
 
     if(message.toLowerCase() === "!yes") {
@@ -369,12 +405,6 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         bot.uploadFile({
             to: channelID,
             file: require('fs').createReadStream("pictures/1Neil.png")
-            }, function (error, response){
-                if(error) return console.log(error);
-                bot.sendMessage({
-                    to: channelID,
-                    message: response
-                });
             });
     }
 
