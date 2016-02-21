@@ -70,19 +70,22 @@ function consoleMsgDel(user,msgDel){         // logs any message deletion to con
     return console.log("Deleted "+ (msgDel-1) + " messages for " + user.cyan + " at "+ getDateConsole().green );
 }
 
+function botLogChan(msg){       // Sends all feedback to the bot feedback channel
+    bot.sendMessage({
+        to: "148891779364683776",
+        message: botGetTime()+ " " + msg
+    });
+}
+
 var mBot = {
     vChannel: "",
-    playSong: function (message, user){
+    playSong: function (user, songNum){
         var songList = require('fs').readdirSync('music/')
         bot.getAudioContext({channel: this.vChannel, stero: true}, function(stream){
             //stream.stopAudioFile();
-            var songNum = Number(message.slice(6));
             stream.playAudioFile('music/' + songList[songNum-1] );
             this.isPlaying = true;
-            bot.sendMessage({
-                to: "148891779364683776",
-                message: "**"+user+"**" + " requested:  " + "*"+songList[songNum-1]+"*"
-            });
+            botLogChan("**"+user+"**" + " requested:  " + "*"+songList[songNum-1]+"*");
         });
     },
     stopSong: function (){
@@ -110,7 +113,6 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         for(var i in bot.servers["102910652447752192"].members){
             listMembers.push(bot.servers["102910652447752192"].members[i].user.username);
            }
-
         bot.sendMessage({
             to: channelID,
             message: "\n**Members:**\n```" + listMembers.join("\n") + "```"
@@ -129,25 +131,33 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
              "8. 1V1: Bot will fight you.\n9. !Yes: Creepy Jack gif\n"+
              "10. Why?: Go ahead ask me why.\n11. !doit: JUST DO IT!\n"+
              "12. !reverse: To reverse your message"+
-             "13. !listmembers: See all members\n 14. !date: Show date\n15. !time: Show time\n\n"+
+             "13. !listmembers: See all members\n 14. !date: Show date\n15. !time: Show time\n16.!noscoped: Get noscoped!\n\n"+
              "Music Commands:\n\n1. !songlist: List songs to play.\n"+
              "2. !play #: Play a song by there number.\n3. !stop: Stop playing current music.```"
             });
         }
 
+        if(message.toLowerCase().search("!say") === 0 && user==="Mesmaroth"){
+            var newMsg = message.slice(5);
+            bot.sendMessage({
+                to: "102910652447752192",
+                message: newMsg
+            });
+        }
+        else if (message.toLowerCase().search("!say") === 0 && user!=="Mesmaroth"){
+            botLogChan("**"+user+"**"+" attempted an unauthorized command.");
+        }
+
         if(message.toLowerCase().search("~usrname") == 0 && user === "Mesmaroth"){
             var newName = message.slice(9);
-            console.log("Changed name at: "+ consoleMsgDel() + " to " + newName.cyan);
             bot.editUserInfo({
                 username: newName,
                 password: botLogin.password
             });
+            console.log(botGetTime()+" Changed name to: " + newName.green);
         }
         else if (message.toLowerCase().search("~usrname") == 0 && user !== "Mesmaroth") {
-            bot.sendMessage({
-                to: channelID,
-                message: "You are not allowed to do that."
-            });
+            botLogChan("**"+user+"**"+" attempted an unauthorized command.");
         }
 
         if(message.search("!reverse") === 0){
@@ -164,11 +174,18 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         }
         // MUSIC
         if(message.toLowerCase().search("!play") === 0){
-            mBot.playSong(message, user);
+            var songNum = Number(message.slice(6));
+            if(isNaN(songNum) || songNum === ""){
+                bot.sendMessage({
+                    to: channelID,
+                    message: "No such number exist, try again."
+                })
+            }
+            else mBot.playSong(user, songNum);
         }
 
         if(message.toLowerCase()==="!joinvc"){
-          mBot.vChannel = "102910652766519296"
+          mBot.vChannel = "127269564235907072"
           bot.joinVoiceChannel(mBot.vChannel);
           isInVChannel = true;
         }
@@ -199,6 +216,28 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
             });
         }
 
+        if(message.toLowerCase()=== "!noscope" || message.toLowerCase() === "!noscoped"){
+            botLogChan("**"+user+"**"+ " has no scoped someone.");
+            bot.joinVoiceChannel("102910652766519296", function (){
+                bot.getAudioContext({ channel: "102910652766519296", stereo: true}, function (stream){
+                stream.playAudioFile('sounds/GetNoScoped.mp3');
+                stream.once('fileEnd', function(){
+                    bot.leaveVoiceChannel("102910652766519296");
+                    })
+                });
+            });            
+        }
+
+        if(message.toLowerCase()=== "!damnson"){
+            bot.joinVoiceChannel("102910652766519296", function (){
+                bot.getAudioContext({ channel: "102910652766519296", stereo: true}, function (stream){
+                stream.playAudioFile('sounds/DamnSon.mp3');
+                stream.once('fileEnd', function(){
+                    bot.leaveVoiceChannel("102910652766519296");
+                    })
+                });
+            });            
+        }
             // for when somone didn't invite someone
          if(message.toLowerCase().search("no invite") >= 0) {
             bot.sendMessage({
@@ -233,6 +272,9 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
                     });
                 }
             });
+        }
+        else if(message.search("!delete") === 0 && user !== "Mesmaroth"){
+            botLogChan("**"+user+"**"+" attempted an unauthorized command.");
         }
 
         if (message == "!getMsgs"){
@@ -314,10 +356,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         });
     }
     else if(message.toLowerCase() === "!delmsgbot" && user !== "Mesmaroth"){
-        bot.sendMessage({
-            to: channelID,
-            message: "You are not authorized to do that."
-        });
+        botLogChan("**" + user + "**" + "attempted an unauthorized account.");
     }
 
     // Delete Mesmaroth messages only
@@ -341,10 +380,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         });
     }
     else if(message.toLowerCase() === "!delmsgmes" && user !== "Mesmaroth"){
-        bot.sendMessage({
-            to: channelID,
-            message: "<@"+userID + ">" + "You are not authorized to do that."
-        });
+       botLogChan("**" + user + "**" + "attempted an unauthorized account.");
     }
 
 // Delete gun messages only
@@ -368,10 +404,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         });
     }
     else if(message.toLowerCase() === "$sudo rm gun -r" && user !== "Gun") {
-        bot.sendMessage({
-            to: channelID,
-            message: "<@"+userID + ">" + "You are not authorized to do that."
-        });
+        botLogChan("**" + user + "**" + "attempted an unauthorized account.");
     }
 
     // check to see if bot is mentioned
