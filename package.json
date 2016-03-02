@@ -1,0 +1,20 @@
+{
+  "name": "Discord-AkephalosBot",
+  "version": "1.0.0",
+  "description": "A simple bot written in JavaScript for [Discord](http://www.discord.gg)",
+  "main": "akeBotLogin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mesmaroth/Discord-AkephalosBot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mesmaroth/Discord-AkephalosBot/issues"
+  },
+  "homepage": "https://github.com/Mesmaroth/Discord-AkephalosBot#readme"
+}

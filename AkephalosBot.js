@@ -1,6 +1,6 @@
 var DiscordClient = require('discord.io');
-var botLogin = require('./akeBotLogin.js').akeBotInfo;
 var colors = require('colors');
+var botLogin = require('./botLogin.js').akeBotInfo;
 var bot = new DiscordClient({
     token: botLogin.token,
     autorun: true
