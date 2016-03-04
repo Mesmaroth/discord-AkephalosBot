@@ -5,10 +5,19 @@ var bot = new DiscordClient({
     token: botLogin.token,
     autorun: true
 });
-
 var gameList = ["Half-Life", "Portal", "World of Warcraft", "DayZ", "Smite"];
 var setMorning = false;
 var isInVChannel = false; // voice channel bool for music bot
+// ------
+var twitchClient = require("node-twitchtv");
+var account = ("twitch-test/account.json");
+var twitch = new twitchClient(account);
+
+var botSounds = ["sounds/getNoScoped.mp3", "sounds/DamnSon.mp3",
+        "sounds/WhyUMad.mp3", "sounds/SupaHotFire.mp3",
+        "sounds/WomboCombo.mp3", "sounds/ThatKilledHim.mp3",
+        "sounds/GetTheCamera.mp3", "sounds/Nice.mp3",
+        "sounds/JohnCena.mp3", "sounds/Wow.mp3", "sounds/HitMarker.mp3"];
 
 function printDateTime(){       // month-day-year time for CLI
     var d = new Date();
@@ -48,6 +57,18 @@ function botLogChan(msg){       // Sends all feedback to the bot feedback channe
     });
 }
 
+function playSound(songNum) {
+    var channelID = "102910652766519296"
+    bot.joinVoiceChannel(channelID, function(){
+        bot.getAudioContext({channel: channelID, stereo: true }, function(stream){
+            stream.playAudioFile(botSounds[songNum]);
+            stream.once('fileEnd', function(){
+                bot.leaveVoiceChannel(channelID);
+            });
+        });        
+    });
+}
+
 bot.on('ready', function (rawEvent) {
     var getDate = new Date();
     console.log("Discord.io - Version: "+ bot.internals.version.green);
@@ -61,12 +82,27 @@ bot.on('disconnected', function(){
     setInterval(bot.connect(), 15000)
 });
 
-bot.on('presence', function (user, userID, status, gameName, rawEvent){
-    // ---- 
-});
-
 bot.on('message', function (user, userID, channelID, message, rawEvent) {
-    
+
+    if(message.toLowerCase().search("!twitch") === 0){
+        var searchUser = message.slice(8);        
+        twitch.streams({channel: searchUser}, function (err, user) {
+            console.log(user);
+            if(user.stream != null){
+                bot.sendMessage({
+                    to: channelID,
+                    message: "User **" + searchUser + "** is `Online`\n" + user.stream.channel.url
+                });
+            }
+            else if(user.stream === null) {
+                bot.sendMessage({
+                    to: channelID,
+                    message: "User is offline"
+                });
+            }
+        });
+    }
+
     if(message.toLowerCase().search("!setgame") === 0){
         var msg = message.slice(9);
         setPresence(msg);
@@ -103,7 +139,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
              "6. No invite?: That's just cold.\n7. !rekt: Display's rekt meme gif.\n" +
              "8. 1V1: Bot will fight you.\n9. !Yes: Creepy Jack gif\n"+
              "10. !doit: JUST DO IT!\n11. !reverse: To reverse your message\n"+
-             "12. !listmembers: See all members\n13. !date: Show date\n14. !time: Show time\n16. !noscoped: Get noscoped!\n\n"+
+             "12. !listmembers: See all members\n13. !date: Show date\n14. !time: Show time\n16. !noscope: Get noscoped!\n\n"+
              "Music Commands:\n\n1. !music: Type to see options.```"
             });
         }
@@ -146,105 +182,56 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
             });
         }
 
-        var botSounds = ["sounds/getNoScoped.mp3", "sounds/DamnSon.mp3", "sounds/WhyUMad.mp3", "sounds/SupaHotFire.mp3", "sounds/WomboCombo.mp3", "sounds/ThatKilledHim.mp3","sounds/GetTheCamera.mp3", "sounds/Nice.mp3"];
+        if(message.toLowerCase() === "!events"){
+            bot.sendMessage({
+                to: channelID,
+                message: "Still working on it."
+            });
+        }
 
-        switch(message.toLowerCase()){
+        switch(message.toLowerCase()) {         // SOUNDS
             case '!noscope': {
-                botLogChan("**"+user+"**"+ " has no scoped someone.");
-                bot.joinVoiceChannel("102910652766519296", function (){
-                    bot.getAudioContext({ channel: "102910652766519296", stereo: true}, function (stream){
-                        stream.playAudioFile(botSounds[0]);
-                        stream.once('fileEnd', function(){
-                            setTimeout(bot.leaveVoiceChannel("102910652766519296"),10);
-                        });
-                    });
-                });
-                break;   
+                playSound(0);
+                break;
             }
-
             case '!damnson': {
-                bot.joinVoiceChannel("102910652766519296", function (){
-                    bot.getAudioContext({ channel: "102910652766519296", stereo: true}, function (stream){
-                        stream.playAudioFile(botSounds[1]);
-                        stream.once('fileEnd', function(){
-                            bot.leaveVoiceChannel("102910652766519296");
-                        });
-                    });
-                });
-                break;    
+                playSound(1);
+                break;
             }
-
+            case '!mad': {
+                playSound(2);
+                break;
+            }
             case '!supahot': {
-                bot.joinVoiceChannel("102910652766519296", function (){
-                    bot.getAudioContext({ channel: "102910652766519296", stereo: true}, function (stream){
-                        stream.playAudioFile(botSounds[3]);
-                        stream.once('fileEnd', function(){
-                            bot.leaveVoiceChannel("102910652766519296");
-                            });
-                        });
-                    });
-                break;     
+                playSound(3);
+                break;
             }
-
-            case '!mad' : {
-                bot.joinVoiceChannel("102910652766519296", function (){
-                bot.getAudioContext({ channel: "102910652766519296", stereo: true}, function (stream){
-                    stream.playAudioFile(botSounds[2]);
-                    stream.once('fileEnd', function(){
-                        bot.leaveVoiceChannel("102910652766519296");
-                        });
-                    });
-                });
-                break;     
-            }
-
             case '!wombo': {
-                bot.joinVoiceChannel("102910652766519296", function (){
-                bot.getAudioContext({ channel: "102910652766519296", stereo: true}, function (stream){
-                    stream.playAudioFile(botSounds[4]);
-                    stream.once('fileEnd', function(){
-                        bot.leaveVoiceChannel("102910652766519296");
-                        });
-                    });
-                });
-                break;    
+                playSound(4);
+                break;
+            }
+            case '!jr': {
+                playSound(5);
+                break;
             }
             case '!mom': {
-                bot.joinVoiceChannel("102910652766519296", function (){
-                    bot.getAudioContext({ channel: "102910652766519296", stereo: true}, function (stream){
-                    stream.playAudioFile(botSounds[6]);
-                    stream.once('fileEnd', function(){
-                        bot.leaveVoiceChannel("102910652766519296");
-                        });
-                    });
-                });
-                break;    
-            }
-            case '!jr':{
-                bot.joinVoiceChannel("102910652766519296", function (){
-                    bot.getAudioContext({ channel: "102910652766519296", stereo: true}, function (stream){
-                    stream.playAudioFile(botSounds[5]);
-                    stream.once('fileEnd', function(){
-                        bot.leaveVoiceChannel("102910652766519296");
-                        });
-                    });
-                });
+                playSound(6);
                 break;
             }
             case '!nice': {
-                bot.joinVoiceChannel("102910652766519296", function (){
-                    bot.getAudioContext({ channel: "102910652766519296", stereo: true}, function (stream){
-                    stream.playAudioFile(botSounds[7]);
-                    stream.once('fileEnd', function(){
-                        bot.leaveVoiceChannel("102910652766519296");
-                        });
-                    });
-                });
-                bot.uploadFile({
-                    to: "102910652447752192",
-                    file: "pictures/noice.jpg",
-                    filename: "Noice.jpg"
-                });
+                playSound(7);
+                break;
+            }
+            case '!bmj': {
+                playSound(8);
+                break;
+            }
+            case '!wow': {
+                playSound(9);
+                break;
+            }
+            case '!x': {
+                playSound(10);
                 break;
             }
         }
