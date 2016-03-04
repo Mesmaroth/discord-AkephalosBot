@@ -13,11 +13,12 @@ var twitchClient = require("node-twitchtv");
 var account = ("twitch-test/account.json");
 var twitch = new twitchClient(account);
 
-var botSounds = ["sounds/getNoScoped.mp3", "sounds/DamnSon.mp3",
+var botSounds = ["sounds/GetNoScoped.mp3", "sounds/DamnSon.mp3",
         "sounds/WhyUMad.mp3", "sounds/SupaHotFire.mp3",
         "sounds/WomboCombo.mp3", "sounds/ThatKilledHim.mp3",
         "sounds/GetTheCamera.mp3", "sounds/Nice.mp3",
-        "sounds/JohnCena.mp3", "sounds/Wow.mp3", "sounds/HitMarker.mp3"];
+        "sounds/JohnCena.mp3", "sounds/Wow.mp3",
+         "sounds/HitMarker.mp3", "sounds/YouFuckedUp.mp3", "sounds/TheFuckIsThat.mp3"];
 
 function printDateTime(){       // month-day-year time for CLI
     var d = new Date();
@@ -69,12 +70,22 @@ function playSound(songNum) {
     });
 }
 
+function getServers(){
+    var serverList = [];
+    for(var i in bot.servers){
+        serverList.push(i.server);
+    }
+    console.log(serverList.join("\n"));
+}
+
+
 bot.on('ready', function (rawEvent) {
     var getDate = new Date();
     console.log("Discord.io - Version: "+ bot.internals.version.green);
     console.log(bot.username.magenta + " - (" + bot.id.cyan + ")");
     bot.setPresence({game: gameList[Math.floor(Math.random()*gameList.length)]});
-    //require('fs').writeFileSync('bot.JSON',"Updated at: "+getDate.toDateString()+"\n\n"+JSON.stringify(bot,null,'\t'));
+    require('fs').writeFileSync('bot.JSON',"Updated at: "+getDate.toDateString()+"\n\n"+JSON.stringify(bot,null,'\t'));
+    getServers();
 });
 
 bot.on('disconnected', function(){
@@ -83,11 +94,19 @@ bot.on('disconnected', function(){
 });
 
 bot.on('message', function (user, userID, channelID, message, rawEvent) {
+    if(message.toLowerCase().search("!accept") === 0){
+        var serverCode = message.slice(8);
+        bot.acceptInvite(serverCode);
+        bot.sendMessage({
+            to: channelID,
+            message: "I have succesfully joined your server."
+        });
+        console.log("Accepted invite from " + user + ". Invite code: " + serverCode)
+    }
 
     if(message.toLowerCase().search("!twitch") === 0){
         var searchUser = message.slice(8);        
         twitch.streams({channel: searchUser}, function (err, user) {
-            console.log(user);
             if(user.stream != null){
                 bot.sendMessage({
                     to: channelID,
@@ -98,6 +117,13 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
                 bot.sendMessage({
                     to: channelID,
                     message: "User is offline"
+                });
+            }
+
+            if(err){
+                bot.sendMessage({
+                    to: channelID,
+                    message: err
                 });
             }
         });
@@ -234,8 +260,15 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
                 playSound(10);
                 break;
             }
+            case '!nyfu': {
+                playSound(11);
+                break;
+            }
+            case '!thefuck': {
+                playSound(12);
+                break;
+            }
         }
-
         // ----------
 
             // for when somone didn't invite someone
