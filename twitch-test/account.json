@@ -1,0 +1,6 @@
+{
+	"client_id": "{CLIENT_ID}",
+	"username": "{USERNAME}",
+	"password": "{PASSWORD}",
+	"scope": "user_read"
+}
