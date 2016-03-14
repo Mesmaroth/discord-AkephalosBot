@@ -6,7 +6,8 @@ var bot = new DiscordClient({
     token: botLogin.token,
     autorun: true
 });
-var gameList = ["Akebot v1.0.0"];
+
+var gameList = ["Akebot v"+require('./package.json')["version"]];
 var isInVChannel = false;
 // ------
 var twitchClient = require('./twitch-test/twitch.js');
