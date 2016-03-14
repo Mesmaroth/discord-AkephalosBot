@@ -1,0 +1,13 @@
+
+**AkephalosBot Commands**
+
+• `!about`: About me
+• `!ping`: See ping status
+• `!rekt`: Display's rekt meme gif
+• `!Yes`: Creepy Jack gif
+• `!sounds`: Displays a list of sounds
+• `!music`: Display commands for the musicbot
+• `!date`: Display the date.
+• `!time`: Display the time.
+• `!twitch [username]`: Checks if this twitch user is streaming.
+• `!ask [Question]`: Ask the bot anything
