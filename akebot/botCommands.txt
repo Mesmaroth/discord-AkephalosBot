@@ -11,3 +11,5 @@
 • `!time`: Display the time.
 • `!twitch [username]`: Checks if this twitch user is streaming.
 • `!ask [Question]`: Ask the bot anything
+• `!feelsgood`: FeelsGoodMan
+• `!feelsbad`: FeelsBadMan

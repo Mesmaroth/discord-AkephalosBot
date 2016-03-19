@@ -6,17 +6,18 @@ var fs = require('fs');
 
 
 module.exports.checkTwitchUser = function (searchUser, channelID, bot){
-    client.streams({channel: searchUser}, function (err, user) {
+    client.streams({channel: searchUser}, function (error, user) {
+        if(error) throw error;
         if(user.stream !== null){
             bot.sendMessage({
                 to: channelID,
-                message: "User **" + searchUser + "** is `Online`\n" + user.stream.channel.url
+                message: "**Twitch**\n**User**: "+ user.stream.channel.name + "\n**Status**: `Online`\n**Game**: "+ user.stream.game+"\n**Url**: "+user.stream.channel.url
             });
         }
         else if(user.stream === null) {
             bot.sendMessage({
                 to: channelID,
-                message: "User is offline"
+                message: "**Twitch**\n**User**: "+ searchUser + "\n**Status**: `Offline`"
             });
         }
     });
@@ -33,9 +34,9 @@ module.exports.searchTwitch = function (bot){
 
     for(var i = 0; i < arr.length; i++){
         userName = arr[i];
-        console.log(i);
         console.log(userName);       
         client.streams({channel: userName}, function (err, user) {
+            if(error) throw error;
             if(user.stream !== null){
                 bot.sendMessage({
                     to: channelID,
