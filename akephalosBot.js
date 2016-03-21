@@ -6,15 +6,17 @@ var bot = new DiscordClient({
     token: botLogin.token,
     autorun: true
 });
+try {var botVersion = "Akebot v"+ require('./package.json')["version"]}
+catch(error) {console.log(error)};
 
 var twitchClient = require('./twitch-test/twitch.js');
 var cleverbot = require("cleverbot.io");
 var clBot = new cleverbot("HE3vJbjtX7eH55pz", "ApPtaxIECdDOz3ZHH9wvCkRg5DHasXqE");
-var gameList = ["Akebot v"+require('./package.json')["version"]];
+var gameList = [];
 
+clBot.setNick("AkeSession");
 function askBot(message, channelID){
-    var message = message.slice(5);
-    clBot.setNick("AkeSession");
+    var message = message.slice(5);    
     clBot.create(function (err, session){
         clBot.ask(message, function (error, response){
             bot.sendMessage({
@@ -28,28 +30,40 @@ function askBot(message, channelID){
 function searchSong(message, botSounds){
     var songName = message.slice(1);
     for(var i = 0; i < botSounds.length; i++){
-       if(botSounds[i].includes(songName) === true ){
+       if(botSounds[i].includes(songName) === true) {
         return i;
        }
     }
     return null;
 }
 
-function playSound(songNum, botSounds) {
-    var channelID = "102910652766519296"
-    bot.joinVoiceChannel(channelID, function(){
-        bot.getAudioContext({channel: channelID, stereo: true }, function(stream){
-            stream.playAudioFile('sounds/'+botSounds[songNum]);   // ADD SONG
-            stream.once('fileEnd', function(){
-                bot.leaveVoiceChannel(channelID);
+function playSound(songNum, botSounds, channelID) {
+    var voiceChannel = "";
+
+    for(var i in bot.servers[bot.serverFromChannel(channelID)].channels){
+        if(bot.servers[bot.serverFromChannel(channelID)].channels[i].type === "voice" && bot.servers[bot.serverFromChannel(channelID)].channels[i].position === 0){
+            voiceChannel = bot.servers[bot.serverFromChannel(channelID)].channels[i].id;
+            bot.joinVoiceChannel(voiceChannel, function(){
+                bot.getAudioContext({channel: voiceChannel, stereo: true }, function(stream){
+                    stream.playAudioFile('sounds/'+botSounds[songNum]);
+                    stream.once('fileEnd', function(){
+                        bot.leaveVoiceChannel(voiceChannel);
+                    });
+                });
             });
-        });        
-    });
+            return;
+        }
+    }
+
+    bot.sendMessage({
+        to: channelID,
+        message: "No voice channels were found."
+    });    
 }
 
 function printDateTime(){       // month-day-year time for CLI
     var d = new Date();
-    var dHours = ((d.getHours() < 12) ? d.getHours().toString() : (d.getHours()-12).toString());
+    var dHours = (d.getHours() < 12) ? d.getHours().toString() : (d.getHours()-12).toString();
     var dMinutes = (d.getMinutes()<10) ? "0"+d.getMinutes().toString() : d.getMinutes().toString();
     return d.toDateString().green+" at "+dHours.green+":"+dMinutes.green;
 }
@@ -74,8 +88,8 @@ function setPresence(name){
     console.log("Game Presence set to: " + name);
 }
 
-function consoleMsgDel(user,msgDel){
-    return console.log("Deleted "+ (msgDel-1) + " messages for " + user.cyan + " at "+ printDateTime());
+function consoleMsgDel(user, msgDel, channelID){
+    return console.log("Deleted "+ (msgDel-1) + " messages for " + user.cyan + " at "+ printDateTime() + " on Server: " + bot.serverFromChannel(channelID));
 }
 
 function botLogChan(msg){
@@ -104,7 +118,7 @@ function getEvents(channelID){
     for(var i = 0; i < events.length; i++){
         eventNames.push((i+1)+". "+events[i].name + ' At: ' + events[i].time);
     }
-    
+
     bot.sendMessage({
         to: channelID,
         message: "**Events** - IN PROGRESS\n```"+eventNames.join('\n')+"```"
@@ -128,25 +142,31 @@ function checkAdminPermission (channelID, userID){           // Checks if the Us
     return false;
 }
 
+function logBotProperties(){
+  var getDate = new Date();
+  fs.writeFile('bot.JSON', "Updated at: "+ getDate.toDateString() +"  "+ botGetTime() + "\n\n" + JSON.stringify(bot, null, '\t'), function(error){
+    if(error) throw error;
+    console.log("Succesfully wrriten bot properties");
+  });
+}
 
 
 bot.on('ready', function (rawEvent) {
-    var getDate = new Date();
     console.log("Discord.io - Version: "+ bot.internals.version.green);
     console.log(bot.username.magenta + " - (" + bot.id.cyan + ")");
-    bot.setPresence({game: gameList[Math.floor(Math.random()*gameList.length)]});
-    fs.writeFileSync('bot.JSON',"Updated at: "+getDate.toDateString()+"\n\n"+JSON.stringify(bot,null,'\t'));
-
+    logBotProperties();
+    bot.setPresence({game: (gameList.length === 0) ? botVersion : gameList[Math.floor(Math.random()*gameList.length)]});    
+    var serverList = [];
+    for(var i in bot.servers){
+      serverList.push(bot.servers[i].name + ": (" + bot.servers[i].id + ")");
+    }
+    console.log("Servers: \n" + serverList.join('\n'));
 });
 
 bot.on('disconnected', function(){
     console.log("Bot has "+"disconnected".red + " from the server  Retrying...");
     setInterval(bot.connect(), 15000)
 });
-
-bot.on('presence', function (user, userID, status, gameName, rawEvent){
-    
-})
 
 bot.on('message', function (user, userID, channelID, message, rawEvent) {
 
@@ -160,7 +180,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 
     if(rawEvent.d.author.username !== bot.username){                 // Does not check for bot's own messages.
 
-        if(message.toLowerCase().search("!ask") === 0) askBot(message, channelID);        
+        if(message.toLowerCase().search("!ask") === 0) askBot(message, channelID);
 
         if(message.search("!twitch") === 0){
             var searchUser = message.slice(8);
@@ -175,15 +195,26 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
             })
         }
 
+        // SOUNDS
+        if(message.toLowerCase().search("!") === 0){
+            var botSounds = fs.readdirSync('sounds');
+            if(message.length > 1){
+                var songNum = searchSong(message, botSounds);
+                if(songNum !== null){
+                    playSound(songNum, botSounds, channelID);
+                }
+            }
+        }
+
         if(message.toLowerCase().search("!setgame") === 0){
-            var msg = message.slice(9);
-            setPresence(msg);
+            var message = message.slice(9);
+            setPresence(message);
         }
 
         if(message.toLowerCase()==="!listmembers"){
             var listMembers = [];
-            for(var i in bot.servers["102910652447752192"].members){
-                listMembers.push(bot.servers["102910652447752192"].members[i].user.username);
+            for(var i in bot.servers[bot.serverFromChannel(channelID)].members){
+                listMembers.push(bot.servers[bot.serverFromChannel(channelID)].members[i].user.username);
             }
             bot.sendMessage({
                 to: channelID,
@@ -191,17 +222,6 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
             });
         }
 
-        // SOUNDS
-        if(message.toLowerCase().search("!") === 0){
-            var botSounds = fs.readdirSync('sounds');
-            if(message.length > 1){
-                var songNum = searchSong(message, botSounds);
-                if(songNum !== null){
-                    playSound(songNum, botSounds);
-                }
-            }
-        }
-        
         if(message.toLowerCase() === "!commands") {
             try {
                 var commands = fs.readFileSync('./akebot/botCommands.txt', 'utf8');
@@ -216,15 +236,27 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
                     message: err
                 });
             }
-            
+
         }
 
         if(message.toLowerCase().search("!say") === 0){
             var newMsg = message.slice(5);
-            bot.sendMessage({
-                to: "102910652447752192",
-                message: newMsg
-            });
+            var generalChannel = "";
+            for(var i in bot.servers[bot.serverFromChannel(channelID)].channels){
+                if(bot.servers[bot.serverFromChannel(channelID)].channels[i].type === "text" && bot.servers[bot.serverFromChannel(channelID)].channels[i].name.toLowerCase() === "general"){
+                    bot.sendMessage({
+                        to: bot.servers[bot.serverFromChannel(channelID)].channels[i].id,
+                        message: newMsg
+                    }, function (error){
+                        if(error){
+                            bot.sendMessage({
+                                to: channelID,
+                                message: newMsg
+                            });
+                        }
+                    });
+                }
+            }
         }
 
         if(message.search("!reverse") === 0){
@@ -251,9 +283,9 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         if(message.toLowerCase() === "!about"){
             bot.sendMessage({
                 to: channelID,
-                message: "\n```Username: "+bot.username+"\nAuthor: Mesmaroth\nWritten in: Javascript\n"+
-                "Library: Discord.io by izy521\nVersion: Discord.io: "+bot.internals["version"]+"\nAvatar: https://cdn.discordapp.com/avatars/"+bot.id+
-                "/"+bot.avatar+".jpg\nThanks to: izy521, negativereview, yukine.```"
+                message: "\n**Username:** "+bot.username+"\n**Version:** " + botVersion + "\n**Author:** Mesmaroth\n**Written in:** Javascript\n"+
+                "**Library:** Discord.io by izy521\n**Library Version:** Discord.io: "+bot.internals["version"]+"\n**Avatar:** https://cdn.discordapp.com/avatars/"+bot.id+
+                "/"+bot.avatar+".jpg\n**Thanks to:** izy521, negativereview, yukine."
             });
         }
 
@@ -323,7 +355,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
     }
 
 // Delete Bot messages only.
-    if(message.toLowerCase() === "!msgdelbot" && checkAdminPermission(channelID, userID)){
+    if(message.toLowerCase() === "!delmsgbot" && checkAdminPermission(channelID, userID)){
         bot.getMessages({
             channel: channelID,
             limit: 100
@@ -350,8 +382,8 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         });
     }
 
-// Delete gun messages only
-    if(message.toLowerCase() === "!delmines" && checkAdminPermission(channelID, userID)) {
+
+    if(message.toLowerCase() === "!delmsgs" && checkAdminPermission(channelID, userID)) {
         bot.getMessages({
             channel: channelID,
             limit: 100
@@ -375,7 +407,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
                     msgsDel+=1;
                 }
             }
-            consoleMsgDel(user,msgsDel);
+            consoleMsgDel(user,msgsDel, channelID);
         });
     }
     else if(message.toLowerCase() === "!delmines" && (checkAdminPermission(channelID, userID) === false)){
@@ -426,7 +458,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
     if (message.toLowerCase() === "why?") {
         bot.sendMessage({
             to: channelID,
-            message: "<@" + userID + ">" + " Because fuck you! That's why!"
+            message: "Because fuck you! That's why!"
         });
     }
 
