@@ -4,19 +4,7 @@
 // Write events in JSON file
 // delete event method
 
-var eventTestSmite = {
-	eventName: "Gem Day Grind!",
-    game: "Smite",
-    time: "8PM"
-}
-
-var eventTestKF = {
-	eventName: "KF GORE FEST!",
-    game: "Killing Floor",
-    time: "6PM"    
-}
-
-var events = [eventTestSmite, eventTestKF];
+var events = [];
 
 module.exports.getEvents = function (bot, channelID){
 	var eventList = [];
@@ -56,9 +44,17 @@ module.exports.setEvent = function (bot, channelID, message){
 
 module.exports.deleteEvent = function (bot,channelID,message){
 	eventNum = message.slice(10);
-	events.splice((eventNum-1),1);
-	bot.sendMessage({
-		to: channelID,
-		message: "*Event deleted.*"
-	});
+	if(typeof events[eventNum-1] === 'object'){
+		events.splice((eventNum-1),1);
+		bot.sendMessage({
+			to: channelID,
+			message: "*Event deleted.*"
+		});
+	}else {
+		bot.sendMessage({
+			to: channelID,
+			message: "*No event found to delete.*"
+		})
+	}
+	
 }

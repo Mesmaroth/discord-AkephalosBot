@@ -1,15 +1,31 @@
 
 **AkephalosBot Commands**
 
-• `!about`: About me
-• `!ping`: See ping status
-• `!rekt`: Display's rekt meme gif
-• `!Yes`: Creepy Jack gif
+**General**
+• `!about`: About Akephalos
+• `!upTime`: bot up time
+• `!date`: Display the date
+• `!time`: Display the time
 • `!sounds`: Displays a list of sounds
 • `!music`: Display commands for the musicbot
-• `!date`: Display the date.
-• `!time`: Display the time.
-• `!twitch [username]`: Checks if this twitch user is streaming.
+• `!twitch [username]`: Checks if this twitch user is streaming
 • `!ask [Question]`: Ask the bot anything
+
+**Admins** *Must be admin*
+• `!delete [number]`: Specify amount of messages to be deleted
+• `!say [message]`: Relays your message from any channel or DM to the general channel
+• `!purge [username]`: Deletes up to 100 of the users messages.
+• `!purge me`: Deletes up to 100 of your own messages
+• `!purge all`: Deletes up to 100 messages of everyone.
+
+**Memes**
+• `!rekt`: Rekt Meme
+• `!Yes`: Creepy Jack Yes
+• `!bobe`: FeelsGoodMon
+• `!topkek`: TopKek
 • `!feelsgood`: FeelsGoodMan
 • `!feelsbad`: FeelsBadMan
+• `!whoa`: Take it easy man
+• `!bmj`: John Cena
+• `!doit`: Do it
+• `!nice`: Nice
