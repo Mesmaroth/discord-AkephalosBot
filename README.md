@@ -8,3 +8,4 @@ Library: [Discord.io](https://github.com/izy521/discord.io)
  - ws: `npm install ws`
  - cleverbot: `npm install cleverbot.io`
  - node-twitchtv: `npm install node-twitchtv`
+ - uptimer: `npm install uptimer`
