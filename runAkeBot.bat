@@ -1,0 +1,2 @@
+node akephalosBot.js
+pause
