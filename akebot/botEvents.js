@@ -2,7 +2,6 @@
 // TODO
 // Add reminder at event times
 // Write events in JSON file
-// delete event method
 
 var events = [];
 
