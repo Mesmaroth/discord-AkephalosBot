@@ -1,12 +1,12 @@
 var DiscordClient = require('discord.io');
 var fs = require('fs');
 var uptimer = require('uptimer');
-
 var botLogin = require('./akebot/botLogin.js');
 var botEvents = require('./akebot/botEvents.js');
 var botSounds = require('./akebot/botSounds.js');
 var cleverBot = require('./akebot/cleverBot.js');
 var twitchClient = require('./twitch/twitch.js');
+
 var bot = new DiscordClient({
     token: botLogin.token,
     autorun: true
@@ -15,6 +15,7 @@ try {var botVersion = "Akebot v"+ require('./package.json')["version"]}
 catch(error) {console.log(error)};
 
 var gameList = [];
+
 
 function printDateTime(){       // month-day-year time for CLI
     var d = new Date();
@@ -47,14 +48,13 @@ function botUptime(){
 	var upSeconds = Math.floor(uptimer.getAppUptime());
     var upMinutes = 0;
     var upHours = 0;
-	if(upSeconds >= 60) {
+	if(upSeconds > 59) {
 		upMinutes = Math.floor(upSeconds / 60);
 		upSeconds-=(upMinutes*60);
-	}
-
-	if(upMinutes >= 60){
-		upHours = Math.floor(upMinutes / 60);
-		upMinutes-=(upSeconds*60);
+		if(upMinutes > 59){
+			upHours = Math.floor(upSeconds / 60);
+			upMinutes-=(upHours*60);
+		}
 	}
 
 	return "**Uptime:** *"+upHours+" hours : "+upMinutes+" minutes : "+upSeconds+" seconds*";
@@ -76,23 +76,23 @@ function checkAdminPermission (channelID, userID){           // Checks if the Us
     return false;
 }
 
-bot.on('debug', function (rawEvent) {
-    if(rawEvent.t === "GUILD_CREATE"){
-        console.log("Joined new server: ", rawEvent.d.id);
+function serversConnected(){
+    var count = 0;
+    for(var i in bot.servers){
+        count++;
     }
+    return count;
+}
+
+bot.on('debug', function (rawEvent) {
+    
 });
 
 bot.on('ready', function (rawEvent) {
-    console.log("Running: " + botVersion);
-    console.log("Discord.io - Version: "+ bot.internals.version);
-    console.log(bot.username + " - (" + bot.id + ")");
-    
-    fs.writeFile('bot.JSON', "Updated at: "+ printDateTime() + "\n\n" + JSON.stringify(bot, null, '\t'), function(error){
-    	if(error) throw error;
-   	 	console.log("Succesfully written bot properties");
- 	 });
-    var serverList = [];
+    console.log("\nRunning " + botVersion, bot.username + " - (" + bot.id + ")");
+    console.log("Discord.io - Version: "+ bot.internals.version);    
     bot.setPresence({game: (gameList.length === 0) ? botVersion : gameList[Math.floor(Math.random()*gameList.length)]});
+    var serverList = [];    
     for(var i in bot.servers){
       serverList.push(bot.servers[i].name + ": (" + bot.servers[i].id + ")");
     }
@@ -107,10 +107,27 @@ bot.on('disconnected', function(){
 bot.on('message', function (user, userID, channelID, message, rawEvent) {
     if(rawEvent.d.author.username !== bot.username){                 // Does not check for bot's own messages.
 
-        if(message === "!uptime"){
+        if(message.toLowerCase() === "!uptime"){
             bot.sendMessage({
                 to: channelID,
                 message: botUptime()
+            });
+        }
+
+        if(message === "~writeout" && checkAdminPermission(channelID, userID)){
+            fs.writeFile('bot.JSON', "Updated at: "+ printDateTime() + "\n\n" + JSON.stringify(bot, null, '\t'), function(error){
+                if(error) throw error;
+                console.log("Succesfully written bot properties");
+                bot.sendMessage({
+                    to: channelID,
+                    message: "*Succesfully written bot properties*"
+                });
+            });
+        }
+        if(message === "!servers" && checkAdminPermission(channelID, userID)){
+            bot.sendMessage({
+                to: channelID,
+                message: "*Akephalos is connected to `" + serversConnected() +"` servers*"
             });
         }
 
@@ -131,7 +148,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         if((message.toLowerCase() === "!joinserver" || message.toLowerCase() === "!addserver") && checkAdminPermission(channelID, userID)){
         	bot.sendMessage({
         		to: channelID, 
-        		message: "Add me here: https://discordapp.com/oauth2/authorize?&client_id=158451686627737600&scope=bot"
+        		message: "\n**Authorize Akephalos**\n**Link**: https://goo.gl/HDY52X"
         	});
         }
 
@@ -236,8 +253,8 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         if(message.toLowerCase() === "!about"){
             bot.sendMessage({
                 to: channelID,
-                message: "\n**Username:** "+bot.username+"\n"+botUptime()+"\n**Version:** " + botVersion + "\n**Author:** Mesmaroth\n**Written in:** Javascript\n"+
-                "**Library:** Discord.io\n**Library Version:** "+bot.internals["version"]+"\n**Avatar:** https://goo.gl/kp8L7m\n**Thanks to:** izy521, negativereview, yukine."
+                message: "\n**Username**: "+bot.username+"\n**Servers**: "+serversConnected()+"\n"+botUptime()+"\n**Version**: " + botVersion + "\n**Author**: Mesmaroth\n**Written in**: Javascript\n"+
+                "**Library**: Discord.io\n**Library Version**: "+bot.internals["version"]+"\n**Avatar**: https://goo.gl/kp8L7m\n**Thanks to**: izy521, negativereview, yukine."
             });
         }
 
@@ -300,6 +317,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        		}
 
 	        		if(message === "me") message = user.toLowerCase();
+                    if(message === "bot") message = bot.username.toLowerCase();
 	        		if(messageArr[i].author.username.toLowerCase() === message) {                         
 	        			bot.deleteMessage({
 	        				channel: channelID,
@@ -448,14 +466,21 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
             bot.sendMessage({
                 to: channelID,
                 message: "http://i1.kym-cdn.com/photos/images/list/000/706/368/0cc.gif"
-            })
+            });
         }
 
         if(message.toLowerCase() === "!bobe") {
             bot.sendMessage({
                 to: channelID,
                 message: "https://cdn.discordapp.com/attachments/102910652447752192/160512968671363073/weed.png"
-            })
+            });
+        }
+
+        if(message.toLowerCase() === "!israel"){
+            bot.sendMessage({
+                to: channelID,
+                message: "https://i.warosu.org/data/biz/img/0005/71/1417726792047.png"
+            });
         }
     }
 
