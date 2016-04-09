@@ -1,5 +1,5 @@
 var cleverbot = require('cleverbot.io');
-var clBot = new cleverbot("HE3vJbjtX7eH55pz", "ApPtaxIECdDOz3ZHH9wvCkRg5DHasXqE");
+var clBot = new cleverbot("YOUR_API_USER", "YOUR_API_KEY"); 
 
 
 module.exports.askBot = function (bot, message, channelID){
