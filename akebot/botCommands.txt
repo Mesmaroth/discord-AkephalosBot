@@ -11,6 +11,7 @@
 • `!music`: Display commands for the musicbot
 • `!twitch [username]`: Checks if this twitch user is streaming
 • `!ask [Question]`: Ask the bot anything
+• `!servers`: Shows how many servers the bot is connected to.
 
 **Admins** *Must be admin*
 • `!delete [number]`: Specify amount of messages to be deleted
@@ -32,3 +33,4 @@
 • `!bmj`: John Cena
 • `!doit`: Do it
 • `!nice`: Nice
+• `!israel`: israel...
