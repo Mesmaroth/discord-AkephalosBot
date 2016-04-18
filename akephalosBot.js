@@ -8,6 +8,7 @@ var twitchClient = require('./twitch/twitch.js');
 var uptimer = require('uptimer');
 var bot = new DiscordClient({
     token: botLogin.token,
+    // Or add email: {EMAIL_HERE}, password: {PASWORD_HERE}
     autorun: true
 });
 
@@ -88,7 +89,7 @@ function serversConnected(){
 }
 
 bot.on('debug', function (event) {
-	if(event.t === "GUILD_DELETE"){
+	if(event.t === "GUILD_DELETE"){					// Test to log when the bot is kicked
 		fs.writeFileSync("GUILD_DELETE.log","Kicked from Server\n", event);
 	}
 
@@ -134,7 +135,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
             bot.disconnect();
         }
 
-        if(message.toLowerCase().search("~setgame") === 0){
+        if(message.toLowerCase().search("~setgame") === 0 && checkAdminPermission(channelID, userID)){
             var message = message.slice(9);
             setPresence(message);
         }
@@ -154,7 +155,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
                 message: ("*Akephalos is connected to `" + serversConnected() +"` servers*")
             });
         }
-
+       	// ---- EVENT BETA in progress -----
         if(message.toLowerCase() === "!events"){
             botEvents.getEvents(bot, channelID);
         }
@@ -166,6 +167,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         if(message.toLowerCase().search("!delevent") === 0){
         	botEvents.deleteEvent(bot, channelID, message);
         }
+        // ---------------------------------
 
         if(message.toLowerCase().search("!ask") === 0) 
         	cleverBot.askBot(bot, message, channelID);
@@ -173,7 +175,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
         if((message.toLowerCase() === "!joinserver" || message.toLowerCase() === "!addserver") && checkAdminPermission(channelID, userID)){
         	bot.sendMessage({
         		to: channelID, 
-        		message: "\n**Authorize Akephalos into your server**\n**Link**: https://goo.gl/HDY52X"
+        		message: "\n**Authorize this bot to your server**\n**Link**: https://goo.gl/HDY52X"
         	});
         }
 
@@ -188,9 +190,13 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 
         if(message.toLowerCase() === '!sounds'){
             var songList = fs.readdirSync('sounds');
+            for(var i = 0; i < songList.length; i++){
+            	songList[i] = songList[i].split('.');
+            	songList[i] = "!"+songList[i][0];
+            }
             bot.sendMessage({
                 to: channelID,
-                message: "\n**Sounds**\nNote that when playing a sound.\nDo not enter the `.mp3` at the end. Just the name: `![Name Here]`\n\n"+songList.join("\n")
+                message: "\n**Sounds**\n\n"+songList.join("  ")
             })
         }
 
