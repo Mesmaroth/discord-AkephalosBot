@@ -1,10 +1,10 @@
 # Discord-AkephalosBot (Node.js)
-Library: [Discord.io](https://github.com/izy521/discord.io)
 A simple bot written in JavaScript for [Discord](http://www.discord.gg)
 
-If you have any questions please ask them in my test Server: https://discord.gg/0tYqr4FWusEQHErS
+Library: [Discord.io](https://github.com/izy521/discord.io)
 
-If you don't want to setup your bot, you can use mines by [Authorize AkephalosBot](https://discordapp.com/oauth2/authorize?&client_id=158451686627737600&scope=bot)
+If you have any questions please ask them in my test Server: https://discord.gg/0tYqr4FWusEQHErS
+If you don't want to setup your bot, you can use mines by [Authorizing AkephalosBot](https://discordapp.com/oauth2/authorize?&client_id=158451686627737600&scope=bot)
 
 
 ### Requires:
@@ -14,11 +14,10 @@ If you don't want to setup your bot, you can use mines by [Authorize AkephalosBo
  - node-opus: `npm install node-opus` (For audio sounds)
 
 
-
-
 ### Installation:
  Make sure you have the required modules including Discord.io: `npm install discord.io` 
- To recieve the latest updates: `git clone https://github.com/Mesmaroth/discord-AkephalosBot.git`
+ To recieve the latest updates: 
+ `git clone https://github.com/Mesmaroth/discord-AkephalosBot.git`
  
  - Put your login details in `akebot/botLogin.js`
  - For cleverBot credentials you need to put them at `akebot/cleverBot.js`
