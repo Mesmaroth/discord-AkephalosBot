@@ -1,6 +1,4 @@
 
-**AkephalosBot Commands**
-
 **General**
 • `!about`: About Akephalos
 • `!joinServer`: If you wish to invite the bot to your server (Alternative: `!addServer`)
