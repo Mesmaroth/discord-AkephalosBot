@@ -267,7 +267,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	                var commands = fs.readFileSync('./akebot/botCommands.txt', 'utf8');
 	                bot.sendMessage({
 	                    to: channelID,
-	                    message: commands
+	                    message: "\n**"+bot.username+" Commands**\n"+commands
 	                });
 	            }
 	            catch(err){
