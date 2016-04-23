@@ -51,7 +51,7 @@ If you don't want to setup your bot, you can use mines by [Authorizing Akephalos
  **Memes**
   - `!rekt`: Rekt Meme
   - `!Yes`: Creepy Jack Yes
-  - `!bobe`: FeelsGoodMon
+  - (inside Joke)`!bobe`: FeelsGoodMon
   - `!topkek`: TopKek
   - `!feelsgood`: FeelsGoodMan
   - `!feelsbad`: FeelsBadMan
@@ -59,5 +59,5 @@ If you don't want to setup your bot, you can use mines by [Authorizing Akephalos
   - `!bmj`: John Cena
   - `!doit`: Do it
   - `!nice`: Nice
-  - `!israel`: israel...
+  - (inside Joke)`!israel`: israel...
 
