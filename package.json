@@ -1,6 +1,6 @@
 {
   "name": "Discord-AkephalosBot",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "A simple bot written in JavaScript for [Discord](http://www.discord.gg)",
   "main": "akeBotLogin.js",
   "scripts": {
@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "discord.io": "^1.8.1",
-    "node-opus": "^0.1.12"
+    "cleverbot.io": "^1.0.4",
+    "node-twitchtv": "^0.0.4",
+    "uptimer": "^0.1.2"
   },
   "keywords": [],
   "author": "",
