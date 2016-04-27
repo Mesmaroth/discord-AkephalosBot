@@ -2,12 +2,13 @@
 A simple bot written in JavaScript for [Discord](http://www.discord.gg)
 
 Library: [Discord.io](https://github.com/izy521/discord.io)
+You need Node.js 0.12.x or greater to be installed along as making sure NPM is also installed to download required modules
 
 If you have any questions please ask them in my test Server: https://discord.gg/0tYqr4FWusEQHErS
 If you don't want to setup your bot, you can use mines by [Authorizing AkephalosBot](https://discordapp.com/oauth2/authorize?&client_id=158451686627737600&scope=bot)
 
 
-### Requires:
+### Required Modules:
  - cleverbot: `npm install cleverbot.io`
  - node-twitchtv: `npm install node-twitchtv`
  - uptimer: `npm install uptimer`
@@ -23,8 +24,10 @@ If you don't want to setup your bot, you can use mines by [Authorizing Akephalos
  - For cleverBot credentials you need to put them at `akebot/cleverBot.js`
  - You can edited or remove commands once you've made your own or removed some features you don't need. File is located at `akebot/botCommands.txt`
  - Launch `runAkeBot.bat` once login details and required modules have been installed.
-
-
+ 
+### Sounds:
+Sounds are executed when the command for that sound is called, the bot leaves the voice channel as soon as it is done playing the sound file.
+You don't need to code anything for putting custom sounds. You just need to drag and drop the file in to the `sounds` folder and you are all set. The command for executing the sound on discord is what ever the filename is. If I have a sound file named `example.mp3` in the sound folder, then the command for that would be `!example`.
 
 ### Bot Commands: 
  **General**
