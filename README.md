@@ -2,7 +2,8 @@
 A simple bot written in JavaScript for [Discord](http://www.discord.gg)
 
 Library: [Discord.io](https://github.com/izy521/discord.io)
-You need Node.js 0.12.x or greater to be installed along as making sure NPM is also installed to download required modules
+
+You need Node.js 0.12.x or greater to be installed along as making sure NPM is also installed to download required modules. Once installed you need to download the library. `npm install discord.io`
 
 If you have any questions please ask them in my test Server: https://discord.gg/0tYqr4FWusEQHErS
 If you don't want to setup your bot, you can use mines by [Authorizing AkephalosBot](https://discordapp.com/oauth2/authorize?&client_id=158451686627737600&scope=bot)
