@@ -7,11 +7,17 @@ var cleverBot = require('./akebot/cleverBot.js');
 var twitchClient = require('./twitch/twitch.js');
 var uptimer = require('uptimer');
 var bot = new DiscordClient({
-    token: botLogin.token,
-    // Or add email: {EMAIL_HERE}, password: {PASWORD_HERE}
+    token: botLogin.token,	// Or bot.email, bot.password
     autorun: true
 });
 var reboot = false;
+var isBotDevSet = false;
+
+function getBotDev(){
+	for(var servers in bot.servers){
+
+	}
+}
 
 try {var botVersion = "Akebot v"+ require('./package.json')["version"]}
 catch(error) {console.log(error)};
@@ -65,7 +71,7 @@ function botUptime(){
 	return "**Uptime:** *"+upHours+" hours : "+upMinutes+" minutes : "+upSeconds+" seconds*";
 }
 
-function checkAdminPermission (channelID, userID){           // Checks if the User is Admin
+function checkAdminPermission (userID, channelID){           // Checks if the User is Admin
     var adminRoleID = "";
     for(var i in bot.servers[bot.serverFromChannel(channelID)].roles){
         if(bot.servers[bot.serverFromChannel(channelID)].roles[i].name.toLowerCase() === "admin"){          // Checks to see what admin's ID is
@@ -81,6 +87,13 @@ function checkAdminPermission (channelID, userID){           // Checks if the Us
     return false;
 }
 
+function isGuildOwner(userID, channelID){
+	if(bot.servers[bot.serverFromChannel(channelID)].owner_id === userID){
+		return true;
+	}
+	else return false;
+}
+
 function serversConnected(){
     var count = 0;
     for(var i in bot.servers){
@@ -88,6 +101,7 @@ function serversConnected(){
     }
     return count;
 }
+
 function botAnnounce(message){
 	message = message.slice(10);
 	for(var serverID in bot.servers){
@@ -106,7 +120,8 @@ function botAnnounce(message){
 
 bot.on('debug', function (event) {
 	if(event.t === "GUILD_DELETE"){					// Test to log when the bot is kicked
-		fs.writeFileSync("GUILD_DELETE.log","Kicked from Server\n", event);
+		console.log(event);
+		fs.writeFileSync("GUILD_DELETE.log","Kicked from Server:\n"+JSON.stringify(event,null,'\t'));
 	}
 
 });
@@ -146,8 +161,16 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	}
 	else{			 // Else if Message is not a direct message
 	    if(rawEvent.d.author.username !== bot.username){                 // Does not check for bot's own messages.        
+	    	// ------ GlOBAL COMMANDS ---------
+	    	if(message.search('~') === 0 && isGuildOwner(userID, channelID) === false){						// Checks to make sure 
+	    		bot.sendMessage({
+	    			to: channelID,
+	    			message: "*Global commands are for the bot Owner only.*"
+	    		});
+	    		return;
+	    	}
 
-	        if(message.toLowerCase() === "~writeout" && checkAdminPermission(channelID, userID)){
+	        if(message.toLowerCase() === "~writeout" && isGuildOwner(userID, channelID)){
 	            fs.writeFile('bot.JSON', "Updated at: "+ printDateTime() + "\n\n" + JSON.stringify(bot, null, '\t'), function(error){
 	                if(error) throw error;
 	                console.log("Succesfully written bot properties");
@@ -158,7 +181,15 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            });
 	        }
 
-	        if(message === "~quit" && checkAdminPermission(channelID, userID)){
+	        if(message.toLowerCase() === "~test" && isGuildOwner(userID, channelID)){
+	        	var data = writeObjToFile(bot.serverFromChannel(channelID));
+	        	bot.sendMessage({
+	        		to: channelID,
+	        		message: "```javascript\n"+data+"\n```"
+	        	});
+	        }
+
+	        if(message === "~disconnect" && isGuildOwner(userID, channelID)){
 	            bot.sendMessage({
 	                to: channelID,
 	                message: "*Exiting...*"
@@ -167,32 +198,44 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            console.log("[DISCONNECTED]");
 	        }
 
-	        if(message === "~reboot" && checkAdminPermission(channelID, userID)){
+	        if(message === "~reboot" && isGuildOwner(userID, channelID)){
 	        	bot.sendMessage({
 	                to: channelID,
 	                message: "*Rebooting...*"
 	            });
-	            console.log("[REBOOT]");
+	            console.log("[REBOOTING]");
 	           setTimeout(()=>{ bot.disconnect()}, 2000);
 	            reboot = true;
 	        }
 
-	        if(message.toLowerCase().search("~setgame") === 0 && checkAdminPermission(channelID, userID)){
-	            var message = message.slice(9);
-	            setPresence(message);
-	        }
-
-	        if(message.toLowerCase().search("~announce") === 0 && checkAdminPermission(channelID, userID)){
+	        if(message.toLowerCase().search("~announce") === 0 && isGuildOwner(userID, channelID)){
 	        	botAnnounce(message);
 	        }
 
 	        // ------------END of Global Commands------------
+
+	        if(message.toLowerCase() === "!uploadfile"){
+	        	if(rawEvent.d.attachments.length > 0){
+	        		bot.sendMessage({
+	        			to:channelID,
+	        			message: "\n**URL**\n```javascript\n"+JSON.stringify(rawEvent.d.attachments[0], null, '\t')+"\n```"
+	        		});
+	        	}
+	        	return;
+	        }
+
+	        if(message.toLowerCase().search("!setgame") === 0 && checkAdminPermission(userID, channelID)){
+	            var message = message.slice(9);
+	            setPresence(message);
+	            return;
+	        }
 
 	        if(message.toLowerCase() === "!uptime"){
 	            bot.sendMessage({
 	                to: channelID,
 	                message: botUptime()
 	            });
+	            return;
 	        }
 
 	        if(message === "!servers"){
@@ -200,6 +243,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	                to: channelID,
 	                message: ("*Akephalos is connected to `" + serversConnected() +"` servers*")
 	            });
+	            return;
 	        }
 	       	// ---- EVENT BETA in progress -----
 	        /*if(message.toLowerCase() === "!events"){
@@ -215,23 +259,28 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        }*/
 	        // ---------------------------------
 
-	        if(message.toLowerCase().search("!ask") === 0) 
+	        if(message.toLowerCase().search("!ask") === 0){ 
 	        	cleverBot.askBot(bot, message, channelID);
+	        	return;
+	        }
 
-	        if((message.toLowerCase() === "!joinserver" || message.toLowerCase() === "!addserver") && checkAdminPermission(channelID, userID)){
+	        if((message.toLowerCase() === "!joinserver" || message.toLowerCase() === "!addserver") && checkAdminPermission(userID, channelID)){
 	        	bot.sendMessage({
 	        		to: channelID, 
 	        		message: "\n**Authorize this bot to your server**\n**Link**: https://goo.gl/HDY52X"
 	        	});
+	        	return;
 	        }
 
 	        if(message === "!twtest"){
 	            twitchClient.searchTwitch(bot, channelID);
+	            return;
 	        }
 
 	        if(message.toLowerCase().search("!twitch") === 0){
 	            var searchUser = message.slice(8);
 	            twitchClient.checkTwitchUser(searchUser, channelID, bot);
+	            return;
 	        }
 
 	        if(message.toLowerCase() === '!sounds'){
@@ -244,11 +293,12 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	                to: channelID,
 	                message: "\n**Sounds**\n"+songList.join("  ")
 	            })
+	            return;
 	        }
 
 	        // SOUNDS
 	        if(message.toLowerCase().search("!") === 0){
-	                botSounds.playSound(bot, channelID, message.toLowerCase());
+	        	if(message.length > 1) botSounds.playSound(bot, channelID, message.toLowerCase());
 	        }
 
 	        if(message.toLowerCase()==="!listmembers"){
@@ -260,6 +310,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	                to: channelID,
 	                message: "\n**Members:**\n```" + listMembers.join("\n") + "```"
 	            });
+	            return;
 	        }
 
 	        if(message.toLowerCase() === "!commands") {
@@ -276,10 +327,10 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	                    message: err
 	                });
 	            }
-
+	            return;
 	        }
 
-	        if(message.toLowerCase().search("!say") === 0 && checkAdminPermission(channelID, userID)){
+	        if(message.toLowerCase().search("!say") === 0 && checkAdminPermission(userID, channelID)){
 	            var newMsg = message.slice(5);
 	            var generalChannel = "";
 	            for(var i in bot.servers[bot.serverFromChannel(channelID)].channels){
@@ -297,6 +348,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	                    });
 	                }
 	            }
+	            return;
 	        }
 
 	        if(message.search("!reverse") === 0){
@@ -310,6 +362,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	                to: channelID,
 	                message: newWord.join("")
 	            });
+	            return;
 	        }
 
 	         if(message.toLowerCase().search("no invite") >= 0) {
@@ -326,111 +379,36 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	                message: "\n**Username**: "+bot.username+"\n**Servers**: "+serversConnected()+"\n"+botUptime()+"\n**Version**: " + botVersion + "\n**Author**: Mesmaroth\n**Written in**: Javascript\n"+
 	                "**Library**: Discord.io\n**Library Version**: "+bot.internals["version"]+"\n**Avatar**: https://goo.gl/kp8L7m\n**Thanks to**: izy521, negativereview, yukine."
 	            });
+	            return;
 	        }
 
-	        if (message.toLowerCase().search("!delete") === 0 && checkAdminPermission(channelID, userID)) {   // Checks if user is in admin group
-	        var messageNum = message.slice(7);
-	         bot.getMessages({
-	            channel: channelID,
-	            limit: (Number(messageNum)+1)       //If 'limit' isn't added, it defaults to 50, the Discord default, 100 is the max.
-	        }, function (error, messageArr) {
-	        	var msgDel = 0;
-	            if(error) return console.error(error);
-	            var arrSize = messageArr.length;
-	            for(var i = 0; i < arrSize; i++){
-	                var msgID = messageArr[i].id;
-	                bot.deleteMessage({
-	                    channel: channelID,
-	                    messageID: msgID
-	                }, function(error){
-	                    if(error){
-	                        console.error(error);
-	                        return bot.sendMessage({
-	                            to:channelID,
-	                            message: "**Error "+error.statusCode+ " "+error.statusMessage+"**\n**Message:** "+error.message+"\n**Response:** \n```JSON\n"+JSON.stringify(error.response)+"\n```"
-	                        });
-	                    }
-	                });
-	                msgDel++;
-	            }
-	            if(msgDel !== 0) console.log("Deleted "+ (msgDel-1) + " messages for " + user + " at "+ printDateTime() + " on Server: " + bot.serverFromChannel(channelID));
-	            });
-	        }
-	        else if(message.search("!delete") === 0 && (checkAdminPermission(channelID, userID) === false)){
-	            bot.sendMessage({
-	                to: channelID,
-	                message: "You're not admin dude!"
-	            });
-	        }
-
-	        if(message.toLowerCase().search("!purge") === 0 && checkAdminPermission(channelID, userID)) {
-	        	if(message.length > 7){
-	        		var message = message.slice(7).toLowerCase();
+	        if(message.toLowerCase() === "!purge all"){			// Can only delete 5 messages including this command that called it. 
+	        	console.log("Executed purge all");	        	
 	        	bot.getMessages({
 	        		channel: channelID,
-	        		limit: 100
-	        	}, function (error, messageArr){
-	        		var msgDel=0;
-	        		if(error) throw error;
-		        	for (var i = 0; i < messageArr.length; i++){
-		        		if(message === "all") {
-		        		 bot.deleteMessage({
-		        				channel: channelID,
-		        				messageID: messageArr[i].id
-		        			}, function(error){
-		        				if (error){
-		                            console.error(error);
-		                            return bot.sendMessage({
-		                                to: channelID,
-		                                message: "**Error "+error.statusCode+ " "+error.statusMessage+"**\n**Message:** "+error.message+"\n**Response:** \n```JSON\n"+JSON.stringify(error.response)+"\n```"
-		                            });
-		                        }
-		        			});
-	                     msgDel++;
-		        		}
-
-		        		if(message === "me") message = user.toLowerCase();
-	                    if(message === "bot") message = bot.username.toLowerCase();
-		        		if(messageArr[i].author.username.toLowerCase() === message) {                         
-		        			bot.deleteMessage({
-		        				channel: channelID,
-		        				messageID: messageArr[i].id
-		        			}, function (error){
-		        				if (error){
-		                            console.error(error);
-		                            return bot.sendMessage({
-		                                to: channelID,
-		                                message: "**Error "+error.statusCode+ " "+error.statusMessage+"**\n**Message:** "+error.message+"\n**Response:** \n```JSON\n"+JSON.stringify(error.response)+"\n```"
-		                            });
-		                        }
-		        			});
-		        			msgDel++;
-		        		}	        		
-		        	}
-		        	if(msgDel !== 0) console.log("Deleted "+ (msgDel-1) + " messages for " + user + " at "+ printDateTime() + " on Server: " + bot.serverFromChannel(channelID));
-	        		});        	
-	        	}        	
+	        		limit: 5
+	        	}, function(error, messageArr){
+	        		var msgDel = 0;
+	        		for(var i = 0; i< messageArr.length; i++){
+	        			bot.deleteMessage({
+	        				channel: channelID,
+	        				messageID: messageArr[i].id
+	        			}, function(e){
+	        				if(e) bot.sendMessage({channel:channelID, message:e});
+	        			});
+	        			msgDel++;
+	        		}
+	        		console.log("Deleted "+ (msgDel-1) + " messages for " + user + " at "+ printDateTime() + " on Server: " + bot.serverFromChannel(channelID));
+	        	});	        	
+	        	return;
 	        }
-	        else if(message.toLowerCase().search("!purge") === 0 && (checkAdminPermission(channelID, userID) === false)){
-	            bot.sendMessage({
-	                to: channelID,
-	                message: "You're not Admin dude!"
-	            })
-	        }
-
-	        if(message.toLowerCase() === "peace" || message.toLowerCase() === "goodnight") {
-	            bot.sendMessage({
-	                to: channelID,
-	                message: "Peace out!",
-	                typing: true
-	            });
-	        }        
 
 	        if(message.toLowerCase() === "!date"){
 	            bot.sendMessage({
 	                to: channelID,
 	                message: botGetDate()
 	            });
+	            return;
 	        }
 
 	        if(message.toLowerCase() === "!time"){
@@ -438,173 +416,96 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	                to: channelID,
 	                message: botGetTime()
 	            });
+	            return;
 	        }
 
-	        // MEMES
-	        if(message.toLowerCase() === "!yes") {
-	            bot.sendMessage({
-	                to: channelID,
-	                message:"https://media.giphy.com/media/3rgXBOmTlzyFCURutG/giphy.gif"
-	            });
-	        }
+	        //if(message.search("!") === 0){	// Checks for custom cmds
+	        	//console.log("Executed");
+	   			var file = fs.readFileSync('akebot/cmds.json', 'utf8');
+	   			try{var cmd = JSON.parse(file)}
+	   			catch(e){return bot.sendMessage({to:channelID, message: "**Error** CMDS\n**Message**: *Your 'botCommands.json' file is causing an error, please revise!*```javascript\n"+e+"\n```"})};
+	   			for(var i in cmd){
+	   				if(message.toLowerCase() === cmd[i].command || message.toLowerCase() === cmd[i].command2){
+	   					if(cmd[i].hasOwnProperty('typing')){
+	   						if(typeof cmd[i].typing != 'boolean'){
+	   							cmd[i].typing = false;
+	   							bot.sendMessage({
+	   								to: channelID, 
+	   								message: "**Warning** CMDS\n**Message**: The property `\"typing\"` is not a boolean. Please make sure it is either `true` or `false` without quotes. Property set to `false`"
+	   							});
+	   						}
+	   					}
+	   					if(!(cmd[i].hasOwnProperty('type'))){
+	   						bot.sendMessage({
+		   							to: channelID,
+		   							message: "**Error** CMDS\n**Message**: No `\"type\"` property specified. Please check that your command properties are written correctly."
+		   						});
+		   						return;
+	   					}
+	   					if(cmd[i].type === "text"){
+	   						if(!(cmd[i].hasOwnProperty('message'))){
+		   						bot.sendMessage({
+		   							to: channelID,
+		   							message: "**Error** CMDS\n**Message**: No `\"message\"` property specified. Please check that your command properties are written correctly."
+		   						});
+		   						return;
+	   						}
+	   						if(cmd[i].hasOwnProperty('timeout')){
+	   							return setTimeout(function(){
+	   								bot.sendMessage({
+	   									to:channelID,
+	   									message: String(cmd[i].message),
+	   									typing: cmd[i].typing
+	   								});
+	   							},cmd[i].timeout)
+	   						}
+	   						else if (!(cmd[i].hasOwnProperty('timeout'))){
+	   							bot.sendMessage({
+	   								to:channelID,
+	   								message: cmd[i].message,
+	   								typing: cmd[i].typing
+	   							});
+	   						}
+	   					}
 
-	        if(message.toLowerCase()==="!neil"){
-	            bot.uploadFile({
-	                to: channelID,
-	                file: "pictures/Neil.png",
-	                filename: "Neil.png"
-	            }, function(error){
-	            	if(error){
-	            		bot.sendMessage({
-						to: channelID,
-						message: "**Error**\n**Message**: "+error.message
-						});
-	            	}
-	            });
-	        }
+	   					if(cmd[i].type === "image"){
+	   						if(!(cmd[i].hasOwnProperty('filename')) || !(cmd[i].hasOwnProperty('file'))){
+	   							bot.sendMessage({
+	   								to: channelID,
+	   								message: "**Error** CMDS\n**Message**: No `\"filename\"` or `\"file\"` property specified. Please check that your command properties are written correctly."
+	   							});
+	   							return;
+	   						}
+	   						bot.uploadFile({
+				                to: channelID,
+				                file: cmd[i].file,
+				                filename: cmd[i].filename,
+				                message: cmd[i].message
+				            }, function(error,response){
+				                if(error){
+				                    bot.sendMessage({
+				                        to: channelID,
+				                        message: "**Error**\n**Message**: "+error.message
+				                    });
+				                }
+				            });
+	   					}
+	   				}
+	   			}
+	   		//}
 
-	        if(message.toLowerCase()==="!nice") {
-	            bot.uploadFile({
-	                to: channelID,
-	                file: "pictures/noice.jpg",
-	                filename: "noice.jpg"
-	            }, function(error){
-	            	if(error){
-	            		bot.sendMessage({
-						to: channelID,
-						message: "**Error**\n**Message**: "+error.message
-						});
-	            	}
-	            });
-	        }
-
-	        if(message.toLowerCase() === "!rekt" || message.toLowerCase() === "rekt") {
-	            bot.sendMessage({
-	                to: channelID,
-	                message: "https://giphy.com/gifs/rekt-vSR0fhtT5A9by"
-	            });
-	        }
-
-	        if (message.toLowerCase() === "why?") {
-	            bot.sendMessage({
-	                to: channelID,
-	                message: "Because fuck you! That's why!"
-	            });
-	        }
-
-	        if(message.toLowerCase() === "!doit") {
-	            bot.sendMessage({
-	                to: channelID,
-	                message: "https://media.giphy.com/media/TCaq4FekwSV5m/giphy.gif"
-	            });
-	        }
-
-	        if(message.toLowerCase() === "!bmj") {
-	            bot.sendMessage({
-	                to: channelID,
-	                message: "http://cdn.makeagif.com/media/9-13-2015/28JfPx.gif"
-	            });
-	        }
-
-	        if(message.toLowerCase() === "!whoa") {
-	            bot.uploadFile({
-	                to: channelID,
-	                file: "pictures/whoaMan.jpg",
-	                filename: "whoaMan.jpg"
-	            }, function(error,response){
-	                if(error){
-	                    bot.sendMessage({
-	                        to: channelID,
-	                        message: "**Error**\n**Message**: "+error.message
-	                    })
-	                }
-	            });
-	        }
-
-	        if(message.toLowerCase() === "!feelsbad" || message.toLowerCase() === "!feelsbadman") {
-	            bot.uploadFile({
-	            	to: channelID,
-	            	file: './pictures/feelsBadMan.png',
-	            	filename: "feelsBadMan.png"
-	            }, function(error){
-	            	if(error){
-	            		bot.sendMessage({
-						to: channelID,
-						message: "**Error**\n**Message**: "+error.message
-						});
-	            	}
-	            });
-	        }
-
-	        if(message.toLowerCase() === "!feelsgood" || message.toLowerCase() === "!feelsgoodman") {
-	            bot.uploadFile({
-	            	to: channelID,
-	            	file: './pictures/feelsGoodMan.png',
-	            	filename: "feelsGoodMan.png"
-	            }, function(error){
-	            	if(error){
-	            		bot.sendMessage({
-						to: channelID,
-						message: "**Error**\n**Message**: "+error.message
-						});
-	            	}
-	            });
-	        }
-
-	        if(message.toLowerCase() === "!topkek") {
-	            bot.sendMessage({
-	                to: channelID,
-	                message: "http://i1.kym-cdn.com/photos/images/list/000/706/368/0cc.gif"
-	            });
-	        }
-
-	        if(message.toLowerCase() === "!bobe") {
-	            bot.uploadFile({
-	            	to: channelID,
-	            	file: './pictures/feelsGoodMon.png',
-	            	filename: "feelsGoodMon.png"
-	            }, function(error){
-	            	if(error){
-	            		bot.sendMessage({
-						to: channelID,
-						message: "**Error**\n**Message**: "+error.message
-						});
-	            	}
-	            });
-	        }
-
-	        if(message === "(╯°□°）╯︵ ┻━┻"){
-	        	setTimeout(function(){
-	        		bot.sendMessage({
-		        		to: channelID,
-		        		message: "┬─┬﻿ ノ( ゜-゜ノ)",
-		        		typing: true
-	        		});
-	        	}, 1250)
-	        }
-
-	        if(message.toLowerCase() === "gitgud" || message.toLowerCase() === "!gitgud"){
-	            bot.sendMessage({
-	                to: channelID,
-	                message: "https://cdn.discordapp.com/attachments/102910652447752192/170747206842712066/gitgud.gif"
-	            });
-	        }
-
-
-	        if(message.toLowerCase() === "!israel"){
-	            bot.uploadFile({
-	            	to: channelID,
-	            	file: './pictures/angryTyrone.png',
-	            	filename: "angryTyrone.png"
-	            }, function(error){
-	            	if(error){
-	            		bot.sendMessage({
-						to: channelID,
-						message: "**Error**\n**Message**: "+error.message
-						});
-	            	}
-	            });
-	        }
+	   		if(message === "!cmds") {
+	   			var file = fs.readFileSync('akebot/cmds.json', 'utf8');
+	   			var file = JSON.parse(file);
+	   			var commands = [];
+	   			for(var i = 0 ; i < file.length; i++){
+	   				commands.push(JSON.stringify({command: file[i].command, type: file[i].type},null,'\t'));
+	   			}
+	   			bot.sendMessage({
+	   				to: channelID,
+	   				message: "```javascript\n" + commands.join('\n') + "\n```"
+	   			});
+	   		}
 	    }
 	}
 
