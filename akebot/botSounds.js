@@ -3,9 +3,9 @@ var fs = require('fs');
 function searchSong(message, soundsList){
     var songName = message.slice(1);
     for(var i = 0; i < soundsList.length; i++){
-       if(soundsList[i].includes(songName) === true) {
-        return i;
-       }
+        var soundListName = soundsList[i].split('.');   // Splitting the name and extension
+        soundListName = soundListName[0];
+        if(soundListName === songName) return i;
     }
     return null;
 }
