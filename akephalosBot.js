@@ -315,7 +315,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 
 	        if(message.toLowerCase() === "!commands") {
 	            try {
-	                var commands = fs.readFileSync('./akebot/botCommands.txt', 'utf8');
+	                var commands = fs.readFileSync('./akebot/commandList.txt', 'utf8');
 	                bot.sendMessage({
 	                    to: channelID,
 	                    message: "\n**"+bot.username+" Commands**\n"+commands
@@ -421,7 +421,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 
 	        //if(message.search("!") === 0){	// Checks for custom cmds
 	        	//console.log("Executed");
-	   			var file = fs.readFileSync('akebot/cmds.json', 'utf8');
+	   			var file = fs.readFileSync('akebot/botCommands.json', 'utf8');
 	   			try{var cmd = JSON.parse(file)}
 	   			catch(e){return bot.sendMessage({to:channelID, message: "**Error** CMDS\n**Message**: *Your 'botCommands.json' file is causing an error, please revise!*```javascript\n"+e+"\n```"})};
 	   			for(var i in cmd){
@@ -495,7 +495,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   		//}
 
 	   		if(message === "!cmds") {
-	   			var file = fs.readFileSync('akebot/cmds.json', 'utf8');
+	   			var file = fs.readFileSync('akebot/botCommands.json', 'utf8');
 	   			var file = JSON.parse(file);
 	   			var commands = [];
 	   			for(var i = 0 ; i < file.length; i++){
