@@ -46,10 +46,7 @@ You don't need to code anything for putting custom sounds. You just need to drag
  **Admins** *Must be admin*
   - `!delete [number]`: Specify amount of messages to be deleted
   - `!say [message]`: Relays your message from any channel or DM to the general channel
-  - `!purge [username]`: Deletes up to 100 of the users messages
-  - `!purge me`: Deletes up to 100 of your own messages
   - `!purge all`: Deletes up to 100 messages of everyone's messages
-  - `!purge bot`: Deletes up to 100 messages of the bots messages
 
 
  **Memes**
