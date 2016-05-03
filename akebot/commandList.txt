@@ -9,15 +9,15 @@
 • `!music`: Display commands for the musicbot
 • `!twitch [username]`: Checks if this twitch user is streaming
 • `!ask [Question]`: Ask the bot anything
-• `!servers`: Shows how many servers the bot is connected to.
+• `!servers`: Shows how many servers the bot is connected to
 
 **Admins** *Must be admin*
-• `!delete [number]`: Specify amount of messages to be deleted
+• `!reboot`: Reboot the bot is something is wrong
 • `!say [message]`: Relays your message from any channel or DM to the general channel
-• `!purge all`: Deletes up to fifteen messages at a time. [Optional] Add a number to specifiy an amount up to 15.
-• `!purge me`: Deletes up to fifteen of your messages at a time. [Optional] Add a number to specifiy an amount up to 15.
+• `!purge all`: Deletes up to fifteen messages at a time. [Optional] Add a number to specifiy an amount up to 15
+• `!purge me`: Deletes up to fifteen of your messages at a time. [Optional] Add a number to specifiy an amount up to 15
 • `!purge bot`: Deletes up to fifteen of the bot's messages at a time. [Optional] Add a number to specifiy an amount up to 15.
-• `!purge [Number]`: Deletes a specified amount of messages to be deleted.
+• `!purge [Number]`: Deletes a specified amount of messages to be deleted
 
 
 **Memes**
@@ -30,3 +30,4 @@
 • `!bmj`: John Cena
 • `!doit`: Do it
 • `!nice`: Nice
+• `!neil`: Neil Degrasse Tyson 
