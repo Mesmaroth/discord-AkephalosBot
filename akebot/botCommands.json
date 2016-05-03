@@ -4,12 +4,71 @@
 		"type": "text",
 		"message": "pong",
 		"typing": true
+	},	
+	{
+		"command" : "!neil",
+		"type" : "image",
+		"file" : "pictures/neil.png",
+		"filename" : "neil.png"		
 	},
 	{
-		"command": "!neil",
-		"type": "image",
-		"file": "pictures/neil.png",
-		"filename": "neil.png",
-		"message": "Some text"
-	}
+		"command" : "!nice",
+		"type" : "image",
+		"file" : "pictures/noice.jpg",
+		"filename" : "noice.jpg"
+	},
+	{
+		"command" : "!whoa",
+		"type" : "image",
+		"file" : "pictures/whoaMan.jpg",
+		"filename" : "whoaMan.jpg"
+	},
+	{
+		"command" : "!feelsbad",
+		"type" : "image",
+		"file" : "pictures/feelsBadMan.png",
+		"filename" : "feelsBadMan.png"
+	},
+	{
+		"command" : "!feelsgood",
+		"type" : "image",
+		"file" : "pictures/feelsGoodMan.png",
+		"filename" : "feelsGoodMan.png"
+	},
+	{
+		"command" : "!rekt",
+		"command2" : "rekt",
+		"type" : "text",
+		"message" : "https://giphy.com/gifs/rekt-vSR0fhtT5A9by"
+	},
+	{
+		"command" : "!doit",
+		"type" : "text",
+		"message" : "https://media.giphy.com/media/TCaq4FekwSV5m/giphy.gif"
+	},
+	{
+		"command" : "!bmj",
+		"type" : "text",
+		"message": "http://cdn.makeagif.com/media/9-13-2015/28JfPx.gif"
+	},
+	{
+		"command" : "!yes",
+		"type": "text",
+		"message" : "https://media.giphy.com/media/3rgXBOmTlzyFCURutG/giphy.gif"
+	},
+	{
+		"command": "(╯°□°）╯︵ ┻━┻",
+		"type": "text",
+		"message": "┬─┬﻿ ノ( ゜-゜ノ)",
+		"typing": true,
+		"timeout": 500
+	},	
+	{
+		"command": "peace",
+		"command2": "goodnight",
+		"type": "text",
+		"typing": true,
+		"message": "Peace out! :wave:"
+	},
+	
 ]
