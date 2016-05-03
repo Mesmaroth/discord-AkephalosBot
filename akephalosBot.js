@@ -185,7 +185,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	    if(rawEvent.d.author.username !== bot.username){                 // Does not check for bot's own messages.        
 	    	// ------ GlOBAL COMMANDS ---------
 	        if(message.toLowerCase() === "~writeout" && isDev(userID)){
-	            fs.writeFile('bot.JSON', "Updated at: "+ printDateTime() + "\n\n" + JSON.stringify(bot, null, '\t'), function(error){
+	            fs.writeFile('bot.json', "Updated at: "+ printDateTime() + "\n\n" + JSON.stringify(bot, null, '\t'), function(error){
 	                if(error) throw error;
 	                console.log("Succesfully written bot properties");
 	                bot.sendMessage({
@@ -204,18 +204,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            console.log("[DISCONNECTED]");
 	            bot.disconnect();	            
 	            return;
-	        }
-
-	        if(message === "~reboot" && isAdmin(userID, channelID)){
-	        	bot.sendMessage({
-	                to: channelID,
-	                message: "*Rebooting...*"
-	            });
-	            console.log("[REBOOTING]");
-	           setTimeout(()=>{ bot.disconnect()}, 2000);
-	            reboot = true;
-	            return;
-	        }
+	        }	        
 
 	        if(message.toLowerCase().search("~announce") === 0 && isDev(userID, channelID)){
 	        	botAnnounce(message);
@@ -224,14 +213,15 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 
 	        // ------------END of Global Commands------------
 
-	        if(message.toLowerCase() === "!uploadfile"){
-	        	if(rawEvent.d.attachments.length > 0){
-	        		bot.sendMessage({
-	        			to:channelID,
-	        			message: "\n**URL**\n```javascript\n"+JSON.stringify(rawEvent.d.attachments[0], null, '\t')+"\n```"
-	        		});
-	        	}
-	        	return;
+	        if(message === "!reboot" && isAdmin(userID, channelID)){
+	        	bot.sendMessage({
+	                to: channelID,
+	                message: "*Rebooting...*"
+	            });
+	            console.log("[REBOOTING]");
+	           setTimeout(()=>{ bot.disconnect()}, 2000);
+	            reboot = true;
+	            return;
 	        }
 
 	        if(message.toLowerCase().search("!setgame") === 0 && isAdmin(userID, channelID)){
