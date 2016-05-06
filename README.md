@@ -3,10 +3,9 @@ A simple bot written in JavaScript for [Discord](http://www.discord.gg)
 
 Library: [Discord.io](https://github.com/izy521/discord.io)
 
-If you have any questions please ask them in my test Server: https://discord.gg/0tYqr4FWusEQHErS
+If you have any questions please ask them in my test Server: 
+[![Discord]((https://discordapp.com/api/servers/160436336095002624/widget.png?style=banner3)](https://discord.gg/0tYqr4FWusEQHErS)
 If you don't want to setup your bot, you can use mines by [Authorizing AkephalosBot](https://discordapp.com/oauth2/authorize?&client_id=158451686627737600&scope=bot)
-
-You need Node.js 0.12.x or greater installed. Along with making sure NPM is installed with node.js when you install it. Once installed you need to download the discord library `npm install discord.io` after you have installed the library you then need to install the required modules to run this bot.
 
 ### Required Modules:
  - cleverbot: `npm install cleverbot.io`
@@ -16,8 +15,8 @@ You need Node.js 0.12.x or greater installed. Along with making sure NPM is inst
 
 
 ### Installation:
- Make sure you have the required modules including Discord.io: `npm install discord.io` 
- To recieve the latest updates: 
+ You need Node.js 0.12.x or greater installed. Along with making sure NPM is installed with node.js when you install it. Once installed you need to download the discord library `npm install discord.io` after you have installed the library you then need to install the required modules to run this bot.
+ Note: To recieve the latest updates: 
  `git clone https://github.com/Mesmaroth/discord-AkephalosBot.git`
  
  - Put your login details in `akebot/botLogin.js`
@@ -34,7 +33,7 @@ For simple custom commands please follow the format in `akebot/botCommands.json`
 
 ### Bot Commands: 
 
- **Sudo Dev Commands** *Commands only for the bot developer, You. Make sure your credenitals is correct in `akebot/sudo.json`*
+ **Sudo Dev Commands** *Commands only for the bot developer, e.g You. Make sure your credenitals is correct in `akebot/sudo.json`*
  - `~writeout`: Outputs the bot properties for data to a file called bot.JSON
  - `~disconnect`: Disconnects the bot
  - `~announce`: Global announcment to all servers this bot is connected to. Can be used for emergencies
@@ -51,7 +50,7 @@ For simple custom commands please follow the format in `akebot/botCommands.json`
   - `!ask [Question]`: Ask the bot anything
   - `!servers`: Shows how many servers the bot is connected to
 
- **Admins** *Must be admin*
+ **Admins** *Must be in group admin*
   - `!reboot`: Reboot the bot is something is wrong
   - `!say [message]`: Relays your message from any channel or DM to the general channel
   - `!purge all`: Deletes up to fifteen messages at a time. [Optional] Add a number to specifiy an amount up to 15
