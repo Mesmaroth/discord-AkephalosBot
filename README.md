@@ -4,7 +4,7 @@ A simple bot written in JavaScript for [Discord](http://www.discord.gg)
 Library: [Discord.io](https://github.com/izy521/discord.io)
 
 If you have any questions please ask them in my test Server: 
-[![Discord]((https://discordapp.com/api/servers/160436336095002624/widget.png?style=banner3)](https://discord.gg/0tYqr4FWusEQHErS)
+[![Discord](https://discordapp.com/api/servers/160436336095002624/widget.png?style=banner3)](https://discord.gg/0tYqr4FWusEQHErS)
 If you don't want to setup your bot, you can use mines by [Authorizing AkephalosBot](https://discordapp.com/oauth2/authorize?&client_id=158451686627737600&scope=bot)
 
 ### Required Modules:
