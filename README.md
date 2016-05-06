@@ -39,7 +39,7 @@ For simple custom commands please follow the format in `akebot/botCommands.json`
  - `~announce`: Global announcment to all servers this bot is connected to. Can be used for emergencies
 
  **General**
-  - `!about`: About Akephalos
+  - `!about`: About this bot
   - `!joinServer`: If you wish to invite the bot to your server (Alternative: `!addServer`)
   - `!upTime`: bot up time
   - `!date`: Display the date
