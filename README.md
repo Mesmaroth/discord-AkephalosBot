@@ -31,7 +31,8 @@ You don't need to code anything for putting custom sounds. You just need to drag
 ### Adding commands: 
 Please follow the format in `akebot/botCommands.json` in order to create or edit your commands. If you want to cusomize the output of `!commands` edit `commandList.txt`.
 
-  #### Properties:
+  **Properties**:
+
     - `command` or `command2`: Set the command you want this command to be triggered when someone types it
     - `type`: The type of command you are trying to make. Either `text` or `image`
     - `delay`: The amount of time to delay your command from being executed in milliseconds e.g 5000 = 5 seconds Without quotes
