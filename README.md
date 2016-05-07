@@ -42,8 +42,7 @@ Please follow the format in `akebot/botCommands.json` in order to create or edit
 
 
 
-                          ### Commands                                                           
-### Bot Commands: 
+## Bot Commands: 
 
  **Sudo Dev Commands** *Commands only for the bot developer, e.g You. Make sure your credenitals is correct in `akebot/sudo.json`*
   - `~writeout`: Outputs the bot properties for data to a file called bot.JSON
