@@ -211,6 +211,12 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        	return;
 	        }
 
+	        if(message.toLowerCase().search("~setgame") === 0 && isDev(userID)){
+	            var message = message.slice(9);
+	            setPresence(message);
+	            return;
+	        }
+
 	        // ------------END of Global Commands------------
 
 	        if(message === "!reboot" && isAdmin(userID, channelID)){
@@ -221,12 +227,6 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            console.log("[REBOOTING]");
 	           setTimeout(()=>{ bot.disconnect()}, 2000);
 	            reboot = true;
-	            return;
-	        }
-
-	        if(message.toLowerCase().search("!setgame") === 0 && isAdmin(userID, channelID)){
-	            var message = message.slice(9);
-	            setPresence(message);
 	            return;
 	        }
 
@@ -362,9 +362,13 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        }
 
 	        if(message.toLowerCase() === "!about"){
+	        	var devName = "Undefined";
+	        	try{devName = JSON.parse(fs.readFileSync('akebot/sudo.json','utf8')).username}
+	        	catch(e) {if(error) console.log(error)};
 	            bot.sendMessage({
 	                to: channelID,
-	                message: "\n**Username**: "+bot.username+"\n**Servers**: "+serversConnected()+"\n"+botUptime()+"\n**Version**: " + botVersion + "\n**Author**: Mesmaroth\n**Written in**: Javascript\n"+
+	                message: "\n**Bot Username**: "+bot.username+"\n**Bot Owner**: "+devName+"\n**Servers Connected**: "+serversConnected()+"\n"+
+	                botUptime()+"\n**Version**: " + botVersion + "\n**Author**: Mesmaroth\n**Written in**: Javascript\n"+
 	                "**Library**: Discord.io\n**Library Version**: "+bot.internals["version"]+"\n**Avatar**: https://goo.gl/kp8L7m\n**Thanks to**: izy521, negativereview, yukine."
 	            });
 	            return;
@@ -378,7 +382,6 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        	if(message === "") return;
 	        	if(message.search(' ') !== -1){
 	        		message = message.split(' ');
-	        		console.log(message);
 	        		name = message[0]
 	        		amount = Number(message[1]);
 	        		if(name === "me") {
@@ -390,20 +393,18 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        	else{
 	        		if(!(isNaN(message))){
 		        		name = Number(message);
-		        		amount = name;
+		        		amount = name + 1;
 		        	}
 		        	if(message === "me") {
 	        			name = user;
 	        			amount+=1;
 	        		}
-		        	if(message === "bot") name = bot.username;	
+		        	if(message === "bot") name = bot.username;
 	        	}	        	
 		        //console.log("Message: " + message);
 		        //console.log("Name: " + name);
 		        //console.log("Amount: " + amount);
-	        	if(!(isNaN(name))){
-	        		console.log("isNaN");
-	        		
+	        	if(!(isNaN(name))){	        		
 	        		bot.getMessages({
 	        			channel: channelID,
 	        			limit: amount
@@ -447,7 +448,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        	}, function(error, messageArr){
 	        		var count = 0;
 	        		for(var i = 0; i < messageArr.length; i++){
-	        			if(name === messageArr[i].author.username){
+	        			if(name.toLowerCase() === messageArr[i].author.username.toLowerCase()){
 	        				userMessages.push(messageArr[i]);
 	        			}
 	        		}
@@ -481,83 +482,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            return;
 	        }
 
-	        //if(message.search("!") === 0){	// Checks for custom cmds
-	        	//console.log("Executed");
-	   			try{var file = fs.readFileSync('./akebot/botCommands.json', 'utf8')}
-	   			catch(error) {return bot.sendMessage({to:channelID, message:"**Error** botCommands.json\n```javascript\n"+error+"\n```"})};
-	   			try{var cmd = JSON.parse(file)}
-	   			catch(error){return bot.sendMessage({to:channelID, message: "**Error** CMDS\n**Message**: *Your 'botCommands.json' file is causing an error, please revise!*```javascript\n"+error+"\n```"})};
-	   			for(var i in cmd){
-	   				if(message.toLowerCase() === cmd[i].command || message.toLowerCase() === cmd[i].command2){
-	   					if(cmd[i].hasOwnProperty('typing')){
-	   						if(typeof cmd[i].typing != 'boolean'){
-	   							cmd[i].typing = false;
-	   							bot.sendMessage({
-	   								to: channelID, 
-	   								message: "**Warning** CMDS\n**Message**: The property `\"typing\"` is not a boolean. Please make sure it is either `true` or `false` without quotes. Property set to `false`"
-	   							});
-	   						}
-	   					}
-	   					if(!(cmd[i].hasOwnProperty('type'))){
-	   						bot.sendMessage({
-		   							to: channelID,
-		   							message: "**Error** CMDS\n**Message**: No `\"type\"` property specified. Please check that your command properties are written correctly."
-		   						});
-		   						return;
-	   					}
-	   					if(cmd[i].type === "text"){
-	   						if(!(cmd[i].hasOwnProperty('message'))){
-		   						bot.sendMessage({
-		   							to: channelID,
-		   							message: "**Error** CMDS\n**Message**: No `\"message\"` property specified. Please check that your command properties are written correctly."
-		   						});
-		   						return;
-	   						}
-	   						if(cmd[i].hasOwnProperty('timeout')){
-	   							return setTimeout(function(){
-	   								bot.sendMessage({
-	   									to:channelID,
-	   									message: String(cmd[i].message),
-	   									typing: cmd[i].typing
-	   								});
-	   							},cmd[i].timeout)
-	   						}
-	   						else if (!(cmd[i].hasOwnProperty('timeout'))){
-	   							bot.sendMessage({
-	   								to:channelID,
-	   								message: cmd[i].message,
-	   								typing: cmd[i].typing
-	   							});
-	   						}
-	   					}
-
-	   					if(cmd[i].type === "image"){
-	   						if(!(cmd[i].hasOwnProperty('filename')) || !(cmd[i].hasOwnProperty('file'))){
-	   							bot.sendMessage({
-	   								to: channelID,
-	   								message: "**Error** CMDS\n**Message**: No `\"filename\"` or `\"file\"` property specified. Please check that your command properties are written correctly."
-	   							});
-	   							return;
-	   						}
-	   						bot.uploadFile({
-				                to: channelID,
-				                file: cmd[i].file,
-				                filename: cmd[i].filename,
-				                message: cmd[i].message
-				            }, function(error,response){
-				                if(error){
-				                    bot.sendMessage({
-				                        to: channelID,
-				                        message: "**Error**\n**Message**: "+error.message
-				                    });
-				                }
-				            });
-	   					}
-	   				}
-	   			}
-	   		//}
-
-	   		if(message === "!cmds") {
+	        if(message === "!cmds") {
 	   			var file = fs.readFileSync('akebot/botCommands.json', 'utf8');
 	   			var file = JSON.parse(file);
 	   			var commands = [];
@@ -569,6 +494,87 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   				message: "```javascript\n" + commands.join('\n') + "\n```"
 	   			});
 	   		}
+
+	        // Check message to see if it triggers any commands in botCommands.json
+	   		try{var file = fs.readFileSync('./akebot/botCommands.json', 'utf8')}
+	   		catch(error) {return bot.sendMessage({to:channelID, message:"**Error** botCommands.json\n```javascript\n"+error+"\n```"})};
+	   		try{var cmd = JSON.parse(file)}
+	   		catch(error){return bot.sendMessage({to:channelID, message: "**Error** CMDS\n**Message**: *Your 'botCommands.json' file is causing an error, please revise!*```javascript\n"+error+"\n```"})};
+	   		for(var i in cmd){
+	   			if(message.toLowerCase() === cmd[i].command || message.toLowerCase() === cmd[i].command2){	   				
+	   				if(!(cmd[i].hasOwnProperty('type'))){			// Check if theres any type property
+	   					bot.sendMessage({
+		   					to: channelID,
+		   					message: "**Error** CMDS\n**Message**: No `\"type\"` property specified. Please check that your command properties are written correctly."
+		   					});
+		   					return;
+	   				}
+	   				if(cmd[i].hasOwnProperty('typing')){
+	   					if(typeof cmd[i].typing != 'boolean'){
+	   						cmd[i].typing = false;
+	   						bot.sendMessage({
+	   							to: channelID, 
+	   							message: "**Warning** CMDS\n**Message**: The property `\"typing\"` is not a boolean. Please make sure it is either `true` or `false` without quotes. Property set to `false`"
+	   						});
+	   					}
+	   				}
+
+	   				if(cmd[i].type === "text"){
+	   					if(!(cmd[i].hasOwnProperty('message'))){
+		   					bot.sendMessage({
+		   						to: channelID,
+		   						message: "**Error** CMDS\n**Message**: No `\"message\"` property specified. Please check that your command properties are written correctly."
+		   					});
+		   					return;
+	   					}
+
+	   					if(cmd[i].hasOwnProperty('delay')){
+	   						setTimeout(function(){
+	   							bot.sendMessage({
+	   								to:channelID,
+	   								message: String(cmd[i].message),
+	   								typing: cmd[i].typing
+	   							});
+	   						},cmd[i].delay);
+	   					}
+	   					else if (!(cmd[i].hasOwnProperty('delay'))){
+	   						bot.sendMessage({
+	   							to:channelID,
+	   							message: cmd[i].message,
+	   							typing: cmd[i].typing
+	   						});
+	   					}
+
+	   					return;
+	   				}
+
+	   				if(cmd[i].type === "image"){
+	   					if(!(cmd[i].hasOwnProperty('filename')) || !(cmd[i].hasOwnProperty('file'))){
+	   						bot.sendMessage({
+	   							to: channelID,
+	   							message: "**Error** CMDS\n**Message**: No `\"filename\"` or `\"file\"` property specified. Please check that your command properties are written correctly."
+	   						});
+	   						return;
+	   					}
+	   					bot.uploadFile({
+				            to: channelID,
+				            file: cmd[i].file,
+				            filename: cmd[i].filename,
+				            message: cmd[i].message
+				        }, function(error,response){
+				            if(error){
+				                bot.sendMessage({
+				                    to: channelID,
+				                    message: "**Error**\n**Message**: "+error.message
+				                });
+				            }
+				        });
+				        return;
+	   				}
+
+	   			}
+	   		}
+
 	    }
 	}
 
