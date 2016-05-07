@@ -31,15 +31,14 @@ You don't need to code anything for putting custom sounds. You just need to drag
 ### Adding commands: 
 Please follow the format in `akebot/botCommands.json` in order to create or edit your commands. If you want to cusomize the output of `!commands` edit `commandList.txt`.
 
-  **Properties**:
-
-    - `command` or `command2`: Set the command you want this command to be triggered when someone types it
-    - `type`: The type of command you are trying to make. Either `text` or `image`
-    - `delay`: The amount of time to delay your command from being executed in milliseconds e.g 5000 = 5 seconds Without quotes
-    - `typing`: Shows that the bot is typing depending on the length of your message Set this to either `true` or `false` without quotes
-    - `message`: The output message you want to deliever after your command has been executed
-    - `file`: Path to your file, including extension `pictures/example.png`
-    - `filename`: Name of your file, be sure to include the extension if you want to display an image instead of uploading the image.
+ **Command Properties**:
+  - `command` or `command2`: Set the command you want this command to be triggered when someone types it
+  - `type`: The type of command you are trying to make. Either `text` or `image`
+  - `delay`: The amount of time to delay your command from being executed in milliseconds e.g 5000 = 5 seconds Without quotes
+  - `typing`: Shows that the bot is typing depending on the length of your message Set this to either `true` or `false` without quotes
+  - `message`: The output message you want to deliever after your command has been executed
+  - `file`: Path to your file, including extension `pictures/example.png`
+  - `filename`: Name of your file, be sure to include the extension if you want to display an image instead of uploading the image.
 
 
 
