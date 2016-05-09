@@ -1,6 +1,6 @@
 {
   "name": "Discord-AkephalosBot",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A simple bot written in JavaScript for [Discord](http://www.discord.gg)",
   "main": "akeBotLogin.js",
   "scripts": {
