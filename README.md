@@ -7,7 +7,7 @@ If you have any questions please ask them in my test Server:
 
 [![Discord](https://discordapp.com/api/servers/160436336095002624/widget.png?style=banner3)](https://discord.gg/0tYqr4FWusEQHErS)
 
-If you don't want to setup your bot, you can use mines by [Authorizing AkephalosBot](https://discordapp.com/oauth2/authorize?&client_id=158451686627737600&scope=bot)
+If you don't want to setup a bot, you can also use mines by [Authorizing AkephalosBot](https://discordapp.com/oauth2/authorize?&client_id=158451686627737600&scope=bot)
 
 ### Installation:
  You need Node.js 0.12.x or greater installed. Along with making sure NPM is installed with node.js when you install it. Once installed you need to download the discord library `npm install discord.io` after you have installed the library you then need to install the required modules to run this bot.
@@ -29,7 +29,8 @@ Sounds are executed when the command for that sound is called, the bot leaves th
 You don't need to code anything for putting custom sounds. You just need to drag and drop the file in to the `sounds` folder and you are all set. The command for executing the sound on discord is what ever the filename is. If I have a sound file named `example.mp3` in the sound folder, then the command for that would be `!example`.
 
 ### Adding commands: 
-Please follow the format in `akebot/botCommands.json` in order to create or edit your commands. If you want to cusomize the output of `!commands` edit `commandList.txt`.
+Please follow the format in `akebot/botCommands.json` in order to create or edit your commands. If you want to cusomize the output of `!commands` edit `commandList.txt`. 
+[New] You can now add a new command using `!addcmd` command but it's not yet fully optimized and works for text type commands only. See Admin command section.
 
  **Command Properties**:
   - `command` or `command2`: Set the command you want this command to be triggered when someone types it
@@ -38,7 +39,8 @@ Please follow the format in `akebot/botCommands.json` in order to create or edit
   - `typing`: Shows that the bot is typing depending on the length of your message Set this to either `true` or `false` without quotes
   - `message`: The output message you want to deliever after your command has been executed
   - `file`: Path to your file, including extension `pictures/example.png`
-  - `filename`: Name of your file, be sure to include the extension if you want to display an image instead of uploading the image.
+  - `filename`: Name of your file, be sure to include the extension if you want to display an image instead of uploading the image
+  - `tts`: Wether the message will be in Text To Speech
 
 
 
@@ -60,6 +62,7 @@ Please follow the format in `akebot/botCommands.json` in order to create or edit
   - `!sounds`: Displays a list of sounds
   - `!music`: Display commands for the musicbot
   - `!twitch [username]`: Checks if this twitch user is streaming
+  - `!twitchList`: Checks if all users from the Twitch list is online
   - `!ask [Question]`: Ask the bot anything
   - `!servers`: Shows how many servers the bot is connected to
 
@@ -69,6 +72,8 @@ Please follow the format in `akebot/botCommands.json` in order to create or edit
   - `!purge me`: Deletes up to fifteen of your messages at a time. [Optional] Add a number to specifiy an amount up to 15
   - `!purge bot`: Deletes up to fifteen of the bot's messages at a time. [Optional] Add a number to specifiy an amount up to 15
   - `!purge [Number]`: Deletes a specified amount of messages to be deleted
+  - `!addcmd [command] [type] [message]`: Create a command that will be written in the `botCommands.json` file
+  - `!delcmd [command]`: Deletes specified command if editable is true
 
  **Memes**
   - `!rekt`: Rekt Meme
