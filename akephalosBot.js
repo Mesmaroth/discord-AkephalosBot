@@ -13,17 +13,16 @@ var bot = new DiscordClient({
 var reboot = false;
 try {var botVersion = "Akebot v"+ require('./package.json')["version"]}
 catch(error) {console.log(error)};
-var gameList = [];					 // set Games
+var gameList = [];		// set Games
 
 
-
-
+// Sudo will be granted to the owner of the first server this bot is connected to. Be sure it's you. Otherwise you can edit it at the akebot/sudo.json file
 function sudoCheck(){
 	try {sudo = JSON.parse(fs.readFileSync('./akebot/sudo.json', 'utf8'))}
 	catch(e) {var sudo = {"id":"","username": "", "checked": false}};
 	if(sudo.checked === true) return;
-	var id;
-	var username;
+	var id = "";
+	var username = "";
 	for(var serverID in bot.servers){
 		id = bot.servers[serverID].owner_id;
 		username = bot.servers[serverID].members[id].username;
@@ -36,26 +35,28 @@ function sudoCheck(){
 	return console.log("Bot dev is set to " + sudo.username + " If this isn't you please correct it in the 'sudo.json' file");
 }
 
-function printDateTime(){       // month-day-year time for CLI
-    var d = new Date();
+function printDateTime(options){       // month-day-year time used for logging
+	
+	if(options === "date"){
+		var d = new Date();
+   		return d.toDateString();
+	}
+
+	if(options === "time"){
+		var d = new Date();
+    	var dHours = d.getHours().toString();
+    	var dMinutes = (d.getMinutes()<10) ? "0"+d.getMinutes().toString() : d.getMinutes().toString();
+    	if(dHours < 12)
+        	return dHours + ":" + dMinutes + " AM";
+    	else if (dHours > 12)
+        	return (dHours-12) + ":" + dMinutes + " PM";
+	}
+
+	// If no options specified then both date and time will be returned
+	var d = new Date();
     var dHours = (d.getHours() < 12) ? d.getHours().toString() : (d.getHours()-12).toString();
     var dMinutes = (d.getMinutes()<10) ? "0"+d.getMinutes().toString()+ "AM" : d.getMinutes().toString()+ "PM";
-    return d.toDateString()+" at "+dHours+":"+dMinutes;
-}
-
-function botGetDate(){
-    var d = new Date();
-    return d.toDateString();
-}
-
-function botGetTime(){
-    var d = new Date();
-    var dHours = d.getHours().toString();
-    var dMinutes = (d.getMinutes()<10) ? "0"+d.getMinutes().toString() : d.getMinutes().toString();
-    if(dHours < 12)
-        return dHours + ":" + dMinutes + " AM";
-    else if (dHours > 12)
-        return (dHours-12) + ":" + dMinutes + " PM";
+    return d.toDateString()+" at "+dHours+":"+dMinutes;    
 }
 
 function setPresence(name){
@@ -106,7 +107,7 @@ function isGuildOwner(userID, channelID){						// Checks if the user is server o
 	return false;
 }
 
-function isDev(userID){							// This checks if the user is the developer of this bot.
+function isDev(userID){							// This checks if the user is the bot owner
 	try{var devID = JSON.parse(fs.readFileSync('./akebot/sudo.json', 'utf8')).id}
 	catch(error) {if(error) return console.log(error)};
 	console.log(devID);
@@ -139,13 +140,14 @@ function botAnnounce(message){
 		}
 	}
 }
+
 // -------------- Testing Stream Check Interval --------------
 /*
 var twitchStreamCheck_interval;
 var streamChecked = false;
-function getStreamer(){	
+function watchStreamer(){	
 	var user = "bodom97";
-	twitchClient.checkStream(user, (userStream) => {
+	twitchClient.checkStream(user, function(userStream){
 		if(userStream.stream !== null){
 			bot.sendMessage({
 			    to: "102910652447752192",
@@ -160,7 +162,7 @@ function getStreamer(){
 	});
 }
 */
-// --------------------------------------------------------
+
 
 bot.on('debug', function (event) {
 	if(event.t === "GUILD_DELETE"){					// Test to log when the bot is kicked
@@ -182,8 +184,8 @@ bot.on('ready', function (rawEvent) {
     console.log("Servers: \n" + serverList.join('\n')+"\n");
     sudoCheck();
 
-    //getStreamer();
-   	//twitchStreamCheck_interval = setInterval(()=>{if(!(streamChecked)) getStreamer()}, 10000);
+    //watchStreamer();
+   	//twitchStreamCheck_interval = setInterval(()=>{if(!(streamChecked)) watchStreamer()}, 10000);
 });
 
 bot.on('disconnected', function(){
@@ -209,7 +211,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	else{			 // Else if Message is not a direct message
 	    if(rawEvent.d.author.username !== bot.username){                 // Does not check for bot's own messages.        
 	    	// ------ GlOBAL COMMANDS ---------
-	        if(message.toLowerCase() === "~writeout" && isDev(userID)){
+	        if(message === "~writeout" && isDev(userID)){
 	            fs.writeFile('bot.json', "Updated at: "+ printDateTime() + "\n\n" + JSON.stringify(bot, null, '\t'), function(error){
 	                if(error) throw error;
 	                console.log("Succesfully written bot properties");
@@ -221,7 +223,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            return;
 	        }
 
-	        if(message === "~disconnect" && isDev(userID)){
+	        if((message === "~disconnect" || message === "~exit") && isDev(userID)){
 	            bot.sendMessage({
 	                to: channelID,
 	                message: "*Exiting...*"
@@ -243,7 +245,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            return;
 	        }	        
 
-	        if(message.toLowerCase().search("~announce") === 0 && isDev(userID, channelID)){
+	        if(message.search("~announce") === 0 && isDev(userID)){
 	        	botAnnounce(message);
 	        	return;
 	        }
@@ -332,35 +334,39 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        if(message.toLowerCase().search("!delevent") === 0){
 	        	botEvents.deleteEvent(bot, channelID, message);
 	        }*/
+
 	        
 	        // ------------------- TWITCH----------------------
 	        // 			Twitch Check Interval
 	        /*
-	        if(message.toLowerCase().search("!tcheck") === 0){
-	        	console.log("Twitch check executed");
+	        if(message.toLowerCase().search("!twitchwatch") === 0){
 	        	message = message.split(' ');
 	        	message = message[1];
 
 	        	if(message === "false" || message === "off"){
 	        		clearInterval(twitchStreamCheck_interval);
+	        		console.log("Twitch Check Interval cleared");
 	        		bot.sendMessage({
 	        			to: channelID,
-	        			message: "*Twitch checking has been turned*  **Off**."
+	        			message: "*Twitch Watch has been turned*  **Off**."
 	        		})
 	        	}
 
 	        	if(message === "true" || message === "on"){
-	        		 getStreamer();
-   					 twitchStreamCheck_interval = setInterval(()=>{if(!(checked)) getStreamer()}, 10000);
-   					 bot.sendMessage({
+	        		console.log("Twitch Check Interval started");
+	        		checked = false
+	        		getStreamer();
+   					twitchStreamCheck_interval = setInterval(()=>{if(!(checked)) getStreamer()}, 10000);
+   					bot.sendMessage({
 	        			to: channelID,
-	        			message: "*Twitch checking has been turned*  **On**."
-	        		})
+	        			message: "*Twitch Watch has been turned*  **On**."
+	        		});
 	        	}
 
 	        	return;
 	        }
 	        */
+	        
 
 	        if(message.toLowerCase() === "!twitchlist"){					// Checks all streamers from twitchUserList if streaming
 	        	var streamers = fs.readFileSync('./twitch/twitchUserList.txt', 'utf8').split('\n');
@@ -460,7 +466,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            return;
 	        }
 
-	        if(message.toLowerCase().search("!purge") === 0){
+	        if(message.toLowerCase().search("!purge") === 0 && isAdmin(userID, channelID)){
 	        	var name = "";
 	        	var max = 20;
 	        	var amount = max;
@@ -555,7 +561,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        if(message.toLowerCase() === "!date"){
 	            bot.sendMessage({
 	                to: channelID,
-	                message: botGetDate()
+	                message: botGetDateTime("date")
 	            });
 	            return;
 	        }
@@ -563,7 +569,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        if(message.toLowerCase() === "!time"){
 	            bot.sendMessage({
 	                to: channelID,
-	                message: botGetTime()
+	                message: botGetDateTime("time")
 	            });
 	            return;
 	        }
@@ -593,11 +599,31 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   			var cmd = "";
 	   			var type = "";
 	   			var output = [];
+	   			var reservedCMDS = ['!commands', '!time', '!date', '!purge', '!servers', '!twitch', 
+	   			'!twitchlist', '!twitchwatch', '!uptime', '!cmds', '!addcmd', '!delcmd', '!cmd', '!sounds', '!say', '!reverse', '!about' ]
 	   			message = message.slice(8);
 	   			if(message.search(" ") !== -1){
 	   				message = message.split(" ");
 	   				cmd = message[0].toLowerCase();
 	   				type = message[1];
+
+	   				if(cmd.search("~") === 0){					// All tilde commands or future commmands are reserved for global dev commands
+	   					bot.sendMessage({
+	   							to: channelID,
+	   							message: "*Tilde commands are not allowed and is reserved.*"
+	   						});
+	   					return;
+	   				}
+
+	   				for(var i = 0; i < reservedCMDS.length; i++){					// Check if any of the command equals any of the reserved commands 
+	   					if(reservedCMDS[i] === cmd){
+	   						bot.sendMessage({
+	   							to: channelID,
+	   							message: "*This command `" + cmd +"` is reserved for the bot.*"
+	   						});
+	   						return;
+	   					}
+	   				}
 
 	   				if(type.toLowerCase() === "text"){
 	   					for(var i = 2; i < message.length; i++){
@@ -612,10 +638,23 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   				catch(error) {if(error) return console.log(error)};
 
 		   				for(var i = 0; i < commands.length; i++){
-		   					if(commands[i].command === cmd){
+		   					if(commands[i].command === cmd && commands[i].editable === true){
+		   						var oldMessage = commands[i].message;
+		   						commands[i].type = type;
+		   						commands[i].author = user.toLowerCase();
+		   						commands[i].message = output;
 		   						bot.sendMessage({
 		   							to: channelID,
-		   							message: "**Error**: *This command already exist.*\n```javascript\n"+JSON.stringify(commands[i], null, '\t')+"\n```"
+		   							message: "**Command Replaced**\n```javascript\nCommand: <"+cmd+">\nType: " + type +"\nBy: <"+ user +">\nMessage: " + output+ "\nOld Message: " + oldMessage + "```"
+		   						});
+		   						fs.writeFileSync('./akebot/botCommands.json', JSON.stringify(commands,null,'\t'));
+		   						return;
+		   					}
+
+		   					if(commands[i].command === cmd && commands[i].editable === false){
+		   						bot.sendMessage({
+		   							to: channelID,
+		   							message: "*This command already exist.*\n```javascript\n"+JSON.stringify(commands[i], null, '\t')+"\n```"
 		   						});
 		   						return;
 		   					}
@@ -631,7 +670,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   				fs.writeFileSync('./akebot/botCommands.json', JSON.stringify(commands,null,'\t'));
 		   				bot.sendMessage({
 		   					to: channelID,
-		   					message: "\n*Command Added*\n```javascript\nCommand: <"+cmd+">\nType: " + type +"\nCreator: <"+ user +">\nMessage: " + output+ "```"
+		   					message: "\n*Command Added*\n```javascript\nCommand: <"+cmd+">\nType: " + type +"\nBy: <"+ user +">\nMessage: " + output+ "```"
 		   				});
 	   				}
 
@@ -667,13 +706,87 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   					}
 	   				}
 	   			}
-
 	   			bot.sendMessage({
 	   				to: channelID,
-	   				message: "\n**Error**: *No such command found.*"
+	   				message: "\n**Error**: *Command found.*"
 	   			});
-
 	   			return;
+	   		}
+
+	   		if(message.toLowerCase().search("!cmd") === 0){
+	   			message = message.slice(5);
+	   			try{ 
+		   			var commands = fs.readFileSync('./akebot/botCommands.json', 'utf8');
+		   			commands = JSON.parse(commands);
+		   		}
+		   		catch(error) {if(error) return console.log(error)};
+		   		var author = "Server";
+		   		for(var i = 0; i < commands.length; i++){
+		   			if(commands[i].command === message || commands[i].command2 === message){
+		   				if(commands[i].hasOwnProperty("author")){
+		   					author = commands[i].author;
+		   				}
+
+		   				if(commands[i].type === 'text'){		   					
+			   				if(commands[i].hasOwnProperty("command2")){
+			   					bot.sendMessage({
+			   						to: channelID,
+			   						message: "\n**Command**\n```javascript\nCommand: <"+commands[i].command+">\nCommand 2: <"+ commands[i].command2+ ">\nType: " + commands[i].type +"\nBy: <"+ author +">\nMessage: " + commands[i].message+ "```"
+			   					});
+			   					return;
+			   				}
+			   				
+			   				bot.sendMessage({
+			   					to: channelID,
+			   					message: "\n**Command**\n```javascript\nCommand: <"+commands[i].command+">\nType: " + commands[i].type +"\nBy: <"+ author +">\nMessage: " + commands[i].message+ "```"
+			   				});
+			   				return;
+		   				}
+
+		   				if(commands[i].type === 'image'){
+		   					if( commands[i].hasOwnProperty('message') && commands[i].hasOwnProperty("command2")){
+		   						bot.sendMessage({
+			   						to: channelID,
+			   						message: "\n**Command**\n```javascript\nCommand: <"+commands[i].command+">\nCommand 2: <"+ commands[i].command2+ ">\nType: " + commands[i].type +"\nFile: "+commands[i].file+
+			   						"\nFile Name: "+ commands[i].filename+"\nBy: <"+ author +">\nMessage: " + commands[i].message+ "```"
+			   					});
+			   					return;
+		   					}
+		   					if( commands[i].hasOwnProperty('message') && !(commands[i].hasOwnProperty("command2")) ){
+		   						bot.sendMessage({
+			   						to: channelID,
+			   						message: "\n**Command**\n```javascript\nCommand: <"+commands[i].command+">\nType: " + commands[i].type +"\nFile: "+commands[i].file+
+			   						"\nFile Name: "+ commands[i].filename+"\nBy: <"+ author +">\nMessage: " + commands[i].message+ "```"
+			   					});
+		   						return;
+		   					}
+
+		   					if( !(commands[i].hasOwnProperty('message')) && commands[i].hasOwnProperty("command2")){
+		   						bot.sendMessage({
+			   						to: channelID,
+			   						message: "\n**Command**\n```javascript\nCommand: <"+commands[i].command+">\nCommand 2: <"+ commands[i].command2+ ">\nType: " + commands[i].type +"\nFile: "+commands[i].file+
+			   						"\nFile Name: "+ commands[i].filename+"\nBy: <"+ author +">\n```"
+			   					});
+		   						return;
+		   					}
+
+		   					if( !(commands[i].hasOwnProperty('message')) && !(commands[i].hasOwnProperty("command2")) ){
+		   						bot.sendMessage({
+			   						to: channelID,
+			   						message: "\n**Command**\n```javascript\nCommand: <"+commands[i].command+">\nType: " + commands[i].type +"\nFile: "+commands[i].file+
+			   						"\nFile Name: "+ commands[i].filename+"\nBy: <"+ author +">\n```"
+			   					});
+		   						return;
+		   					}
+		   				}
+		   			}
+		   			
+		   		}
+		   		bot.sendMessage({
+		   			to: channelID,
+		   			message: "*No command found.*"
+		   		});
+		   		return;
 	   		}
 
 	   		// Check if the command matches a sound from the sounds folder
