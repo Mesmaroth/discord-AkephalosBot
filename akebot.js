@@ -1,19 +1,18 @@
 var DiscordClient = require('discord.io');
 var fs = require('fs');
+var request = require('request');
 var botLogin = require('./akebot/botLogin.js');
 //var botEvents = require('./akebot/botEvents.js');
 var botSounds = require('./akebot/botSounds.js');
 var cleverBot = require('./akebot/cleverBot.js');
 var twitchClient = require('./twitch/twitch.js');
 var uptimer = require('uptimer');
-var bot = new DiscordClient({
-    token: botLogin.token,	// Or bot.email, bot.password
-    autorun: true
-});
+var bot = new DiscordClient({token: botLogin.token, autorun: true});		// Or add bot.email, bot.password
 var reboot = false;
 try {var botVersion = "Akebot v"+ require('./package.json')["version"]}
 catch(error) {console.log(error)};
-var gameList = [];		// set Games
+var gameList = [];		// games here will be picked at random
+
 
 
 // Sudo will be granted to the owner of the first server this bot is connected to. Be sure it's you. Otherwise you can edit it at the akebot/sudo.json file
@@ -142,26 +141,29 @@ function botAnnounce(message){
 }
 
 // -------------- Testing Stream Check Interval --------------
-/*
-var twitchStreamCheck_interval;
-var streamChecked = false;
-function watchStreamer(){	
-	var user = "bodom97";
-	twitchClient.checkStream(user, function(userStream){
-		if(userStream.stream !== null){
-			bot.sendMessage({
-			    to: "102910652447752192",
-			    message: "**Twitch**\n**User**: "+ userStream.stream.channel.name + "\n**Status**: `Online`\n**Game**: "+
-			    userStream.stream.game+"\n**Url**: "+userStream.stream.channel.url
-			});
-			streamChecked = true;
-		}
-		else if(userStream.stream === null){
-			streamChecked = false;
-		}
-	});
+
+var twitchWatchList = [];
+
+function twitchWatch(user){
+	user.interval = setInterval( () => {
+		twitchClient.checkStream(user.username, function(twitchStatus, twitchName, twitchGame, twitchUrl){
+			if(twitchStatus){
+				if(!(user.streamChecked)){
+					bot.sendMessage({
+					    to: "102910652447752192",		//"128707001986449409",
+					    message: "**Twitch**\n**User**: "+ twitchName + "\n**Status**: `Online`\n**Game**: "+
+					    twitchGame+"\n**Url**: "+twitchUrl
+					});
+					user.streamChecked = true;			
+				}				
+			}
+			else if(!(twitchStatus)){
+				user.streamChecked = false;
+			}
+		});
+		
+	}, 10000);	
 }
-*/
 
 
 bot.on('debug', function (event) {
@@ -184,8 +186,29 @@ bot.on('ready', function (rawEvent) {
     console.log("Servers: \n" + serverList.join('\n')+"\n");
     sudoCheck();
 
-    //watchStreamer();
-   	//twitchStreamCheck_interval = setInterval(()=>{if(!(streamChecked)) watchStreamer()}, 10000);
+    /*
+    var twitchUserList = fs.readFileSync('./twitch/twitchUserList.txt', 'utf8').split('\n');
+	for(var i = 0; i < twitchUserList.length; i++){
+		var user = twitchUserList[i]
+		twitchWatchList.push({
+			username: user,
+			streamChecked: false,
+			interval: {}
+		});
+	}
+	*/
+
+	twitchWatchList.push({
+		username: "bodom97",
+		streamChecked: false,
+		interval: {}
+	});
+	
+   	for(var i = 0; i < twitchWatchList.length; i++){
+   		twitchWatch(twitchWatchList[i]);
+   	}
+   	
+
 });
 
 bot.on('disconnected', function(){
@@ -229,7 +252,9 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	                message: "*Exiting...*"
 	            });
 	            console.log("[DISCONNECTED]");
-	            //clearInterval(twitchStreamCheck_interval);
+	            for(var i = 0; i < twitchWatchList.length; i++){
+	            	clearInterval(twitchWatchList[i].interval);
+	            }
 	            bot.disconnect();	            
 	            return;
 	        }
@@ -338,35 +363,23 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        
 	        // ------------------- TWITCH----------------------
 	        // 			Twitch Check Interval
-	        /*
-	        if(message.toLowerCase().search("!twitchwatch") === 0){
-	        	message = message.split(' ');
-	        	message = message[1];
 
-	        	if(message === "false" || message === "off"){
-	        		clearInterval(twitchStreamCheck_interval);
-	        		console.log("Twitch Check Interval cleared");
-	        		bot.sendMessage({
-	        			to: channelID,
-	        			message: "*Twitch Watch has been turned*  **Off**."
-	        		})
-	        	}
+	       /*if(message.toLowerCase().search("!twitchwatch") === 0){
+	        	message = message.slice(13);
+	        	var twitchUserList = fs.readFileSync('./twitch/twitchUserList.txt', 'utf8').split('\n');
+				for(var i = 0; i < twitchWatchList.length; i++){
+					if(twitchWatchList[i].username !== message){
+						twitchWatchList.push({
+							username: message,
+							streamChecked: false,
+		   					interval: {}
+						});
+						twitchWatch(twitchWatchList[twitchWatchList.length]);
+					}
+				}
+	        }*/
 
-	        	if(message === "true" || message === "on"){
-	        		console.log("Twitch Check Interval started");
-	        		checked = false
-	        		getStreamer();
-   					twitchStreamCheck_interval = setInterval(()=>{if(!(checked)) getStreamer()}, 10000);
-   					bot.sendMessage({
-	        			to: channelID,
-	        			message: "*Twitch Watch has been turned*  **On**."
-	        		});
-	        	}
-
-	        	return;
-	        }
-	        */
-	        
+	        	        
 
 	        if(message.toLowerCase() === "!twitchlist"){					// Checks all streamers from twitchUserList if streaming
 	        	var streamers = fs.readFileSync('./twitch/twitchUserList.txt', 'utf8').split('\n');
@@ -376,12 +389,12 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 			    });
 
 	            for(var i = 0; i < streamers.length; i++){
-	            	twitchClient.checkStream(streamers[i], function(userStream){
-	            		if(userStream.stream !== null){
+	            	twitchClient.checkStream(streamers[i], function(twitchStatus, twitchName, twitchGame, twitchUrl){
+	            		if(twitchStatus){
 	            			bot.sendMessage({
 							    to: channelID,
-							    message: "**Twitch**\n**User**: "+ userStream.stream.channel.name +
-							    "\n**Status**: `Online`\n**Game**: "+ userStream.stream.game+"\n**Url**: "+userStream.stream.channel.url
+							    message: "**Twitch**\n**User**: "+ twitchName +
+							    "\n**Status**: `Online`\n**Game**: "+ twitchGame+"\n**Url**: "+twitchUrl
 							});
 	            		}	            		
 	            	});
@@ -393,14 +406,14 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 
 	        if(message.toLowerCase().search("!twitch") === 0){						// Check if user is streaming
 	            var searchUser = message.slice(8);
-	            twitchClient.checkStream(searchUser, function(userStream){
-	            	if(userStream.stream !== null){
+	            twitchClient.checkStream(searchUser, function(twitchStatus, twitchName, twitchGame, twitchUrl){
+	            	if(twitchStatus){
 		            	bot.sendMessage({
 					        to: channelID,
-					        message: "**Twitch**\n**User**: "+ userStream.stream.channel.name + "\n**Status**: `Online`\n**Game**: "+ userStream.stream.game+"\n**Url**: "+userStream.stream.channel.url
+					        message: "**Twitch**\n**User**: "+ twitchName + "\n**Status**: `Online`\n**Game**: "+ twitchGame +"\n**Url**: " + twitchUrl
 					    });
 	            	}
-	            	else if(userStream.stream === null){
+	            	else if(!(twitchStatus)){
 	            		bot.sendMessage({
 				            to: channelID,
 				            message: "**Twitch**\n**User**: "+ searchUser + "\n**Status**: `Offline`"
@@ -466,7 +479,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            return;
 	        }
 
-	        if(message.toLowerCase().search("!purge") === 0 && isAdmin(userID, channelID)){
+	        if(message.toLowerCase().search("!purge") === 0){
 	        	var name = "";
 	        	var max = 20;
 	        	var amount = max;
@@ -501,15 +514,15 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        			channel: channelID,
 	        			limit: amount
 	        		}, function(error, messageArr){
-	        			var count = 0;
+	        			//var count = 0;
 	        			for(var i = 0; i < messageArr.length; i++){
 	        				bot.deleteMessage({
 		        				channel: channelID,
 		        				messageID: messageArr[i].id
 	        				});
-	        				count++;
+	        				//count++;
 	        			}
-	        			console.log("Deleted "+ (count-1) + " messages for " + user + " at "+ printDateTime() + " on Server: " + bot.serverFromChannel(channelID));
+	        			//console.log("Deleted "+ (count-1) + " messages for " + user + " at "+ printDateTime() + " on Server: " + bot.serverFromChannel(channelID));
 	        		})
 	        		return;
 	        	}
@@ -520,15 +533,15 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        			channel: channelID,
 	        			limit: amount
 	        		}, function(error, messageArr){
-	        			var count = 0;
+	        			//var count = 0;
 	        			for(var i = 0; i < messageArr.length; i++){
 	        				bot.deleteMessage({
 		        				channel: channelID,
 		        				messageID: messageArr[i].id
 	        				});
-	        				count++;
+	        				//count++;
 	        			}
-	        			console.log("Deleted "+ (count-1) + " messages for " + user + " at "+ printDateTime() + " on Server: " + bot.serverFromChannel(channelID));
+	        			//console.log("Deleted "+ (count-1) + " messages for " + user + " at "+ printDateTime() + " on Server: " + bot.serverFromChannel(channelID));
 	        		})
 	        		return;
 	        	}
@@ -538,7 +551,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        		channel: channelID,
 	        		limit: max
 	        	}, function(error, messageArr){
-	        		var count = 0;
+	        		//var count = 0;
 	        		for(var i = 0; i < messageArr.length; i++){
 	        			if(name.toLowerCase() === messageArr[i].author.username.toLowerCase()){
 	        				userMessages.push(messageArr[i]);
@@ -547,13 +560,13 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        		
 	        		for(var i = 0; i < userMessages.length; i++){	        					        		
 	  					if(i === amount) break;
-	  					count++;
+	  					//count++;
 		        		bot.deleteMessage({
 		        			channel: channelID,
 		        			messageID: userMessages[i].id
 		        		});
 	        		}
-	        		if(count > 0) console.log("Deleted "+ (count-1) + " messages for " + user + " at "+ printDateTime() + " on Server: " + bot.serverFromChannel(channelID));
+	        		//if(count > 0) console.log("Deleted "+ (count-1) + " messages for " + user + " at "+ printDateTime() + " on Server: " + bot.serverFromChannel(channelID));
 	        	});	        	
 	        	return;
 	        }
@@ -561,7 +574,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        if(message.toLowerCase() === "!date"){
 	            bot.sendMessage({
 	                to: channelID,
-	                message: botGetDateTime("date")
+	                message: printDateTime("date")
 	            });
 	            return;
 	        }
@@ -569,7 +582,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        if(message.toLowerCase() === "!time"){
 	            bot.sendMessage({
 	                to: channelID,
-	                message: botGetDateTime("time")
+	                message: printDateTime("time")
 	            });
 	            return;
 	        }
@@ -590,12 +603,12 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   			}
 	   			bot.sendMessage({
 	   				to: channelID,
-	   				message: "```javascript\n" + commands.join('\n') + "\n```"
+	   				message: "\n**Commands***\n```javascript\n" + commands.join('\n') + "\n```"
 	   			});
 	   			return;
 	   		}
 
-	   		if(message.toLowerCase().search("!addcmd") === 0 && isAdmin(userID, channelID)){
+	   		if(message.toLowerCase().search("!addcmd") === 0){
 	   			var cmd = "";
 	   			var type = "";
 	   			var output = [];
@@ -624,34 +637,41 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   						return;
 	   					}
 	   				}
-
+	   				try{
+				   		var commands = fs.readFileSync('./akebot/botCommands.json', 'utf8')
+				   		commands = JSON.parse(commands);
+				   	}
+				   	catch(error) {if(error) return console.log(error)};
+	   				
 	   				if(type.toLowerCase() === "text"){
-	   					for(var i = 2; i < message.length; i++){
+	   					for(var i = 2; i < message.length; i++){		// Add everything after the second index which is 'type'
 	   						output.push(message[i]);
 		   				}
-		   				output = output.join(" ");
+		   				output = output.join(" ");		   				
+		   				if (output === ""){
+		   					bot.sendMessage({
+		   						to: channelID,
+		   						message: "*No message was entered. Please try again.*"
+		   					});
+		   					return;
+		   				}		   				
 
-		   				try{
-		   					var commands = fs.readFileSync('./akebot/botCommands.json', 'utf8')
-		   					commands = JSON.parse(commands);
-		   				}
-		   				catch(error) {if(error) return console.log(error)};
+		   				for(var i = 0; i < commands.length; i++){		   					
 
-		   				for(var i = 0; i < commands.length; i++){
-		   					if(commands[i].command === cmd && commands[i].editable === true){
+		   					if((commands[i].command === cmd || commands[i].command2 === cmd) && commands[i].editable === true){
 		   						var oldMessage = commands[i].message;
 		   						commands[i].type = type;
 		   						commands[i].author = user.toLowerCase();
 		   						commands[i].message = output;
 		   						bot.sendMessage({
 		   							to: channelID,
-		   							message: "**Command Replaced**\n```javascript\nCommand: <"+cmd+">\nType: " + type +"\nBy: <"+ user +">\nMessage: " + output+ "\nOld Message: " + oldMessage + "```"
+		   							message: "**Command Replaced**\n```javascript\nCommand: <"+cmd+">\nType: " + type +"\nBy: <"+ user +">\nNew Message: " + output+ "\nOld Message: " + oldMessage + "```"
 		   						});
 		   						fs.writeFileSync('./akebot/botCommands.json', JSON.stringify(commands,null,'\t'));
 		   						return;
 		   					}
 
-		   					if(commands[i].command === cmd && commands[i].editable === false){
+		   					if((commands[i].command === cmd || commands[i].command2 === cmd)  && commands[i].editable === false){
 		   						bot.sendMessage({
 		   							to: channelID,
 		   							message: "*This command already exist.*\n```javascript\n"+JSON.stringify(commands[i], null, '\t')+"\n```"
@@ -670,15 +690,85 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   				fs.writeFileSync('./akebot/botCommands.json', JSON.stringify(commands,null,'\t'));
 		   				bot.sendMessage({
 		   					to: channelID,
-		   					message: "\n*Command Added*\n```javascript\nCommand: <"+cmd+">\nType: " + type +"\nBy: <"+ user +">\nMessage: " + output+ "```"
+		   					message: "\n**Command Added**\n```javascript\nCommand: <"+cmd+">\nType: " + type +"\nBy: <"+ user +">\nMessage: " + output+ "```"
 		   				});
+		   				return;
 	   				}
+
+	   				if(type.toLowerCase() === 'image'){
+	   					var url = "";
+	   					var fileName = "";
+	   					var location = "pictures/";
+	   					if(rawEvent.d.attachments.length > 0){
+	   						url = rawEvent.d.attachments[0].url;
+	   						fileName = rawEvent.d.attachments[0].filename;
+	   						request(url).pipe(fs.createWriteStream(location+fileName));
+	   					}
+	   					else{
+	   						bot.sendMessage({
+	   							to: channelID,
+	   							message: "*No image was uploaded.*"
+	   						});
+	   						return;
+	   					}
+
+	   					for(var i = 2; i < message.length; i++){		// Add everything after the second index which is 'type'
+	   						output.push(message[i]);
+		   				}
+		   				output = output.join(" ");
+
+		   				for(var i = 0; i < commands.length; i++){
+		   					if((commands[i].command === cmd || commands[i].command2 === cmd) && commands[i].editable === true){
+		   						var oldMessage = commands[i].message;
+		   						commands[i].type = type;
+		   						commands[i].author = user.toLowerCase();
+		   						commands[i].file = location+fileName;
+		   						commands[i].filename = fileName;
+		   						commands[i].message = output;		   						
+		   						bot.sendMessage({
+		   							to: channelID,
+		   							message: "**Command Replaced**\n```javascript\nCommand: <"+cmd+">\nType: " + type +"\nBy: <"+ user + ">\nfile: "+ location+fileName + "\nfilename: " +fileName+ "\nNew Message: " + output+ "\nOld Message: " + oldMessage + "```"
+		   						});
+		   						fs.writeFileSync('./akebot/botCommands.json', JSON.stringify(commands,null,'\t'));
+		   						return;
+		   					}
+
+		   					if((commands[i].command === cmd || commands[i].command2 === cmd)  && commands[i].editable === false){
+		   						bot.sendMessage({
+		   							to: channelID,
+		   							message: "*This command already exist.*\n```javascript\n"+JSON.stringify(commands[i], null, '\t')+"\n```"
+		   						});
+		   						return;
+		   					}
+		   				}
+
+		   				commands.push({
+		   					command: cmd.toLowerCase(),
+		   					type: type,
+		   					author: user.toLowerCase(),
+		   					file: location+fileName,
+		   					filename: fileName ,
+		   					message: output,
+		   					editable: true	
+		   				});
+		   				fs.writeFileSync('./akebot/botCommands.json', JSON.stringify(commands,null,'\t'));
+		   				bot.sendMessage({
+		   					to: channelID,
+		   					message: "\n**Command Added**\n```javascript\nCommand: <"+cmd+">\nType: " + type +"\nBy: <"+ user + ">\nFile: "+ location+fileName+"\nFilename: " + fileName + "\nMessage: " + output+ "```"
+		   				});
+		   				return;
+	   				}
+
+	   				bot.sendMessage({
+	   					to: channelID, 
+	   					message: "*No `type` found. Use `text` or `image` and be sure you are following this format:`!addcmd [COMMAND] [TYPE] [MESSAGE]`"
+	   				});
 
 	   			}
 	   			return; 
 	   		}
 
-	   		if(message.toLowerCase().search('!delcmd') === 0 && isAdmin(userID, channelID)){
+	   		if(message.toLowerCase().search('!delcmd') === 0){
 	   			message = message.slice(8);
 	   			try{ 
 	   				var commands = fs.readFileSync('./akebot/botCommands.json', 'utf8');
@@ -687,15 +777,31 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   			catch(error) {if(error) return console.log(error)};
 
 	   			for(var i = 0; i < commands.length; i++){
-	   				if(commands[i].command === message){
+	   				if(commands[i].command === message || commands[i].command2 === message){
 	   					if(commands[i].editable === true){
-	   						commands.splice(i,1);
-	   						fs.writeFileSync('./akebot/botCommands.json', JSON.stringify(commands, null, '\t'));
-	   						bot.sendMessage({
-	   							to: channelID,
-	   							message: "*Command `" + message + "` has been deleted.*"
-	   						});
-	   						return;
+	   						if(commands[i].hasOwnProperty('file')){
+	   							var location = commands[i].file;
+	   							fs.unlinkSync(location);
+	   						}
+	   						if(commands[i].type === "image"){
+	   							commands.splice(i,1);
+	   							fs.writeFileSync('./akebot/botCommands.json', JSON.stringify(commands, null, '\t'));
+	   							bot.sendMessage({
+		   							to: channelID,
+		   							message: "*Command `" + message + "` has been deleted.*"
+		   						});
+		   						return;
+	   						}
+
+	   						if(commands[i].type === "text"){
+	   							commands.splice(i,1);
+		   						fs.writeFileSync('./akebot/botCommands.json', JSON.stringify(commands, null, '\t'));
+		   						bot.sendMessage({
+		   							to: channelID,
+		   							message: "*Command `" + message + "` has been deleted.*"
+		   						});
+		   						return;
+	   						}
 	   					}
 	   					else if(commands[i].editable === false){
 	   						bot.sendMessage({
@@ -708,7 +814,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   			}
 	   			bot.sendMessage({
 	   				to: channelID,
-	   				message: "\n**Error**: *Command found.*"
+	   				message: "\n**Error**: *No Command found.*"
 	   			});
 	   			return;
 	   		}
