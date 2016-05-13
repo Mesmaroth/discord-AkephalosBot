@@ -11,8 +11,9 @@ var bot = new DiscordClient({token: botLogin.token, autorun: true});		// Or add 
 var reboot = false;
 try {var botVersion = "Akebot v"+ require('./package.json')["version"]}
 catch(error) {console.log(error)};
-var gameList = [];		// games here will be picked at random
-
+var gameList = [];							// games here will be picked at random
+var twitchWatchList = [];					// Twitch users will be pushed if twitchUserList.txt has users to push
+var commandTimeout = true;					// Set timeout to command each time its called. 
 
 
 // Sudo will be granted to the owner of the first server this bot is connected to. Be sure it's you. Otherwise you can edit it at the akebot/sudo.json file
@@ -142,9 +143,7 @@ function botAnnounce(message){
 
 // -------------- Testing Stream Check Interval --------------
 
-var twitchWatchList = [];
-
-function twitchWatch(user){
+function twitchWatch(user){					// Keep checking the status of the user every 10s 
 	user.interval = setInterval( () => {
 		twitchClient.checkStream(user.username, function(twitchStatus, twitchName, twitchGame, twitchUrl){
 			if(twitchStatus){
@@ -163,6 +162,23 @@ function twitchWatch(user){
 		});
 		
 	}, 10000);	
+}
+
+
+function watchTwitchList(){
+	var twitchUserList = fs.readFileSync('./twitch/twitchUserList.txt', 'utf8').split('\n');
+	for(var i = 0; i < twitchUserList.length; i++){
+		var user = twitchUserList[i]
+		twitchWatchList.push({
+			username: user,
+			streamChecked: false,
+			interval: {}
+		});
+	}
+
+   	for(var i = 0; i < twitchWatchList.length; i++){
+   		twitchWatch(twitchWatchList[i]);
+   	}
 }
 
 
@@ -186,29 +202,8 @@ bot.on('ready', function (rawEvent) {
     console.log("Servers: \n" + serverList.join('\n')+"\n");
     sudoCheck();
 
-    /*
-    var twitchUserList = fs.readFileSync('./twitch/twitchUserList.txt', 'utf8').split('\n');
-	for(var i = 0; i < twitchUserList.length; i++){
-		var user = twitchUserList[i]
-		twitchWatchList.push({
-			username: user,
-			streamChecked: false,
-			interval: {}
-		});
-	}
-	*/
-
-	twitchWatchList.push({
-		username: "bodom97",
-		streamChecked: false,
-		interval: {}
-	});
-	
-   	for(var i = 0; i < twitchWatchList.length; i++){
-   		twitchWatch(twitchWatchList[i]);
-   	}
-   	
-
+    // Check status of twitch people in the list.
+    //watchTwitchList();
 });
 
 bot.on('disconnected', function(){
@@ -364,20 +359,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        // ------------------- TWITCH----------------------
 	        // 			Twitch Check Interval
 
-	       /*if(message.toLowerCase().search("!twitchwatch") === 0){
-	        	message = message.slice(13);
-	        	var twitchUserList = fs.readFileSync('./twitch/twitchUserList.txt', 'utf8').split('\n');
-				for(var i = 0; i < twitchWatchList.length; i++){
-					if(twitchWatchList[i].username !== message){
-						twitchWatchList.push({
-							username: message,
-							streamChecked: false,
-		   					interval: {}
-						});
-						twitchWatch(twitchWatchList[twitchWatchList.length]);
-					}
-				}
-	        }*/
+	       
 
 	        	        
 
@@ -400,9 +382,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            	});
 	            }
 	            return;
-	        }
-	        
-	        
+	        }	        
 
 	        if(message.toLowerCase().search("!twitch") === 0){						// Check if user is streaming
 	            var searchUser = message.slice(8);
@@ -441,22 +421,25 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            return;
 	        }
 
-	        if(message.toLowerCase() === "!commands") {
-	            try {
-	                var commands = fs.readFileSync('./akebot/commandList.txt', 'utf8');
-	                bot.sendMessage({
-	                    to: channelID,
-	                    message: "\n**"+bot.username+" Commands**\n"+commands
-	                });
+
+	        if(message.toLowerCase() === "!commands") {	        	
+	        	try {
+		            var commands = fs.readFileSync('./akebot/commandList.txt', 'utf8');
+		            bot.sendMessage({
+		                to: channelID,
+		                message: "\n**"+bot.username+" Commands**\n"+commands
+		            });
 	            }
-	            catch(err){
-	                bot.sendMessage({
-	                    to: channelID,
-	                    message: err
-	                });
-	            }
+		        catch(err){
+		            bot.sendMessage({
+		                to: channelID,
+		                message: err
+		            });
+		        }
+		        		        
 	            return;
 	        }
+
 
 	        if(message.toLowerCase().search("!say") === 0 && isAdmin(userID, channelID)){
 	            var newMsg = message.slice(5);
@@ -597,13 +580,14 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   			var commands = [];
 	   			for(var i = 0 ; i < file.length; i++){
 	   				if(file[i].editable === true){
-	   					commands.push((i+1)+". "+ file[i].command + "   Editable: " + file[i].editable);
+	   					commands.push((i+1)+". "+ file[i].command + "         Editable: " + file[i].editable);
 	   				}
 	   				else commands.push((i+1)+". "+file[i].command);
 	   			}
+	   			
 	   			bot.sendMessage({
 	   				to: channelID,
-	   				message: "\n**Commands***\n```javascript\n" + commands.join('\n') + "\n```"
+	   				message: "\n**Commands**\n```javascript\n" + commands.join('\n') + "\n```"
 	   			});
 	   			return;
 	   		}
@@ -663,6 +647,14 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   						commands[i].type = type;
 		   						commands[i].author = user.toLowerCase();
 		   						commands[i].message = output;
+
+		   						if(commands[i].hasOwnProperty('file') && commands[i].hasOwnProperty('filename')){		   							
+		   							fs.unlinkSync(commands[i].file);
+		   							delete commands[i].file;
+		   							delete commands[i].filename;
+
+		   						}
+
 		   						bot.sendMessage({
 		   							to: channelID,
 		   							message: "**Command Replaced**\n```javascript\nCommand: <"+cmd+">\nType: " + type +"\nBy: <"+ user +">\nNew Message: " + output+ "\nOld Message: " + oldMessage + "```"
@@ -716,19 +708,47 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   						output.push(message[i]);
 		   				}
 		   				output = output.join(" ");
+		   				var noMsg = false;
+
+		   				if(output === ""){
+		   					noMsg = true;
+		   				}
 
 		   				for(var i = 0; i < commands.length; i++){
 		   					if((commands[i].command === cmd || commands[i].command2 === cmd) && commands[i].editable === true){
+		   						if(commands[i].hasOwnProperty('file') && commands[i].hasOwnProperty('filename')){
+		   							if(commands[i].file !== location+fileName) fs.unlinkSync(commands[i].file);		   							
+		   							else if(commands[i].file === location+fileName){
+		   								bot.sendMessage({
+		   									to: channelID,
+		   									message: "*This image has already been uploaded to this command.*"
+		   								});
+		   								return;
+		   							}
+		   						}
 		   						var oldMessage = commands[i].message;
 		   						commands[i].type = type;
 		   						commands[i].author = user.toLowerCase();
 		   						commands[i].file = location+fileName;
-		   						commands[i].filename = fileName;
-		   						commands[i].message = output;		   						
-		   						bot.sendMessage({
-		   							to: channelID,
-		   							message: "**Command Replaced**\n```javascript\nCommand: <"+cmd+">\nType: " + type +"\nBy: <"+ user + ">\nfile: "+ location+fileName + "\nfilename: " +fileName+ "\nNew Message: " + output+ "\nOld Message: " + oldMessage + "```"
-		   						});
+		   						commands[i].filename = fileName;		   						
+		   						if(noMsg){
+		   							if(commands[i].hasOwnProperty('message')){
+		   								delete commands[i].message;
+		   							}
+		   							commands[i].message = output;
+		   							bot.sendMessage({
+			   							to: channelID,
+			   							message: "**Command Replaced**\n```javascript\nCommand: <"+cmd+">\nType: " + type +"\nBy: <"+ user + ">\nfile: "+ location+fileName + "\nfilename: " +fileName+ "\n```"
+		   							});
+		   						}
+		   						else{
+		   							bot.sendMessage({
+			   							to: channelID,
+			   							message: "**Command Replaced**\n```javascript\nCommand: <"+cmd+">\nType: " + type +"\nBy: <"+ user + ">\nfile: "+ location+fileName + "\nfilename: " +fileName+ "\nNew Message: " + output+ "\nOld Message: " + oldMessage + "```"
+		   							});
+		   						}	
+
+		   						
 		   						fs.writeFileSync('./akebot/botCommands.json', JSON.stringify(commands,null,'\t'));
 		   						return;
 		   					}
@@ -751,11 +771,21 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   					message: output,
 		   					editable: true	
 		   				});
-		   				fs.writeFileSync('./akebot/botCommands.json', JSON.stringify(commands,null,'\t'));
-		   				bot.sendMessage({
-		   					to: channelID,
-		   					message: "\n**Command Added**\n```javascript\nCommand: <"+cmd+">\nType: " + type +"\nBy: <"+ user + ">\nFile: "+ location+fileName+"\nFilename: " + fileName + "\nMessage: " + output+ "```"
-		   				});
+		   				if(noMsg) {
+		   					delete commands[commands.length - 1].message;
+		   					bot.sendMessage({
+		   						to: channelID,
+		   						message: "\n**Command Added**\n```javascript\nCommand: <"+cmd+">\nType: " + type +"\nBy: <"+ user + ">\nFile: "+ location+fileName+"\nFilename: " + fileName + "```"
+		   					});
+		   				}
+		   				else {
+		   					bot.sendMessage({
+			   					to: channelID,
+			   					message: "\n**Command Added**\n```javascript\nCommand: <"+cmd+">\nType: " + type +"\nBy: <"+ user + ">\nFile: "+ location+fileName+"\nFilename: " + fileName + "\nMessage: " + output+ "```"
+		   					});
+		   				}
+
+		   				fs.writeFileSync('./akebot/botCommands.json', JSON.stringify(commands,null,'\t'));		   				
 		   				return;
 	   				}
 
@@ -850,11 +880,16 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   				}
 
 		   				if(commands[i].type === 'image'){
+		   					var message = "None";
+		   					if(commands[i].message !== ""){
+		   						message = commands[i].message;
+		   					}
+
 		   					if( commands[i].hasOwnProperty('message') && commands[i].hasOwnProperty("command2")){
 		   						bot.sendMessage({
 			   						to: channelID,
 			   						message: "\n**Command**\n```javascript\nCommand: <"+commands[i].command+">\nCommand 2: <"+ commands[i].command2+ ">\nType: " + commands[i].type +"\nFile: "+commands[i].file+
-			   						"\nFile Name: "+ commands[i].filename+"\nBy: <"+ author +">\nMessage: " + commands[i].message+ "```"
+			   						"\nFile Name: "+ commands[i].filename+"\nBy: <"+ author +">\nMessage: " + message + "```"
 			   					});
 			   					return;
 		   					}
@@ -862,7 +897,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   						bot.sendMessage({
 			   						to: channelID,
 			   						message: "\n**Command**\n```javascript\nCommand: <"+commands[i].command+">\nType: " + commands[i].type +"\nFile: "+commands[i].file+
-			   						"\nFile Name: "+ commands[i].filename+"\nBy: <"+ author +">\nMessage: " + commands[i].message+ "```"
+			   						"\nFile Name: "+ commands[i].filename+"\nBy: <"+ author +">\nMessage: " + message + "```"
 			   					});
 		   						return;
 		   					}
