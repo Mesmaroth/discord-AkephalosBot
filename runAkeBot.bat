@@ -1,2 +1,2 @@
-node akephalosBot.js
+node akebot.js
 pause

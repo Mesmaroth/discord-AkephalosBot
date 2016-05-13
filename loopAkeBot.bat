@@ -1,5 +1,5 @@
 @echo off
 :a
-node akephalosBot.js
+node akebot.js
 timeout 3
 goto a
