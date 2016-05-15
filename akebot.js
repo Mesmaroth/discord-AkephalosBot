@@ -5,14 +5,15 @@ var botLogin = require('./akebot/botLogin.js');
 //var botEvents = require('./akebot/botEvents.js');
 var botSounds = require('./akebot/botSounds.js');
 var cleverBot = require('./akebot/cleverBot.js');
-var twitchClient = require('./twitch/twitch.js');
+var liveStream = require('./liveStream/liveStream.js');
 var uptimer = require('uptimer');
 var bot = new DiscordClient({token: botLogin.token, autorun: true});		// Or add bot.email, bot.password
 var reboot = false;
 try {var botVersion = "Akebot v"+ require('./package.json')["version"]}
 catch(error) {console.log(error)};
 var gameList = [];							// games here will be picked at random
-var twitchWatchList = [];					// Twitch users will be pushed if twitchUserList.txt has users to push
+var streamWatchList = [];					// live stream users will be pushed if streamerlist.txt has users to push
+var isWatching = false;						// Live stream watching
 var commandTimeout = true;					// Set timeout to command each time its called. 
 
 
@@ -35,8 +36,7 @@ function sudoCheck(){
 	return console.log("Bot dev is set to " + sudo.username + " If this isn't you please correct it in the 'sudo.json' file");
 }
 
-function printDateTime(options){       // month-day-year time used for logging
-	
+function printDateTime(options){       // month-day-year time used for logging	
 	if(options === "date"){
 		var d = new Date();
    		return d.toDateString();
@@ -59,13 +59,13 @@ function printDateTime(options){       // month-day-year time used for logging
     return d.toDateString()+" at "+dHours+":"+dMinutes;    
 }
 
-function setPresence(name){
-    bot.setPresence({game: name});
-  	if(name === ''){
+function setPresence(gameName){
+    bot.setPresence({game: gameName});
+
+  	if(gameName === ''){
   		console.log("Game Presence set to: None");
   	}
-  	else
-    	console.log("Game Presence set to: " + name);
+  	else console.log("Game Presence set to: " + gameName);
 }
 
 function botUptime(){
@@ -110,7 +110,6 @@ function isGuildOwner(userID, channelID){						// Checks if the user is server o
 function isDev(userID){							// This checks if the user is the bot owner
 	try{var devID = JSON.parse(fs.readFileSync('./akebot/sudo.json', 'utf8')).id}
 	catch(error) {if(error) return console.log(error)};
-	console.log(devID);
 	if(userID === devID){
 		return true;
 	}
@@ -143,20 +142,21 @@ function botAnnounce(message){
 
 // -------------- Testing Stream Check Interval --------------
 
-function twitchWatch(user){					// Keep checking the status of the user every 10s 
+function streamWatch(user){					// Keep checking the status of the user every 10s 
+	console.log("Watching: "+ user.username);
 	user.interval = setInterval( () => {
-		twitchClient.checkStream(user.username, function(twitchStatus, twitchName, twitchGame, twitchUrl){
-			if(twitchStatus){
+		liveStream.getStreamStatus(user.username, function(streamStatus, streamSite,streamName, streamGame, streamUrl){
+			if(streamStatus){
 				if(!(user.streamChecked)){
 					bot.sendMessage({
-					    to: "102910652447752192",		//"128707001986449409",
-					    message: "**Twitch**\n**User**: "+ twitchName + "\n**Status**: `Online`\n**Game**: "+
-					    twitchGame+"\n**Url**: "+twitchUrl
+					    to: "102910652447752192",
+					    message: "**" + streamSite + "**\n**User**: "+ streamName + "\n**Status**: `Online`\n**Game**: "+
+					    streamGame+"\n**Url**: "+streamUrl
 					});
 					user.streamChecked = true;			
 				}				
 			}
-			else if(!(twitchStatus)){
+			else if(!(streamStatus)){
 				user.streamChecked = false;
 			}
 		});
@@ -165,20 +165,22 @@ function twitchWatch(user){					// Keep checking the status of the user every 10
 }
 
 
-function watchTwitchList(){
-	var twitchUserList = fs.readFileSync('./twitch/twitchUserList.txt', 'utf8').split('\n');
-	for(var i = 0; i < twitchUserList.length; i++){
-		var user = twitchUserList[i]
-		twitchWatchList.push({
+function watchStreamList(){
+	var streamUserList = fs.readFileSync('./liveStream/streamerlist.txt', 'utf8').split('\n');
+	for(var i = 0; i < streamUserList.length; i++){
+		var user = streamUserList[i]
+		streamWatchList.push({
 			username: user,
 			streamChecked: false,
 			interval: {}
 		});
 	}
 
-   	for(var i = 0; i < twitchWatchList.length; i++){
-   		twitchWatch(twitchWatchList[i]);
+   	for(var i = 0; i < streamWatchList.length; i++){
+   		//streamWatch(streamWatchList[i]);
+   		setTimeout(streamWatch, 1000, streamWatchList[i]);
    	}
+   	isWatching = true;
 }
 
 
@@ -194,7 +196,7 @@ bot.on('ready', function (rawEvent) {
     console.log("\n" + botVersion);
     console.log("Discord.io - Version: " + bot.internals.version);
     console.log("Username: "+bot.username + " - (" + bot.id + ")");
-    bot.setPresence({game: (gameList.length === 0) ? botVersion : gameList[Math.floor(Math.random()*gameList.length)]});
+    setPresence((gameList.length === 0) ? botVersion : gameList[Math.floor(Math.random()*gameList.length)]);    
     var serverList = [];    
     for(var i in bot.servers){
       serverList.push(bot.servers[i].name + ": (" + bot.servers[i].id + ")");
@@ -202,15 +204,15 @@ bot.on('ready', function (rawEvent) {
     console.log("Servers: \n" + serverList.join('\n')+"\n");
     sudoCheck();
 
-    // Check status of twitch people in the list.
-    //watchTwitchList();
+    // Watch users in streamer list at startup
+	//watchStreamList();
 });
 
 bot.on('disconnected', function(){
 	if(reboot === true){
 		reboot = false;
-		console.log("Connecting...");
-		bot.connect();
+		console.log("Connecting...");		
+		setTimeout(bot.connect, 3000);
 	}
     
 });
@@ -247,8 +249,11 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	                message: "*Exiting...*"
 	            });
 	            console.log("[DISCONNECTED]");
-	            for(var i = 0; i < twitchWatchList.length; i++){
-	            	clearInterval(twitchWatchList[i].interval);
+	            if(isWatching){
+	            	for(var i = 0; i < streamWatchList.length; i++){
+			        	clearInterval(streamWatchList[i].interval);
+			        }
+			        console.log("Cleared StreamWatch Intervals");
 	            }
 	            bot.disconnect();	            
 	            return;
@@ -336,7 +341,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            bot.sendMessage({
 	                to: channelID,
 	                message: "\n**Bot Username**: "+bot.username+"\n**Bot Owner**: "+devName+"\n**Servers Connected**: "+serversConnected()+"\n"+
-	                botUptime()+"\n**Version**: " + botVersion + "\n**Author**: Mesmaroth\n**Written in**: Javascript\n"+
+	                botUptime()+"\n**Version**: " + botVersion + "\n**Author**: Mesmaroth\n**Written in**: Node.js\n"+
 	                "**Library**: Discord.io\n**Library Version**: "+bot.internals["version"]+"\n**Avatar**: https://goo.gl/kp8L7m\n**Thanks to**: izy521, negativereview, yukine."
 	            });
 	            return;
@@ -356,27 +361,49 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        }*/
 
 	        
-	        // ------------------- TWITCH----------------------
-	        // 			Twitch Check Interval
+	        // ------------------- Live Stream Checks----------------------
+	        // 			Stream Check Interval	       
 
-	       
+	        if(message.search("!streamwatch") === 0 ){
+	        	if(message.search(' ') != -1){
+	        		message = message.split(' ');
+	        		message = message[1];
+	        		
+	        		if(message === "start"){
+			        	if(isWatching === false){
+			        		watchStreamList();
+				        	bot.sendMessage({
+				        		to: channelID,
+				        		message: "LiveStream Watch **ON**"
+				        	});
+			        	}
+		        	}       		
+	        		
 
-	        	        
+		        	if(message === "stop"){
+		        		if(isWatching){
+		        			for(var i = 0; i < streamWatchList.length; i++){
+			            		clearInterval(streamWatchList[i].interval);
+			            	}
+			            	bot.sendMessage({
+			            		to: channelID,
+			            		message: "LiveStream Watch **OFF**"
+			            	});
+		        		}
+		        	}
+	        	}		        	
+	        	return;
+	        }	        
 
-	        if(message.toLowerCase() === "!twitchlist"){					// Checks all streamers from twitchUserList if streaming
-	        	var streamers = fs.readFileSync('./twitch/twitchUserList.txt', 'utf8').split('\n');
-	        	bot.sendMessage({
-				        to: channelID,
-				        message: "**Twitch Status - BETA**"
-			    });
-
+	        if(message.toLowerCase() === "!streamlist"){					// Checks all streamers from streamlist.txt if streaming
+	        	var streamers = fs.readFileSync('./liveStream/streamerlist.txt', 'utf8').split('\n');
 	            for(var i = 0; i < streamers.length; i++){
-	            	twitchClient.checkStream(streamers[i], function(twitchStatus, twitchName, twitchGame, twitchUrl){
-	            		if(twitchStatus){
+	            	liveStream.getStreamStatus(streamers[i], function(streamStatus, streamSite, streamName, streamGame, streamUrl){
+	            		if(streamStatus){
 	            			bot.sendMessage({
 							    to: channelID,
-							    message: "**Twitch**\n**User**: "+ twitchName +
-							    "\n**Status**: `Online`\n**Game**: "+ twitchGame+"\n**Url**: "+twitchUrl
+							    message: "**" + streamSite + "**\n**User**: "+ streamName +
+							    "\n**Status**: `Online`\n**Game**: "+ streamGame+"\n**Url**: "+streamUrl
 							});
 	            		}	            		
 	            	});
@@ -384,22 +411,22 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            return;
 	        }	        
 
-	        if(message.toLowerCase().search("!twitch") === 0){						// Check if user is streaming
+	        if(message.toLowerCase().search("!stream") === 0){						// Check if user is streaming
 	            var searchUser = message.slice(8);
-	            twitchClient.checkStream(searchUser, function(twitchStatus, twitchName, twitchGame, twitchUrl){
-	            	if(twitchStatus){
+	            liveStream.getStreamStatus(searchUser, function(streamStatus, streamSite, streamName, streamGame, streamUrl){
+	            	if(streamStatus){
 		            	bot.sendMessage({
 					        to: channelID,
-					        message: "**Twitch**\n**User**: "+ twitchName + "\n**Status**: `Online`\n**Game**: "+ twitchGame +"\n**Url**: " + twitchUrl
+					        message: "**"+streamSite+"**\n**User**: "+ streamName + "\n**Status**: `Online`\n**Game**: "+ streamGame +"\n**Url**: " + streamUrl
 					    });
 	            	}
-	            	else if(!(twitchStatus)){
+	            	else if(!(streamStatus)){
 	            		bot.sendMessage({
 				            to: channelID,
-				            message: "**Twitch**\n**User**: "+ searchUser + "\n**Status**: `Offline`"
+				            message: "**Stream**\n**User**: "+ searchUser + "\n**Status**: `Offline`"
 				        });	
 	            	}
-	            }); 
+	            });
 	                        
 	            return;
 	        }
@@ -464,8 +491,9 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 
 	        if(message.toLowerCase().search("!purge") === 0){
 	        	var name = "";
-	        	var max = 20;
+	        	var max = 100;
 	        	var amount = max;
+	        	var msgArrIDs = [];				// Array of messageIDs to delete
 	        	message = message.slice(7);
 	        	if(message === "") return;
 	        	if(message.search(' ') !== -1){
@@ -481,6 +509,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        	else{
 	        		if(!(isNaN(message))){
 		        		name = Number(message);
+		        		//if(name <= 0) name++;
 		        		amount = name + 1;
 		        	}
 		        	if(message === "me") {
@@ -492,49 +521,38 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		        //console.log("Message: " + message);
 		        //console.log("Name: " + name);
 		        //console.log("Amount: " + amount);
-	        	if(!(isNaN(name))){	        		
+
+		        if(message === "all" || name === "all"){	        		
 	        		bot.getMessages({
 	        			channel: channelID,
 	        			limit: amount
-	        		}, function(error, messageArr){
-	        			//var count = 0;
+	        		}, function(error, messageArr){	        				        			
 	        			for(var i = 0; i < messageArr.length; i++){
-	        				bot.deleteMessage({
-		        				channel: channelID,
-		        				messageID: messageArr[i].id
-	        				});
-	        				//count++;
+	        				msgArrIDs.push(messageArr[i].id);	        				
 	        			}
-	        			//console.log("Deleted "+ (count-1) + " messages for " + user + " at "+ printDateTime() + " on Server: " + bot.serverFromChannel(channelID));
+	        			bot.deleteMessages({channelID: channelID,messageIDs: msgArrIDs});
 	        		})
 	        		return;
 	        	}
 
-	        	if(message === "all" || name === "all"){
-	        		
+	        	if(!(isNaN(name))){     		
 	        		bot.getMessages({
 	        			channel: channelID,
 	        			limit: amount
 	        		}, function(error, messageArr){
-	        			//var count = 0;
 	        			for(var i = 0; i < messageArr.length; i++){
-	        				bot.deleteMessage({
-		        				channel: channelID,
-		        				messageID: messageArr[i].id
-	        				});
-	        				//count++;
+	        				msgArrIDs.push(messageArr[i].id);
 	        			}
-	        			//console.log("Deleted "+ (count-1) + " messages for " + user + " at "+ printDateTime() + " on Server: " + bot.serverFromChannel(channelID));
+	        			bot.deleteMessages({channelID: channelID,messageIDs: msgArrIDs});
 	        		})
 	        		return;
 	        	}
-
+	        	
 	        	var userMessages = [];	        	
 	        	bot.getMessages({
 	        		channel: channelID,
 	        		limit: max
 	        	}, function(error, messageArr){
-	        		//var count = 0;
 	        		for(var i = 0; i < messageArr.length; i++){
 	        			if(name.toLowerCase() === messageArr[i].author.username.toLowerCase()){
 	        				userMessages.push(messageArr[i]);
@@ -543,13 +561,9 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        		
 	        		for(var i = 0; i < userMessages.length; i++){	        					        		
 	  					if(i === amount) break;
-	  					//count++;
-		        		bot.deleteMessage({
-		        			channel: channelID,
-		        			messageID: userMessages[i].id
-		        		});
+		        		msgArrIDs.push(userMessages[i].id)
 	        		}
-	        		//if(count > 0) console.log("Deleted "+ (count-1) + " messages for " + user + " at "+ printDateTime() + " on Server: " + bot.serverFromChannel(channelID));
+	        		bot.deleteMessages({channelID: channelID,messageIDs: msgArrIDs});
 	        	});	        	
 	        	return;
 	        }
@@ -596,8 +610,8 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   			var cmd = "";
 	   			var type = "";
 	   			var output = [];
-	   			var reservedCMDS = ['!commands', '!time', '!date', '!purge', '!servers', '!twitch', 
-	   			'!twitchlist', '!twitchwatch', '!uptime', '!cmds', '!addcmd', '!delcmd', '!cmd', '!sounds', '!say', '!reverse', '!about' ]
+	   			var reservedCMDS = ['!commands', '!time', '!date', '!purge', '!servers', '!stream', 
+	   			'!streamlist', '!streamwatch', '!uptime', '!cmds', '!addcmd', '!delcmd', '!cmd', '!sounds', '!say', '!reverse', '!about' ]
 	   			message = message.slice(8);
 	   			if(message.search(" ") !== -1){
 	   				message = message.split(" ");
