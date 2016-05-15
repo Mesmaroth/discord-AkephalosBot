@@ -1,16 +1,23 @@
 # Discord-AkephalosBot (Node.js)
-A simple bot written in JavaScript for [Discord](http://www.discord.gg) This is intended for those who have very little knowledge of programming but still want to run a Discord bot for their server. Anyone can edit or modify this project of their own doing, all I ask is a mention of me or by leaving `!about` with my name intact.
+Discord bot written in Node.js for [Discord](http://www.discord.gg) Anyone can edit or modify this project of their own doing, all I ask is a mention of me or by leaving `!about` with my name intact.
 
 Library: [Discord.io](https://github.com/izy521/discord.io)
+
+##Features:
+ - Making commands can be written without a hassle.
+ - Making commands within the discord client.
+ - Custom sounds ready, just drag and drop to the folder and your done.
+ - Twitch/Hitbox live stream check. 
+ - Adding custom memes made easy.
 
 If you have any questions please ask them in my test Server:
 
 [![Discord](https://discordapp.com/api/servers/160436336095002624/widget.png?style=banner3)](https://discord.gg/0tYqr4FWusEQHErS)
 
-If you don't want to setup a bot, you can also use mines by [Authorizing AkephalosBot](https://discordapp.com/oauth2/authorize?&client_id=158451686627737600&scope=bot)
+If you don't want to setup a bot, you can also test out my bot by [Authorizing AkephalosBot](https://discordapp.com/oauth2/authorize?&client_id=158451686627737600&scope=bot)
 
-### Installation:
- You need Node.js 0.12.x or greater installed. Along with making sure NPM is installed with node.js when you install it. Once installed you need to download the discord library `npm install discord.io` after you have installed the library you then need to install the required modules to run this bot.
+## Installation:
+ You need Node.js 0.12.x or greater installed. Along with making sure NPM is installed when installing Node.js Once installed you need to download the discord library `npm install discord.io` after you have installed the library you then you need to install the required modules to run this bot.
  Note: To recieve the latest updates: 
  `git clone https://github.com/Mesmaroth/discord-AkephalosBot.git`
  
@@ -26,11 +33,10 @@ If you don't want to setup a bot, you can also use mines by [Authorizing Akephal
  
 ### Playing Sounds:
 Sounds are executed when the command for that sound is called, the bot leaves the voice channel as soon as it is done playing the sound file.
-You don't need to code anything for putting custom sounds. You just need to drag and drop the file in to the `sounds` folder and you are all set. The command for executing the sound on discord is what ever the filename is. If I have a sound file named `example.mp3` in the sound folder, then the command for that would be `!example`.
+You don't need to code anything for putting custom sounds. You just need to drag and drop the file in to the `sounds` folder and you are all set. The command for executing the sound on discord is what ever the filename is. If I have a sound file named `example.mp3` in the sound folder, then the command for that would be `!example`
 
 ### Adding commands: 
 Please follow the format in `akebot/botCommands.json` in order to create or edit your commands. If you want to cusomize the output of `!commands` edit `commandList.txt`. 
-[New] You can now add a new command using `!addcmd` command but it's not yet fully optimized and works for text type commands only. See Admin command section.
 
  **Command Properties**:
   - `command` or `command2`: Set the command you want this command to be triggered when someone types it
@@ -60,14 +66,14 @@ Please follow the format in `akebot/botCommands.json` in order to create or edit
   - `!date`: Display the date
   - `!time`: Display the time
   - `!sounds`: Displays a list of sounds
-  - `!music`: Display commands for the musicbot
-  - `!twitch [username]`: Checks if this twitch user is streaming
-  - `!twitchList`: Checks if all users from the Twitch list is online
+  - `!stream [username]`: Checks if the user is live on Twitch or Hitbox or both
+  - `!streamList`: Checks if users from the streamer list is online
   - `!ask [Question]`: Ask the bot anything
   - `!servers`: Shows how many servers the bot is connected to
+  - `!cmds`: Shows a list of all custom commands
 
  **Admins** *Must be in group admin*
-  - `!say [message]`: Relays your message from any channel or DM to the general channel
+  - `!say [message]`: Re-sends your message from any channel general channel
   - `!purge all`: Deletes up to fifteen messages at a time. [Optional] Add a number to specifiy an amount up to 15
   - `!purge me`: Deletes up to fifteen of your messages at a time. [Optional] Add a number to specifiy an amount up to 15
   - `!purge bot`: Deletes up to fifteen of the bot's messages at a time. [Optional] Add a number to specifiy an amount up to 15
