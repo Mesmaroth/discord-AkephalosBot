@@ -3,21 +3,21 @@
 • `!about`: About this bot
 • `!source`: Source code for this bot.
 • `!joinServer`: If you wish to invite the bot to your server (Alternative: `!addServer`)
-• `!upTime`: bot up time
+• `!upTime`: Bot up time
 • `!date`: Display the date
 • `!time`: Display the time
 • `!sounds`: Displays a list of sounds
-• `!music`: Display commands for the musicbot
-• `!twitch [username]`: Checks if this twitch user is streaming
-• `!twitchList`: Checks if all users from the Twitch list is online
+• `!stream [username]`: Checks if the user is live on Twitch or Hitbox or both
+• `!streamList`: Checks if users from the streamer list is online
 • `!ask [Question]`: Ask the bot anything
 • `!servers`: Shows how many servers the bot is connected to
+• `!cmds`: Shows a list of all custom commands
 
 **Admins** *Must be admin*
-• `!say [message]`: Relays your message from any channel or DM to the general channel
-• `!purge all`: Deletes up to fifteen messages at a time. [Optional] Add a number to specifiy an amount up to 15
-• `!purge me`: Deletes up to fifteen of your messages at a time. [Optional] Add a number to specifiy an amount up to 15
-• `!purge bot`: Deletes up to fifteen of the bot's messages at a time. [Optional] Add a number to specifiy an amount up to 15.
+• `!say [message]`: Re-sends your message from any channel general channel
+• `!purge all`: Deletes up to fifteen messages at a time. [Optional] Add a number to specifiy an amount up to 100
+• `!purge me`: Deletes up to fifteen of your messages at a time. [Optional] Add a number to specifiy an amount up to 100
+• `!purge bot`: Deletes up to fifteen of the bot's messages at a time. [Optional] Add a number to specifiy an amount up to 100.
 • `!purge [Number]`: Deletes a specified amount of messages to be deleted
 • `!addcmd [command] [type] [message]`: Create a command that will be written in the `botCommands.json` file
 • `!delcmd [command]`: Deletes specified command if editable is true
