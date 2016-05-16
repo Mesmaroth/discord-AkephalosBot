@@ -9,7 +9,7 @@ Library: [Discord.io](https://github.com/izy521/discord.io)
  - Custom sounds ready, just drag and drop to the folder and your done.
  - Twitch/Hitbox live stream check. 
  - Adding custom memes made easy.
-
+ - Ask Clever Bot anything.
 If you have any questions please ask them in my test Server:
 
 [![Discord](https://discordapp.com/api/servers/160436336095002624/widget.png?style=banner3)](https://discord.gg/0tYqr4FWusEQHErS)
@@ -27,7 +27,6 @@ If you don't want to setup a bot, you can also test out my bot by [Authorizing A
 
 ### Required Modules:
  - cleverbot: `npm install cleverbot.io`
- - node-twitchtv: `npm install node-twitchtv`
  - uptimer: `npm install uptimer`
  - node-opus: `npm install node-opus` (For audio sounds)
  
