@@ -1,4 +1,5 @@
 var DiscordClient = require('discord.io');
+var uptimer = require('uptimer');
 var fs = require('fs');
 var request = require('request');
 var botLogin = require('./akebot/botLogin.js');
@@ -6,7 +7,6 @@ var botLogin = require('./akebot/botLogin.js');
 var botSounds = require('./akebot/botSounds.js');
 var cleverBot = require('./akebot/cleverBot.js');
 var liveStream = require('./liveStream/liveStream.js');
-var uptimer = require('uptimer');
 var bot = new DiscordClient({token: botLogin.token, autorun: true});		// Or add bot.email, bot.password
 var reboot = false;
 try {var botVersion = "Akebot v"+ require('./package.json')["version"]}
@@ -81,7 +81,7 @@ function botUptime(){
 		upHours = Math.floor(upMinutes / 60);
 		upMinutes = Math.floor(upMinutes % 60);
 	}
-	return "**Uptime:** *"+upHours+" hours : "+upMinutes+" minutes : "+upSeconds+" seconds*";
+	return "**Uptime:** *"+upHours+" hour(s) : "+upMinutes+" minute(s) : "+upSeconds+" second(s)*";
 }
 
 function isAdmin (userID, channelID){           // Checks if the User is Admin
@@ -142,7 +142,7 @@ function botAnnounce(message){
 
 // -------------- Testing Stream Check Interval --------------
 
-function streamWatch(user){					// Keep checking the status of the user every 10s 
+function streamWatch(user){					// Keep checking the status of the user every 1m 
 	console.log("Watching: "+ user.username);
 	user.interval = setInterval( () => {
 		liveStream.getStreamStatus(user.username, function(streamStatus, streamSite,streamName, streamGame, streamUrl){
@@ -161,7 +161,7 @@ function streamWatch(user){					// Keep checking the status of the user every 10
 			}
 		});
 		
-	}, 10000);	
+	}, 60000); // 1m	
 }
 
 
@@ -205,7 +205,8 @@ bot.on('ready', function (rawEvent) {
     sudoCheck();
 
     // Watch users in streamer list at startup
-	//watchStreamList();
+	watchStreamList();
+	isWatching = true;
 });
 
 bot.on('disconnected', function(){
@@ -214,7 +215,7 @@ bot.on('disconnected', function(){
 		console.log("Connecting...");		
 		setTimeout(bot.connect, 3000);
 	}
-    
+    process.exit();
 });
 
 bot.on('message', function (user, userID, channelID, message, rawEvent) {
@@ -307,7 +308,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        if((message.toLowerCase() === "!joinserver" || message.toLowerCase() === "!addserver")){
 	        	bot.sendMessage({
 	        		to: channelID, 
-	        		message: "\n**Authorize this bot to your server**\n**Link**: https://goo.gl/4NtO4q"			// Replace this with your bots auth invite link
+	        		message: bot.inviteURL			// Replace this with your bots auth invite link
 	        	});
 	        	return;
 	        }
@@ -369,27 +370,39 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        		message = message.split(' ');
 	        		message = message[1];
 	        		
-	        		if(message === "start"){
+	        		if(message === "start" || message === "on"){
 			        	if(isWatching === false){
 			        		watchStreamList();
 				        	bot.sendMessage({
 				        		to: channelID,
-				        		message: "LiveStream Watch **ON**"
+				        		message: "LiveStream watch **ON**"
 				        	});
+			        	}
+			        	else{
+			        		bot.sendMessage({
+			        			to: channelID,
+			        			message: "LiveStream watch is **ON**"
+			        		});
 			        	}
 		        	}       		
 	        		
 
-		        	if(message === "stop"){
+		        	if(message === "stop" || message === "off"){
 		        		if(isWatching){
 		        			for(var i = 0; i < streamWatchList.length; i++){
 			            		clearInterval(streamWatchList[i].interval);
 			            	}
 			            	bot.sendMessage({
 			            		to: channelID,
-			            		message: "LiveStream Watch **OFF**"
+			            		message: "LiveStream watch **OFF**"
 			            	});
 		        		}
+		        		else{
+			        		bot.sendMessage({
+			        			to: channelID,
+			        			message: "LiveStream watch is **OFF**"
+			        		});
+			        	}
 		        	}
 	        	}		        	
 	        	return;
@@ -496,33 +509,33 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        	var msgArrIDs = [];				// Array of messageIDs to delete
 	        	message = message.slice(7);
 	        	if(message === "") return;
+	        	// If the user is specifying an amount of messages to delete for the specified user
 	        	if(message.search(' ') !== -1){
 	        		message = message.split(' ');
-	        		name = message[0]
-	        		amount = Number(message[1]);
+	        		name = message[0].toLowerCase();
+	        		amount = Number(message[1]) + 1;		// Including the message that called that command
+
 	        		if(name === "me") {
-	        			name = user;
+	        			name = user.toLowerCase();
 	        			amount+=1;
 	        		}
-	        		if(name === "bot") name = bot.username;
+	        		if(name === "bot") name = bot.username.toLowerCase();
 	        	}
+	        	// Else if the user wants to either purge messages with a specific amount or purging all messages of a user
 	        	else{
+	        		name = message;
 	        		if(!(isNaN(message))){
 		        		name = Number(message);
-		        		//if(name <= 0) name++;
 		        		amount = name + 1;
 		        	}
-		        	if(message === "me") {
-	        			name = user;
+		        	if(name === "me") {
+	        			name = user.toLowerCase();
 	        			amount+=1;
 	        		}
-		        	if(message === "bot") name = bot.username;
-	        	}	        	
-		        //console.log("Message: " + message);
-		        //console.log("Name: " + name);
-		        //console.log("Amount: " + amount);
+		        	if(name === "bot") name = bot.username.toLowerCase();
+	        	}
 
-		        if(message === "all" || name === "all"){	        		
+		        if(name === "all"){	        		
 	        		bot.getMessages({
 	        			channel: channelID,
 	        			limit: amount
@@ -535,7 +548,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        		return;
 	        	}
 
-	        	if(!(isNaN(name))){     		
+	        	if(typeof name === 'number'){     		
 	        		bot.getMessages({
 	        			channel: channelID,
 	        			limit: amount
@@ -548,24 +561,47 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        		return;
 	        	}
 	        	
-	        	var userMessages = [];	        	
-	        	bot.getMessages({
-	        		channel: channelID,
-	        		limit: max
-	        	}, function(error, messageArr){
-	        		for(var i = 0; i < messageArr.length; i++){
-	        			if(name.toLowerCase() === messageArr[i].author.username.toLowerCase()){
-	        				userMessages.push(messageArr[i]);
-	        			}
-	        		}
-	        		
-	        		for(var i = 0; i < userMessages.length; i++){	        					        		
-	  					if(i === amount) break;
-		        		msgArrIDs.push(userMessages[i].id)
-	        		}
-	        		bot.deleteMessages({channelID: channelID,messageIDs: msgArrIDs});
-	        	});	        	
-	        	return;
+	        	if(typeof name === 'string'){
+		        	var targeMsgs = [];	        	
+		        	bot.getMessages({
+		        		channel: channelID,
+		        		limit: max
+		        	}, function(error, messageArr){
+		        		// Push only the username specified to the target list
+		        		for(var i = 0; i < messageArr.length; i++){
+		        			if(messageArr[i].author.username.toLowerCase() === name){		        				
+		        				targeMsgs.push(messageArr[i]);
+		        			}
+		        		}
+		        		if(targeMsgs.length <= 0){
+		        			bot.sendMessage({to: channelID, message: "*No messages found.*"});
+		        			return;
+		        		}
+
+		        		// Pushing the amount specified to list of IDs to delete. If no amount specified then it will default to max amount of messages
+		        		for(var i = 0; i < targeMsgs.length; i++){
+		        			if(i === amount-1) break;
+		        			msgArrIDs.push(targeMsgs[i].id);		        			
+		        		}
+
+		        		// If the list of messages to be deleted is greater than 2 then use bot.deletemessages to mass delete
+		        		if(msgArrIDs.length < 3 && msgArrIDs.length > 0){
+		        			for(var i = 0; i < msgArrIDs.length; i++){
+		        				bot.deleteMessage({
+		        					channel: channelID,
+		        					messageID: msgArrIDs[i]
+		        				});
+		        			}
+		        		}
+		        		else{
+		        			bot.deleteMessages({channelID: channelID,messageIDs: msgArrIDs}, function(error, response){
+			        			if(error) console.log(error);
+			        		});
+		        		}
+			        		
+		        	});	        	
+		        	return;
+	        	}		        	
 	        }
 
 	        if(message.toLowerCase() === "!date"){
