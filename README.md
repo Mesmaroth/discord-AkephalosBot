@@ -81,7 +81,7 @@ Please follow the format in `akebot/botCommands.json` in order to create or edit
   - `!delcmd [command]`: Deletes specified command if editable is true
 
  **Memes**
-  Custom commands can be made easy creating your own memes and such. Use `!cmds` for a list of all commands from the "botCommands.json" file.
+  Custom commands can be made easy, like creating your own memes. Use `!cmds` for a list of all commands from the "botCommands.json" file.
 
   - `!ping`: Pong
   - `!rekt`: Rekt Meme
