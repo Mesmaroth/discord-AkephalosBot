@@ -4,17 +4,17 @@ Discord bot written in Node.js for [Discord](http://www.discord.gg) Anyone can e
 Library: [Discord.io](https://github.com/izy521/discord.io)
 
 ##Features:
- - Making commands can be written without a hassle.
- - Making commands within the discord client.
- - Custom sounds ready, just drag and drop to the folder and your done.
+ - Making commands can be written without a hassle in coding.
+ - Making quick and simple commands within the discord client.
+ - Custom sounds ready to be played, just drag and drop to the folder and your done.
  - Twitch/Hitbox live stream check. 
- - Adding custom memes made easy.
- - Ask Clever Bot anything.
+ - Admin purging messages
+ - Clever Bot implemented, ask him anything.
 If you have any questions please ask them in my test Server:
 
 [![Discord](https://discordapp.com/api/servers/160436336095002624/widget.png?style=banner3)](https://discord.gg/0tYqr4FWusEQHErS)
 
-If you don't want to setup a bot, you can also test out my bot by [Authorizing AkephalosBot](https://discordapp.com/oauth2/authorize?&client_id=158451686627737600&scope=bot)
+If you don't want to setup a bot, you can also test this bot by [Authorizing AkephalosBot](https://discordapp.com/oauth2/authorize?&client_id=158451686627737600&scope=bot) to your server. 
 
 ## Installation:
  You need Node.js 0.12.x or greater installed. Along with making sure NPM is installed when installing Node.js Once installed you need to download the discord library `npm install discord.io` after you have installed the library you then you need to install the required modules to run this bot.
@@ -23,7 +23,7 @@ If you don't want to setup a bot, you can also test out my bot by [Authorizing A
  
  - Put your login details in `akebot/botLogin.js`
  - For cleverBot credentials you need to put them at `akebot/cleverBot.js`
- - Launch `runAkeBot.bat` once login details and required modules have been installed.
+ - Launch `StartBot.bat`(Windows) once login details and required modules have been installed.
 
 ### Required Modules:
  - cleverbot: `npm install cleverbot.io`
@@ -35,7 +35,7 @@ Sounds are executed when the command for that sound is called, the bot leaves th
 You don't need to code anything for putting custom sounds. You just need to drag and drop the file in to the `sounds` folder and you are all set. The command for executing the sound on discord is what ever the filename is. If I have a sound file named `example.mp3` in the sound folder, then the command for that would be `!example`
 
 ### Adding commands: 
-Please follow the format in `akebot/botCommands.json` in order to create or edit your commands. If you want to cusomize the output of `!commands` edit `commandList.txt`. 
+Please follow the format in `akebot/botCommands.json` in order to create or edit your own commands. If you want to cusomize the output of how `!commands` is shown, edit `commandList.txt`
 
  **Command Properties**:
   - `command` or `command2`: Set the command you want this command to be triggered when someone types it
@@ -45,7 +45,7 @@ Please follow the format in `akebot/botCommands.json` in order to create or edit
   - `message`: The output message you want to deliever after your command has been executed
   - `file`: Path to your file, including extension `pictures/example.png`
   - `filename`: Name of your file, be sure to include the extension if you want to display an image instead of uploading the image
-  - `tts`: Wether the message will be in Text To Speech
+  - `tts`: Whether the message will be in Text To Speech
 
 
 
@@ -81,6 +81,9 @@ Please follow the format in `akebot/botCommands.json` in order to create or edit
   - `!delcmd [command]`: Deletes specified command if editable is true
 
  **Memes**
+  Custom commands can be made easy creating your own memes and such. Use `!cmds` for a list of all commands from the "botCommands.json" file.
+
+  - `!ping`: Pong
   - `!rekt`: Rekt Meme
   - `!Yes`: Creepy Jack Yes
   - `!topkek`: TopKek
