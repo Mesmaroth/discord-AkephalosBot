@@ -3,7 +3,6 @@ var uptimer = require('uptimer');
 var fs = require('fs');
 var request = require('request');
 var botLogin = require('./akebot/botLogin.js');
-//var botEvents = require('./akebot/botEvents.js');
 var botSounds = require('./akebot/botSounds.js');
 var cleverBot = require('./akebot/cleverBot.js');
 var liveStream = require('./liveStream/liveStream.js');
@@ -12,9 +11,6 @@ var reboot = false;
 try {var botVersion = "Akebot v"+ require('./package.json')["version"]}
 catch(error) {console.log(error)};
 var gameList = [];							// games here will be picked at random
-var streamWatchList = [];					// live stream users will be pushed if streamerlist.txt has users to push
-var isWatching = false;						// Live stream watching
-var commandTimeout = true;					// Set timeout to command each time its called. 
 
 
 // Sudo will be granted to the owner of the first server this bot is connected to. Be sure it's you. Otherwise you can edit it at the akebot/sudo.json file
@@ -140,49 +136,6 @@ function botAnnounce(message){
 	}
 }
 
-// -------------- Testing Stream Check Interval --------------
-
-function streamWatch(user){					// Keep checking the status of the user every 1m 
-	console.log("Watching: "+ user.username);
-	user.interval = setInterval( () => {
-		liveStream.getStreamStatus(user.username, function(streamStatus, streamSite,streamName, streamGame, streamUrl){
-			if(streamStatus){
-				if(!(user.streamChecked)){
-					bot.sendMessage({
-					    to: "102910652447752192",
-					    message: "**" + streamSite + "**\n**User**: "+ streamName + "\n**Status**: `Online`\n**Game**: "+
-					    streamGame+"\n**Url**: "+streamUrl
-					});
-					user.streamChecked = true;			
-				}				
-			}
-			else if(!(streamStatus)){
-				user.streamChecked = false;
-			}
-		});
-		
-	}, 60000); // 1m	
-}
-
-
-function watchStreamList(){
-	var streamUserList = fs.readFileSync('./liveStream/streamerlist.txt', 'utf8').split('\n');
-	for(var i = 0; i < streamUserList.length; i++){
-		var user = streamUserList[i]
-		streamWatchList.push({
-			username: user,
-			streamChecked: false,
-			interval: {}
-		});
-	}
-
-   	for(var i = 0; i < streamWatchList.length; i++){
-   		//streamWatch(streamWatchList[i]);
-   		setTimeout(streamWatch, 1000, streamWatchList[i]);
-   	}
-   	isWatching = true;
-}
-
 
 bot.on('debug', function (event) {
 	if(event.t === "GUILD_DELETE"){					// Test to log when the bot is kicked
@@ -205,8 +158,7 @@ bot.on('ready', function (rawEvent) {
     sudoCheck();
 
     // Watch users in streamer list at startup
-	watchStreamList();
-	isWatching = true;
+	
 });
 
 bot.on('disconnected', function(){
@@ -225,9 +177,8 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 				to: userID,
 				message: "Direct messages for this bot are disabled."
 			});
-			bot.deleteChannel(channelID);
-		}
-		
+			setTimeout(bot.deleteChannel, 300, channelID);
+		}		
 	}
 	else{			 // Else if Message is not a direct message
 	    if(rawEvent.d.author.username !== bot.username){                 // Does not check for bot's own messages.        
@@ -249,13 +200,8 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	                to: channelID,
 	                message: "*Exiting...*"
 	            });
+
 	            console.log("[DISCONNECTED]");
-	            if(isWatching){
-	            	for(var i = 0; i < streamWatchList.length; i++){
-			        	clearInterval(streamWatchList[i].interval);
-			        }
-			        console.log("Cleared StreamWatch Intervals");
-	            }
 	            bot.disconnect();	            
 	            return;
 	        }
@@ -308,7 +254,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        if((message.toLowerCase() === "!joinserver" || message.toLowerCase() === "!addserver")){
 	        	bot.sendMessage({
 	        		to: channelID, 
-	        		message: bot.inviteURL			// Replace this with your bots auth invite link
+	        		message: "**Invite link:**\n"+bot.inviteURL			// Replace this with your bots auth invite link
 	        	});
 	        	return;
 	        }
@@ -341,112 +287,100 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        	catch(e) {if(error) console.log(error)};
 	            bot.sendMessage({
 	                to: channelID,
-	                message: "\n**Bot Username**: "+bot.username+"\n**Bot Owner**: "+devName+"\n**Servers Connected**: "+serversConnected()+"\n"+
-	                botUptime()+"\n**Version**: " + botVersion + "\n**Author**: Mesmaroth\n**Written in**: Node.js\n"+
-	                "**Library**: Discord.io\n**Library Version**: "+bot.internals["version"]+"\n**Avatar**: https://goo.gl/kp8L7m\n**Thanks to**: izy521, negativereview, yukine."
+	                message: "\n**Bot Username:** "+bot.username+"\n**Bot Owner:** "+devName+"\n**Servers Connected:** "+serversConnected()+"\n"+
+	                botUptime()+"\n**Version:** " + botVersion + "\n**Author:** Mesmaroth\n**Written in:** Node.js\n"+
+	                "**Library:** Discord.io\n**Library Version:** "+bot.internals["version"]+"\n**Avatar:** https://goo.gl/kp8L7m\n**Thanks to:** izy521, negativereview, yukine."
 	            });
 	            return;
-	        }
+	        }    
 
-	       	// ---------- Events (Not worked on) --------------
-	        /*if(message.toLowerCase() === "!events"){
-	            botEvents.getEvents(bot, channelID);
-	        }
-
-	        if(message.toLowerCase().search("!setevent") === 0){
-	            botEvents.setEvent(bot, channelID, message);
-	        }
-
-	        if(message.toLowerCase().search("!delevent") === 0){
-	        	botEvents.deleteEvent(bot, channelID, message);
-	        }*/
-
-	        
-	        // ------------------- Live Stream Checks----------------------
-	        // 			Stream Check Interval	       
-
-	        if(message.search("!streamwatch") === 0 ){
+	        if(message.toLowerCase().search("!streamlist") === 0){					// Checks all streamers from streamlist.txt if streaming
+	        	var streamers = fs.readFileSync('./liveStream/streamerlist.txt', 'utf8').split('\n');  
+	        	for(var i = 0; i < streamers.length; i++){
+	        		streamers[i].replace("\r", "");
+	        	}
+	        	// Parameters can be specified instead of checking the live status.
 	        	if(message.search(' ') != -1){
 	        		message = message.split(' ');
-	        		message = message[1];
-	        		
-	        		if(message === "start" || message === "on"){
-			        	if(isWatching === false){
-			        		watchStreamList();
-				        	bot.sendMessage({
-				        		to: channelID,
-				        		message: "LiveStream watch **ON**"
-				        	});
-			        	}
-			        	else{
-			        		bot.sendMessage({
-			        			to: channelID,
-			        			message: "LiveStream watch is **ON**"
-			        		});
-			        	}
-		        	}       		
-	        		
 
-		        	if(message === "stop" || message === "off"){
-		        		if(isWatching){
-		        			for(var i = 0; i < streamWatchList.length; i++){
-			            		clearInterval(streamWatchList[i].interval);
-			            	}
-			            	bot.sendMessage({
-			            		to: channelID,
-			            		message: "LiveStream watch **OFF**"
-			            	});
-		        		}
-		        		else{
-			        		bot.sendMessage({
-			        			to: channelID,
-			        			message: "LiveStream watch is **OFF**"
-			        		});
-			        	}
-		        	}
-	        	}		        	
-	        	return;
-	        }	        
+	        		if(message[1] === "show"){
+	        			bot.sendMessage({
+	        				to: channelID,
+	        				message: "\n**LiveStreamers**\n" + streamers.join('\n') 
+	        			});
+	        		}
 
-	        if(message.toLowerCase() === "!streamlist"){					// Checks all streamers from streamlist.txt if streaming
+	        		if(message[1] === "add"){
+	        			fs.appendFileSync('./liveStream/streamerlist.txt', "\n"+message[2]);
+	        			bot.sendMessage({
+	        				to: channelID,
+	        				message: message[2]+" has been added to streamers list."
+	        			});
+	        		}	        		
+
+	        		if(message[1] === "delete"){
+	        			for(var i = 0; i < streamers.length; i++){
+	        				if(streamers[i] === message[2]){
+	        					streamers.splice(i, 1);
+	        					fs.writeFileSync('./liveStream/streamerlist.txt', streamers.join('\n'));
+	        				}
+	        			}
+	        			bot.sendMessage({
+	        				to: channelID, 
+	        				message: "Deleted " + message[2] + " from list."
+	        			})
+	        		}
+	        		return;
+	        	}
+	        	// If no options are specified then output, if Live, the streamers in the list.
 	        	var streamers = fs.readFileSync('./liveStream/streamerlist.txt', 'utf8').split('\n');
-	            for(var i = 0; i < streamers.length; i++){
-	            	liveStream.getStreamStatus(streamers[i], function(streamStatus, streamSite, streamName, streamGame, streamUrl){
-	            		if(streamStatus){
-	            			bot.sendMessage({
-							    to: channelID,
-							    message: "**" + streamSite + "**\n**User**: "+ streamName +
-							    "\n**Status**: `Online`\n**Game**: "+ streamGame+"\n**Url**: "+streamUrl
-							});
-	            		}	            		
-	            	});
-	            }
-	            return;
+		           for(var i = 0; i < streamers.length; i++){
+			           liveStream.getTwitchStream(streamers[i], function(tiwtchStatus, twitchName, twitchGame, twitchUrl){
+				       	if(tiwtchStatus){
+				       		bot.sendMessage({
+				       			to: channelID,
+				       			message: "**Twitch**\n**User:** " + twitchName + "\n**Status:** `Online`\n**Game:** "+ twitchGame + "\n**Url:** " + twitchUrl
+				       		});
+				       		return;
+				       	}
+				       });
+
+					    liveStream.getHitBoxStream(streamers[i], function(hitboxStatus, hitboxName, hitboxGame, hitboxUrl){
+					       	if(hitboxStatus){
+					       		bot.sendMessage({
+					       			to: channelID,
+					       			message: "**HitBox**\n**User:** " + hitboxName + "\n**Status:** `Online`\n**Game:** "+ hitboxGame + "\n**Url:** " + hitboxUrl
+					       		});
+					       		return;
+					       	}
+					    });	
+		        	}
+		        return;
+	        			        	
 	        }	        
 
 	        if(message.toLowerCase().search("!stream") === 0){						// Check if user is streaming
 	            var searchUser = message.slice(8);
-	            liveStream.getStreamStatus(searchUser, function(streamStatus, streamSite, streamName, streamGame, streamUrl){
-	            	if(streamStatus){
-		            	bot.sendMessage({
-					        to: channelID,
-					        message: "**"+streamSite+"**\n**User**: "+ streamName + "\n**Status**: `Online`\n**Game**: "+ streamGame +"\n**Url**: " + streamUrl
-					    });
-	            	}
-	            	else if(!(streamStatus)){
-	            		bot.sendMessage({
-				            to: channelID,
-				            message: "**Stream**\n**User**: "+ searchUser + "\n**Status**: `Offline`"
-				        });	
-	            	}
-	            });
-	                        
-	            return;
-	        }
+	          	liveStream.getTwitchStream(searchUser, function(tiwtchStatus, twitchName, twitchGame, twitchUrl){
+	          		if(tiwtchStatus){
+	          			bot.sendMessage({
+	          				to: channelID,
+	          				message: "**Twitch**\n**User:** " + twitchName + "\n**Status:** `Online`\n**Game:** "+ twitchGame + "\n**Url:** " + twitchUrl
+	          			});
+	          			return;
+	          		}
+	          	});
 
-	        // ---------------------------------------------------------------
-
-	        
+	          	liveStream.getHitBoxStream(searchUser, function(hitboxStatus, hitboxName, hitboxGame, hitboxUrl){
+	          		if(hitboxStatus){
+	          			bot.sendMessage({
+	          				to: channelID,
+	          				message: "**HitBox**\n**User:** " + hitboxName + "\n**Status:** `Online`\n**Game:** "+ hitboxGame + "\n**Url:** " + hitboxUrl
+	          			});
+	          			return;
+	          		}
+	          	});	            
+	        }	        
 
 	        if(message.toLowerCase() === '!sounds'){				// List sounds in sounds directory
 	            var songList = fs.readdirSync('sounds');
