@@ -21,6 +21,7 @@
 • `!purge [Number]`: Deletes a specified amount of messages to be deleted
 • `!addcmd [command] [type] [message]`: Create a command that will be written in the `botCommands.json` file
 • `!delcmd [command]`: Deletes specified command if editable is true
+• `!editcmd [command] [new command] [type] [message]`: Edit existing commands
 
 
 **Memes**
