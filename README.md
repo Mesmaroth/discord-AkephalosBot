@@ -79,6 +79,7 @@ Please follow the format in `akebot/botCommands.json` in order to create or edit
   - `!purge [Number]`: Deletes a specified amount of messages to be deleted
   - `!addcmd [command] [type] [message]`: Create a command that will be written in the `botCommands.json` file
   - `!delcmd [command]`: Deletes specified command if editable is true
+  - `!editcmd [command] [new command] [type] [message]`: Edit existing commands
 
  **Memes**
   Custom commands can be made easy, like creating your own memes. Use `!cmds` for a list of all commands from the "botCommands.json" file.
