@@ -8,7 +8,7 @@ var cleverBot = require('./akebot/cleverBot.js');
 var liveStream = require('./liveStream/liveStream.js');
 var bot = new DiscordClient({token: botLogin.token, autorun: true});		// Or add bot.email, bot.password
 var reboot = false;
-try {var botVersion = "Akebot v"+ require('./package.json')["version"]}
+try {var botVersion = require('./package.json')["version"]}
 catch(error) {console.log(error)};
 
 
@@ -56,11 +56,6 @@ function printDateTime(options){       // month-day-year time used for logging
 
 function setPresence(gameName){
     bot.setPresence({game: gameName});
-
-  	if(gameName === ''){
-  		console.log("Game Presence set to: None");
-  	}
-  	else console.log("Game Presence set to: " + gameName);
 }
 
 function botUptime(){
@@ -79,7 +74,8 @@ function botUptime(){
 	return "**Uptime:** *"+upHours+" hour(s) : "+upMinutes+" minute(s) : "+upSeconds+" second(s)*";
 }
 
-function isAdmin (userID, channelID){           // Checks if the User is Admin
+// Checks if the User is Admin
+function isAdmin (userID, channelID){
     var adminRoleID = "";
     for(var i in bot.servers[bot.serverFromChannel(channelID)].roles){
         if(bot.servers[bot.serverFromChannel(channelID)].roles[i].name.toLowerCase() === "admin"){          // Checks to see what admin's ID is
@@ -95,14 +91,16 @@ function isAdmin (userID, channelID){           // Checks if the User is Admin
     return false;
 }
 
-function isGuildOwner(userID, channelID){						// Checks if the user is server owner.
+// Checks if the user is server owner.
+function isGuildOwner(userID, channelID){
 	if(bot.servers[bot.serverFromChannel(channelID)].owner_id === userID){
 		return true;
 	}
 	return false;
 }
 
-function isDev(userID){							// This checks if the user is the bot owner
+// This checks if the user is the bot owner
+function isDev(userID){
 	try{var devID = JSON.parse(fs.readFileSync('./akebot/sudo.json', 'utf8')).id}
 	catch(error) {if(error) return console.log(error)};
 	if(userID === devID){
@@ -135,9 +133,9 @@ function botAnnounce(message){
 	}
 }
 
-
+// Test to log when the bot is kicked
 bot.on('debug', function (event) {
-	if(event.t === "GUILD_DELETE"){					// Test to log when the bot is kicked
+	if(event.t === "GUILD_DELETE"){
 		console.log(event);
 		fs.writeFileSync("GUILD_DELETE.log","Kicked from Server:\n"+JSON.stringify(event,null,'\t'));
 	}
@@ -145,18 +143,16 @@ bot.on('debug', function (event) {
 });
 
 bot.on('ready', function (rawEvent) {
-    console.log("\n" + botVersion);
+    console.log("\nAkeBot v" + botVersion);
     console.log("Discord.io - Version: " + bot.internals.version);
-    console.log("Username: "+bot.username + " - (" + bot.id + ")");
-    setPresence(botVersion);    
+    console.log("Username: " + bot.username + " - (" + bot.id + ")");
+    setPresence("AkeBot v" + botVersion);    
     var serverList = [];    
     for(var i in bot.servers){
       serverList.push(bot.servers[i].name + ": (" + bot.servers[i].id + ")");
     }
     console.log("Servers: \n" + serverList.join('\n')+"\n");
     sudoCheck();
-
-    // Watch users in streamer list at startup
 	
 });
 
@@ -165,6 +161,7 @@ bot.on('disconnected', function(){
 		reboot = false;
 		console.log("Connecting...");		
 		setTimeout(bot.connect, 3000);
+		return;
 	}
     process.exit();
 });
@@ -195,6 +192,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        }
 
 	        if((message === "~disconnect" || message === "~exit") && isDev(userID)){
+	        	console.log("User disconnect")
 	            bot.sendMessage({
 	                to: channelID,
 	                message: "*Exiting...*"
@@ -211,7 +209,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	                message: "*Rebooting...*"
 	            });
 	            console.log("[REBOOTING]");
-	           setTimeout(()=>{ bot.disconnect()}, 2000);
+	           bot.disconnect();
 	            reboot = true;
 	            return;
 	        }	        
@@ -224,6 +222,10 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        if(message.toLowerCase().search("~setgame") === 0 && isDev(userID)){
 	            var message = message.slice(9);
 	            setPresence(message);
+	            if(message === ''){
+			  		console.log("Game Presence set to: None");
+			  	}
+			  	else console.log("Game Presence set to: " + message);
 	            return;
 	        }
 
@@ -287,7 +289,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            bot.sendMessage({
 	                to: channelID,
 	                message: "\n**Bot Username:** "+bot.username+"\n**Bot Owner:** "+devName+"\n**Servers Connected:** "+serversConnected()+"\n"+
-	                botUptime()+"\n**Version:** " + botVersion + "\n**Author:** Mesmaroth\n**Written in:** Node.js\n"+
+	                botUptime()+"\n**Version:** Akebot v" + botVersion + "\n**Author:** Mesmaroth\n**Written in:** Node.js\n"+
 	                "**Library:** Discord.io\n**Library Version:** "+bot.internals["version"]+"\n**Avatar:** https://goo.gl/kp8L7m\n**Thanks to:** izy521, negativereview, yukine."
 	            });
 	            return;
@@ -379,13 +381,14 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	          			return;
 	          		}
 	          	});	            
-	        }	        
+	        }
 
-	        if(message.toLowerCase() === '!sounds'){				// List sounds in sounds directory
+	        // List sounds in sounds directory
+	        if(message.toLowerCase() === '!sounds'){				
 	            var songList = fs.readdirSync('sounds');
 	            for(var i = 0; i < songList.length; i++){
 	            	songList[i] = songList[i].split('.');
-	            	songList[i] = "!"+songList[i][0];
+	            	songList[i] = "`!"+songList[i][0]+"`";
 	            }
 	            bot.sendMessage({
 	                to: channelID,
@@ -395,7 +398,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        }
 
 
-	        if(message.toLowerCase() === "!commands") {	        	
+	        if(message.toLowerCase() === "!commands" || message.toLowerCase() === "!help") {	        	
 	        	try {
 		            var commands = fs.readFileSync('./akebot/commandList.txt', 'utf8');
 		            bot.sendMessage({
@@ -413,7 +416,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            return;
 	        }
 
-
+	        // Outputs your message to the general channel from any channel.
 	        if(message.toLowerCase().search("!say") === 0 && isAdmin(userID, channelID)){
 	            var newMsg = message.slice(5);
 	            var generalChannel = "";
@@ -435,18 +438,19 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            return;
 	        }
 
+	        // Delete messages
 	        if(message.toLowerCase().search("!purge") === 0){
 	        	var name = "";
 	        	var max = 100;
 	        	var amount = max;
-	        	var msgArrIDs = [];				// Array of messageIDs to delete
+	        	// Array of messageIDs to delete
+	        	var msgArrIDs = [];				
 	        	message = message.slice(7);
 	        	if(message === "") return;
-	        	// If the user is specifying an amount of messages to delete for the specified user
 	        	if(message.search(' ') !== -1){
 	        		message = message.split(' ');
 	        		name = message[0].toLowerCase();
-	        		amount = Number(message[1]) + 1;		// Including the message that called that command
+	        		amount = Number(message[1]) + 1;
 
 	        		if(name === "me") {
 	        			name = user.toLowerCase();
@@ -537,6 +541,73 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        	}		        	
 	        }
 
+	        if(message.toLowerCase().search("!kick") === 0 && isAdmin(userID, channelID)){
+	        	if(message.search(" ") !== -1){
+	        		message = message.split(" ");       		
+	        		// Check for mentions
+	        		if(rawEvent.d.mentions.length > 0){
+	        			var targetID = rawEvent.d.mentions[0].id;
+	        			var targetName = rawEvent.d.mentions[0].username;
+
+	        			bot.kick({
+	        				channel: channelID,
+	        				target: targetID
+	        			}, function(error){
+	        				if(error) return console.log(error);
+	        			});
+
+	        			bot.sendMessage({
+	        				to: channelID,
+	        				message: targetName + " has been kicked."
+	        			});
+	        		}
+	        		else{
+	        			bot.sendMessage({
+	        				to: channelID,
+	        				message: "No user was mentioned."
+	        			});
+	        		}
+	        	}
+	        	return;
+	        }
+
+	        if(message.toLowerCase().search("!ban") === 0 && isAdmin(userID, channelID)){
+	        	if(message.search(" ") !== -1){
+	        		message = message.split(" ");
+	        		if(message.length !== 3){
+	        			bot.sendMessage({
+	        				to: channelID,
+	        				message: "No amount of days specified."
+	        			});
+	        			return;
+	        		}
+
+	        		if(rawEvent.d.mentions.length > 0){
+	        			var targetID = rawEvent.d.mentions[0].id;
+	        			var targetName = rawEvent.d.mentions[0].username;
+	        			bot.ban({
+	        				channel: channelID,
+	        				target: targetID,
+	        				lastDays: Number(message[2])
+	        			}, function(error) {
+	        				if(error) return console.log(error);
+	        			});
+
+	        			bot.sendMessage({
+	        				to: channelID,
+	        				message: targetName + " has been banned for `" + message[2] + "` days."
+	        			});
+	        		}
+	        		else{
+	        			bot.sendMessage({
+	        				to: channelID,
+	        				message: "No user was mentioned."
+	        			});
+	        		}
+	        	}
+	        	return;
+	        }
+
 	        if(message.toLowerCase() === "!date"){
 	            bot.sendMessage({
 	                to: channelID,
@@ -575,12 +646,14 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   			return;
 	   		}
 
+	   		// Add a command
 	   		if(message.toLowerCase().search("!addcmd") === 0){
 	   			var cmd = "";
 	   			var type = "";
 	   			var output = [];
 	   			var reservedCMDS = ['!commands', '!time', '!date', '!purge', '!servers', '!stream', 
-	   			'!streamlist', '!streamwatch', '!uptime', '!cmds', '!addcmd', '!delcmd', '!cmd', '!sounds', '!say', '!reverse', '!about' ]
+	   			'!streamlist', '!streamwatch', '!uptime', '!cmds', '!addcmd', '!delcmd','!editcmd',
+	   			'!cmd', '!appcmd', '!sounds', '!addsound', '!delsound', '!say', '!reverse', '!about', '!ban', '!kick' ]
 	   			message = message.slice(8);
 
 	   			// Catch any errors reading botCommands
@@ -627,7 +700,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   			}
 		   			output = output.join(" ");	
 
-	   				// Text
+	   				// Text type
 	   				if(type.toLowerCase() === "text"){
 
 	   					// Check if the commands already exist
@@ -673,7 +746,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   				return;
 	   				}
 
-	   				// Image
+	   				// Image type
 	   				if(type.toLowerCase() === 'image'){
 
 	   					// Check if the command already exist
@@ -735,13 +808,15 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   					delete commands[commands.length - 1].message;
 		   					bot.sendMessage({
 		   						to: channelID,
-		   						message: "\n**Command Added**\n```javascript\nCommand: <"+bot.fixMessage(cmd)+">\nType: " + type +"\nBy: <"+ user + ">\nPath: "+ location+fileName+"\nFilename: " + fileName + "```"
+		   						message: "\n**Command Added**\n```javascript\nCommand: <"+bot.fixMessage(cmd)+">\nType: " + type +"\nBy: <"+ user + ">\nPath: " + location+fileName+
+		   						"\nFilename: " + fileName + "```"
 		   					});
 		   				}
 		   				else {
 		   					bot.sendMessage({
 			   					to: channelID,
-			   					message: "\n**Command Added**\n```javascript\nCommand: <"+bot.fixMessage(cmd)+">\nType: " + type +"\nBy: <"+ user + ">\nPath: "+ location+fileName+"\nFilename: " + fileName + "\nMessage: " + bot.fixMessage(output)+ "```"
+			   					message: "\n**Command Added**\n```javascript\nCommand: <"+bot.fixMessage(cmd)+">\nType: " + type +"\nBy: <"+ user + ">\nPath: "+ location+fileName+
+			   					"\nFilename: " + fileName + "\nMessage: " + bot.fixMessage(output)+ "```"
 		   					});
 		   				}		   					   				
 		   				return;
@@ -817,6 +892,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   			return;
 	   		}
 
+	   		// Edit a command
 	   		if(message.search('!editcmd') === 0){
 	   			if(message.search(' ') != -1){
 	   				message = message.split(" ");
@@ -849,8 +925,12 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   				};
 
 	   				for(var i = 0; i < commands.length; i++){
-	   					if(commands[i].command === cmd || commands[i].command2 === cmd){
-	   						if(commands[i].editable){
+	   					if(commands[i].command === cmd){
+	   						if(commands[i].editable || isDev(userID)){
+	   							var author = user.toLowerCase();
+	   							if(isDev(userID)) author = null;
+
+	   							// Editing text commands
 		   						if(type === "text"){
 		   							var oldCMD = commands[i].command;
 		   							var oldMsg = "None";
@@ -876,7 +956,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   							commands[i].command = newCmd;
 		   							commands[i].type = type;
 		   							commands[i].message = msg;
-		   							commands[i].author = user.toLowerCase();
+		   							if(author !== null) commands[i].author = author;
 
 		   							bot.sendMessage({
 		   								to: channelID,
@@ -888,6 +968,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   							return;
 		   						}
 
+		   						// Editing image commands
 		   						if(type === "image"){
 		   							var oldCMD = commands[i].command;
 		   							var oldMsg = "None";		   							
@@ -899,6 +980,9 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   									delete commands[i].message;
 		   								}
 		   								msg = "None";
+		   							}
+		   							else{
+		   								commands[i].message = msg;
 		   							}
 		   							
 		   							/*	If no image is uploaded when this command is executed then it assumes
@@ -998,11 +1082,113 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   			return;
 	   		}
 
-	   		if(message.search('!raw')  === 0){
-	   			console.log(rawEvent);
-	   			console.log(rawEvent.d.attachments);
+	   		// Append a second command to a command.
+	   		if(message.toLowerCase().search("!appcmd") === 0){	   			
+	   			if(message.search(" ") !== -1){
+	   				message = message.split(" ");
+	   				var cmd = message[1].toLowerCase();
+	   				if(message.length > 2) var cmd2 = message[2].toLowerCase();
+	   				try{
+	   					var commands = JSON.parse(fs.readFileSync('./akebot/botCommands.json', 'utf8'));
+	   				}
+	   				catch (error){ if(error) return console.log(error)};
+
+	   				// Remove the second command from command if no command is entered.
+	   				if(message.length === 2){
+	   					for(var i = 0 ; i < commands.length; i++){
+	   						if(cmd === commands[i].command || cmd === commands[i].command2){
+		   						if(commands[i].editable){
+		   							var author = "Server";
+		   							if(commands[i].hasOwnProperty("author")) author = commands[i].author;
+
+		   							if(commands[i].hasOwnProperty("command2")){
+		   								delete commands[i].command2;
+
+			   							if(commands[i].type === "text"){
+				   							bot.sendMessage({
+				   								to: channelID,
+				   								message: "**Second Command Removed**\n```javascript\nCommand: <" + commands[i].command + ">\nType: " + commands[i].type + "\nBy: <" + author + ">\nMessage: <" + commands[i].message + ">\n```"
+				   							});
+			   							}
+
+			   							if(commands[i].type === "image"){
+				   							if(commands[i].hasOwnProperty("message")){
+				   								bot.sendMessage({
+					   								to: channelID,
+					   								message: "**Second Command Removed**\n```javascript\nCommand: <" + commands[i].command + ">\nType: " + commands[i].type + 
+					   								"Path: " + commands[i].file +"\nFile Name: " + commands[i].filename + "\nBy: <" + author + ">\nMessage: <" + commands[i].message  + ">\n```"
+					   							});
+				   							}
+				   							else{
+				   								bot.sendMessage({
+					   								to: channelID,
+					   								message: "**Second Command Removed**\n```javascript\nCommand: <" + commands[i].command + ">\nType: " + commands[i].type +
+					   								"Path: " + commands[i].file +"\nFile Name: " + commands[i].filename + "\nBy: <" + author + ">\n```"
+					   							});
+				   							}	   							
+				   						}
+
+				   						fs.writeFileSync('./akebot/botCommands.json', JSON.stringify(commands, null, '\t'));			   						   								
+		   							}
+		   						}
+	   						}
+	   					}
+	   					bot.sendMessage({
+	   						to: channelID,
+	   						message: "`" + cmd + "` doesn't have a second command."
+	   					});
+	   					return;
+	   				}
+
+	   				// Add second command
+	   				for(var i = 0; i < commands.length; i++){
+	   					if(cmd === commands[i].command || cmd === commands[i].command2){
+	   						if(commands[i].editable){
+	   							var author = "Server";
+	   							if(commands[i].hasOwnProperty("author")) author = commands[i].author;
+
+	   							commands[i].command2 = cmd2;
+
+		   						if(commands[i].type === "text"){
+		   							bot.sendMessage({
+		   								to: channelID,
+		   								message: "**Command Appended**\n```javascript\nCommand: <" + commands[i].command + ">\nCommand 2: <" + commands[i].command2 + ">\nType: " + commands[i].type +
+		   								"\nBy: " + author + "\nMessage: " + commands[i].message + "\n```"
+		   							});
+		   						}
+
+		   						if(commands[i].type === "image"){
+		   							if(commands[i].hasOwnProperty("message")){
+		   								bot.sendMessage({
+			   								to: channelID,
+			   								message: "**Command Appended**\n```javascript\nCommand: <" + commands[i].command + ">\nCommand 2: <" + commands[i].command2 + ">\nType: " + commands[i].type +
+			   								"Path: " + commands[i].file +"\nFile Name: " +commands[i].filename + "\nBy: <" + author + ">\nMessage: <" + commands[i].message  + ">\n```"
+			   							});
+		   							}
+		   							else{
+		   								bot.sendMessage({
+			   								to: channelID,
+			   								message: "**Command Appended**\n```javascript\nCommand: <" + commands[i].command + ">\nCommand 2: <" + commands[i].command2 + ">\nType: " + commands[i].type +
+			   								"Path: " + commands[i].file +"\nFile Name: " +commands[i].filename + "\nBy: <" + author + ">\n```"
+			   							});
+		   							}	   							
+		   						}
+		   						fs.writeFileSync('./akebot/botCommands.json', JSON.stringify(commands, null, '\t'));
+		   						return;	
+	   						}
+	   					}
+	   				}
+
+	   				bot.sendMessage({
+	   					to: channelID, 
+	   					message: "`"+cmd+"` isn't editable."
+	   				});
+
+	   			}
+	   			return;
 	   		}
 
+	   		// Displays details of the command
 	   		if(message.toLowerCase().search("!cmd") === 0){
 	   			message = message.slice(5);
 	   			try{ 
@@ -1084,6 +1270,88 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   		return;
 	   		}
 
+	   		// Add sounds to play
+	   		if(message.toLowerCase() === "!addsound"){
+	   			if(rawEvent.d.attachments.length > 0){
+	   				var url = rawEvent.d.attachments[0].url;
+	   				var fileName = rawEvent.d.attachments[0].filename.toLowerCase();
+	   				var songName = fileName.split(".")[0];
+	   				var extension = fileName.split(".")[1];
+	   				var sounds = fs.readdirSync('./sounds/');
+	   				if(extension !== "mp3"){
+	   					bot.sendMessage({
+	   						to: channelID,
+	   						message: "**Error:** This file is not a `.mp3` file."
+	   					});
+	   					return;
+	   				}
+	   				
+	   				for(var i = 0; i < sounds.length; i++){
+	   					if(fileName === sounds[i]){
+	   						bot.sendMessage({
+	   							to: channelID, 
+	   							message: "`" + fileName + "` is already added."
+	   						});
+	   						return;
+	   					}
+	   				}
+
+	   				request({url: url, encoding: null}, function (error, response, data){
+	   					if(!error && response.statusCode === 200){
+	   						fs.writeFile('./sounds/'+fileName, data, function (error){
+	   							if(error) return console.log(error);
+	   							bot.sendMessage({
+				   					to: channelID,
+				   					message: "**Sound Added**\nUse `!" + songName + "` to play." 
+				   				});
+	   						});
+	   					}
+	   				});	   				
+	   				return;
+	   			}
+
+	   			bot.sendMessage({
+	   				to: channelID,
+	   				message: "**Error:**\nNo sound attached to upload."
+	   			});
+	   			return;
+	   		}
+
+	   		// Delete sounds that are in the sounds folder.
+	   		if(message.toLowerCase().search("!delsound") === 0 && isAdmin(userID, channelID)){
+	   			if(message.search(" ") !== -1){
+	   				message = message.split(" ");
+	   				var sound = message[1].split(".")[0];
+	   				var soundList = fs.readdirSync('./sounds/');
+
+	   				for(var i = 0; i < soundList.length; i++){
+	   					if(sound === soundList[i].split(".")[0]){
+	   						fs.unlink('./sounds/'+soundList[i], function(error){
+	   							if(error) {
+	   								console.log(error);
+	   								bot.sendMessage({
+	   									to: channelID,
+	   									message: "**Error:** Please make sure the sound isn't playing first."
+	   								});
+	   								return;
+	   							}
+	   							bot.sendMessage({
+		   							to:channelID,
+		   							message: "**Sound Deleted**\n`" + sound + "` has been deleted."
+	   							});
+	   						});
+	   						return;	   							   						
+	   					}
+	   				}
+
+	   				bot.sendMessage({
+	   					to: channelID,
+	   					message: "No sound found."
+	   				});
+	   			}
+	   			return;
+	   		}
+
 	   		// Check if the command matches a sound from the sounds folder
 	        if(message.toLowerCase().search("!") === 0){
 	        	if(message.length > 1) botSounds.playSound(bot, channelID, message.toLowerCase());
@@ -1095,15 +1363,17 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   		try{var cmd = JSON.parse(file)}
 	   		catch(error){return bot.sendMessage({to:channelID, message: "**Error:** CMDS\n**Message**: *Your 'botCommands.json' file is causing an error, please revise!*```javascript\n"+error+"\n```"})};
 	   		for(var i in cmd){
-	   			if(message.toLowerCase() === cmd[i].command || message.toLowerCase() === cmd[i].command2){	   				
-	   				if(!(cmd[i].hasOwnProperty('type'))){			// Check if theres type property
+	   			if(message.toLowerCase() === cmd[i].command || message.toLowerCase() === cmd[i].command2){
+	   				// Check if theres type property	   				
+	   				if(!(cmd[i].hasOwnProperty('type'))){			
 	   					bot.sendMessage({
 		   					to: channelID,
 		   					message: "**Error** CMDS\n**Message**: No `\"type\"` property specified. Please check that your command properties are written correctly."
 		   					});
 		   					return;
 	   				}
-	   				if(cmd[i].hasOwnProperty('typing')){					// Check if typing is not a boolean
+	   				// Check if typing is not a boolean
+	   				if(cmd[i].hasOwnProperty('typing')){					
 	   					if(typeof cmd[i].typing != 'boolean'){
 	   						cmd[i].typing = false;
 	   						bot.sendMessage({
@@ -1112,7 +1382,8 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   						});
 	   					}
 	   				}
-	   				if(cmd[i].hasOwnProperty('tts')){					// Check if tts is not a boolean
+	   				// Check if tts is not a boolean
+	   				if(cmd[i].hasOwnProperty('tts')){					
 	   					if(typeof cmd[i].tts != 'boolean'){
 	   						cmd[i].typing = false;
 	   						bot.sendMessage({
