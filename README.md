@@ -1,5 +1,5 @@
 # Discord-AkephalosBot (Node.js)
-Discord bot written in Node.js for [Discord](http://www.discord.gg) Anyone can edit or modify this project of their own doing, all I ask is a mention of me or by leaving `!about` with my name intact.
+Discord bot written in Node.js for [Discord](http://www.discord.gg) Anyone can edit or modify this project of their own doing, all I ask is a mention of me or by leaving `!about` with author of this project with my name intact.
 
 Library: [Discord.io](https://github.com/izy521/discord.io)
 
@@ -7,9 +7,11 @@ Library: [Discord.io](https://github.com/izy521/discord.io)
  - Making commands can be written without a hassle in coding.
  - Making quick and simple commands within the discord client.
  - Custom sounds ready to be played, just drag and drop to the folder and your done.
- - Twitch/Hitbox live stream check. 
- - Admin purging messages
- - Clever Bot implemented, ask him anything.
+ - Upload your sounds to the bot within discord.
+ - Twitch/Hitbox, check if a user is streaming.
+ - Purging messages or a channel.
+ - Admin controlled commands.
+ - Clever Bot implemented, ask it anything.
 If you have any questions please ask them in my test Server:
 
 [![Discord](https://discordapp.com/api/servers/160436336095002624/widget.png?style=banner3)](https://discord.gg/0tYqr4FWusEQHErS)
@@ -24,6 +26,7 @@ If you don't want to setup a bot, you can also test this bot by [Authorizing Ake
  - Put your login details in `akebot/botLogin.js`
  - For cleverBot credentials you need to put them at `akebot/cleverBot.js`
  - Launch `StartBot.bat`(Windows) once login details and required modules have been installed.
+ - Make sure you have a group called admin for using the commands admin commands.
 
 ### Required Modules:
  - cleverbot: `npm install cleverbot.io`
@@ -60,39 +63,48 @@ Please follow the format in `akebot/botCommands.json` in order to create or edit
 
  **General**
   - `!about`: About this bot
-  - `!joinServer`: If you wish to invite the bot to your server (Alternative: `!addServer`)
+  - `!help`: Displays bot commands
+  - `!commands`: Shows a list of all custom commands from the "botCommands.json" file
+  - `!invite`: If you wish to invite this bot to your server
   - `!upTime`: bot up time
   - `!date`: Display the date
-  - `!time`: Display the time
-  - `!sounds`: Displays a list of sounds
+  - `!time`: Display the time  
   - `!stream [username]`: Checks if the user is live on Twitch or Hitbox or both
-  - `!streamList`: Checks if users from the streamer list is online
   - `!ask [Question]`: Ask the bot anything
-  - `!servers`: Shows how many servers the bot is connected to
-  - `!cmds`: Shows a list of all custom commands
+
 
  **Admins** *Must be in group admin*
-  - `!say [message]`: Re-sends your message from any channel general channel
+  - `!say [message]`: Re-sends your message from any channel to the general channel
   - `!purge all`: Deletes up to fifteen messages at a time. [Optional] Add a number to specifiy an amount up to 15
   - `!purge me`: Deletes up to fifteen of your messages at a time. [Optional] Add a number to specifiy an amount up to 15
   - `!purge bot`: Deletes up to fifteen of the bot's messages at a time. [Optional] Add a number to specifiy an amount up to 15
-  - `!purge [Number]`: Deletes a specified amount of messages to be deleted
+  - `!purge [Number]`: Deletes a specified amount of messages to be deleted  
+  - `!ban [@user] [days]`: Ban the mentioned user for X number of days.
+  - `!kick [@user]`: Kick the mentioned user from server.  
+
+ **Custom Commands**
+  Commands found in "botCommands.json" file.
+
+  - `!cmd [command]`: Check a command's details. E.G author, type, message
   - `!addcmd [command] [type] [message]`: Create a command that will be written in the `botCommands.json` file
-  - `!delcmd [command]`: Deletes specified command if editable is true
+  - `!delcmd [command]`: Deletes specified command if editable is true  *Admin required*
   - `!editcmd [command] [new command] [type] [message]`: Edit existing commands
+  - `!appcmd [command] [second command]`: Add a second command to your command to be triggered when called.
 
- **Memes**
-  Custom commands can be made easy, like creating your own memes. Use `!cmds` for a list of all commands from the "botCommands.json" file.
+  *Current commands that come with this bot.*
+    - `!ping`: Pong
+    - `!rekt`: Rekt Meme
+    - `!Yes`: Creepy Jack Yes
+    - `!topkek`: TopKek
+    - `!feelsgood`: FeelsGoodMan
+    - `!feelsbad`: FeelsBadMan
+    - `!whoa`: Take it easy man
+    - `!bmj`: John Cena
+    - `!doit`: Do it
+    - `!nice`: Nice
+    - `!neil`: Neil Degrasse Tyson 
 
-  - `!ping`: Pong
-  - `!rekt`: Rekt Meme
-  - `!Yes`: Creepy Jack Yes
-  - `!topkek`: TopKek
-  - `!feelsgood`: FeelsGoodMan
-  - `!feelsbad`: FeelsBadMan
-  - `!whoa`: Take it easy man
-  - `!bmj`: John Cena
-  - `!doit`: Do it
-  - `!nice`: Nice
-  - `!neil`: Neil Degrasse Tyson 
-
+**Sounds**
+ - `!sounds`: Displays a list of sounds
+ - `!addsound`: Upload your sound to the bot. Use command when uploading your file.
+ - `!delsound`: Delete a sound from the sounds folder. *Admin required*
