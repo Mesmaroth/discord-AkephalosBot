@@ -1,13 +1,13 @@
 var DiscordClient = require('discord.io');
-var uptimer = require('uptimer');
 var fs = require('fs');
 var request = require('request');
+var uptimer = require('uptimer');
 var botLogin = require('./akebot/botLogin.js');
-var botSounds = require('./akebot/botSounds.js');
 var cleverBot = require('./akebot/cleverBot.js');
-var liveStream = require('./liveStream/liveStream.js');
-var bot = new DiscordClient({token: botLogin.token, autorun: true});		// Or add bot.email, bot.password
+var liveStream = require('./akebot/liveStream.js');
+var bot = new DiscordClient({token: botLogin.token, autorun: true});	// Or add bot.email, bot.password
 var reboot = false;
+var delayMessage = true;			// Display error every minute
 try {var botVersion = require('./package.json')["version"]}
 catch(error) {console.log(error)};
 
@@ -31,7 +31,8 @@ function sudoCheck(){
 	return console.log("Bot dev is set to " + sudo.username + " If this isn't you please correct it in the 'sudo.json' file");
 }
 
-function printDateTime(options){       // month-day-year time used for logging	
+// month-day-year time used for logging	
+function printDateTime(options){
 	if(options === "date"){
 		var d = new Date();
    		return d.toDateString();
@@ -78,14 +79,14 @@ function botUptime(){
 function isAdmin (userID, channelID){
     var adminRoleID = "";
     for(var i in bot.servers[bot.serverFromChannel(channelID)].roles){
-        if(bot.servers[bot.serverFromChannel(channelID)].roles[i].name.toLowerCase() === "admin"){          // Checks to see what admin's ID is
+        if(bot.servers[bot.serverFromChannel(channelID)].roles[i].name.toLowerCase() === "admin"){
             adminRoleID = bot.servers[bot.serverFromChannel(channelID)].roles[i].id;
             break;
         }
     }
 
     for(var i in bot.servers[bot.serverFromChannel(channelID)].members[userID].roles){                      
-        if(bot.servers[bot.serverFromChannel(channelID)].members[userID].roles[i] === adminRoleID)          // Checks user's roles if user is admin
+        if(bot.servers[bot.serverFromChannel(channelID)].members[userID].roles[i] === adminRoleID)
             return true
     }
     return false;
@@ -117,30 +118,10 @@ function serversConnected(){
     return count;
 }
 
-function botAnnounce(message){
-	message = message.slice(10);
-	for(var serverID in bot.servers){
-		for(var channelID in bot.servers[serverID].channels){
-			if(bot.servers[serverID].channels[channelID].name === "announcements" && bot.servers[serverID].channels[channelID].type === "text"){
-				bot.sendMessage({
-					to: bot.servers[serverID].channels[channelID].id,
-					message: message
-				})
-				break;
-			}
-			else continue;
-		}
-	}
-}
-
-// Test to log when the bot is kicked
-bot.on('debug', function (event) {
-	if(event.t === "GUILD_DELETE"){
-		console.log(event);
-		fs.writeFileSync("GUILD_DELETE.log","Kicked from Server:\n"+JSON.stringify(event,null,'\t'));
-	}
-
-});
+// bot.on('guildDelete', function (server){
+// 	console.log(server)
+// 	fs.writeFileSync("Guild_Delete.log",JSON.stringify(server,null,'\t'));
+// });
 
 bot.on('ready', function (rawEvent) {
     console.log("\nAkeBot v" + botVersion);
@@ -158,9 +139,11 @@ bot.on('ready', function (rawEvent) {
 
 bot.on('disconnected', function(){
 	if(reboot === true){
-		reboot = false;
-		console.log("Connecting...");		
-		setTimeout(bot.connect, 3000);
+		reboot = false;			
+		setTimeout( function () {
+			console.log("Connecting...");
+			bot.connect();
+		}, 3000);
 		return;
 	}
     process.exit();
@@ -203,7 +186,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            return;
 	        }
 
-	        if(message === "~reboot" && isAdmin(userID, channelID)){
+	        if(message === "~reboot" && (isAdmin(userID, channelID) || isDev(userID)) ){
 	        	bot.sendMessage({
 	                to: channelID,
 	                message: "*Rebooting...*"
@@ -215,7 +198,19 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        }	        
 
 	        if(message.search("~announce") === 0 && isDev(userID)){
-	        	botAnnounce(message);
+	        	message = message.slice(10);
+				for(var serverID in bot.servers){
+					for(var channelID in bot.servers[serverID].channels){
+						if(bot.servers[serverID].channels[channelID].name === "announcements" && bot.servers[serverID].channels[channelID].type === "text"){
+							bot.sendMessage({
+								to: bot.servers[serverID].channels[channelID].id,
+								message: message
+							})
+							break;
+						}
+						else continue;
+					}
+				}
 	        	return;
 	        }
 
@@ -252,10 +247,10 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        	return;
 	        }
 
-	        if((message.toLowerCase() === "!joinserver" || message.toLowerCase() === "!addserver")){
+	        if((message.toLowerCase() === "!invite")){
 	        	bot.sendMessage({
 	        		to: channelID, 
-	        		message: "**Invite link:**\n"+bot.inviteURL			// Replace this with your bots auth invite link
+	        		message: "**Invite link:**\n"+bot.inviteURL
 	        	});
 	        	return;
 	        }
@@ -293,71 +288,6 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	                "**Library:** Discord.io\n**Library Version:** "+bot.internals["version"]+"\n**Avatar:** https://goo.gl/kp8L7m\n**Thanks to:** izy521, negativereview, yukine."
 	            });
 	            return;
-	        }    
-
-	        if(message.toLowerCase().search("!streamlist") === 0){					// Checks all streamers from streamlist.txt if streaming
-	        	var streamers = fs.readFileSync('./liveStream/streamerlist.txt', 'utf8').split('\n');  
-	        	for(var i = 0; i < streamers.length; i++){
-	        		streamers[i].replace("\r", "");
-	        	}
-	        	// Parameters can be specified instead of checking the live status.
-	        	if(message.search(' ') != -1){
-	        		message = message.split(' ');
-
-	        		if(message[1] === "show"){
-	        			bot.sendMessage({
-	        				to: channelID,
-	        				message: "\n**LiveStreamers**\n" + streamers.join('\n') 
-	        			});
-	        		}
-
-	        		if(message[1] === "add"){
-	        			fs.appendFileSync('./liveStream/streamerlist.txt', "\n"+message[2]);
-	        			bot.sendMessage({
-	        				to: channelID,
-	        				message: message[2]+" has been added to streamers list."
-	        			});
-	        		}	        		
-
-	        		if(message[1] === "delete"){
-	        			for(var i = 0; i < streamers.length; i++){
-	        				if(streamers[i] === message[2]){
-	        					streamers.splice(i, 1);
-	        					fs.writeFileSync('./liveStream/streamerlist.txt', streamers.join('\n'));
-	        				}
-	        			}
-	        			bot.sendMessage({
-	        				to: channelID, 
-	        				message: "Deleted " + message[2] + " from list."
-	        			})
-	        		}
-	        		return;
-	        	}
-	        	// If no options are specified then output, if Live, the streamers in the list.
-	        	var streamers = fs.readFileSync('./liveStream/streamerlist.txt', 'utf8').split('\n');
-		           for(var i = 0; i < streamers.length; i++){
-			           liveStream.getTwitchStream(streamers[i], function(tiwtchStatus, twitchName, twitchGame, twitchUrl){
-				       	if(tiwtchStatus){
-				       		bot.sendMessage({
-				       			to: channelID,
-				       			message: "**Twitch**\n**User:** " + twitchName + "\n**Status:** `Online`\n**Game:** "+ twitchGame + "\n**Url:** " + twitchUrl
-				       		});
-				       		return;
-				       	}
-				       });
-
-					    liveStream.getHitBoxStream(streamers[i], function(hitboxStatus, hitboxName, hitboxGame, hitboxUrl){
-					       	if(hitboxStatus){
-					       		bot.sendMessage({
-					       			to: channelID,
-					       			message: "**HitBox**\n**User:** " + hitboxName + "\n**Status:** `Online`\n**Game:** "+ hitboxGame + "\n**Url:** " + hitboxUrl
-					       		});
-					       		return;
-					       	}
-					    });	
-		        	}
-		        return;
-	        			        	
 	        }	        
 
 	        if(message.toLowerCase().search("!stream") === 0){						// Check if user is streaming
@@ -398,20 +328,69 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        }
 
 
-	        if(message.toLowerCase() === "!commands" || message.toLowerCase() === "!help") {	        	
-	        	try {
-		            var commands = fs.readFileSync('./akebot/commandList.txt', 'utf8');
-		            bot.sendMessage({
-		                to: channelID,
-		                message: "\n**"+bot.username+" Commands**\n"+commands
-		            });
-	            }
-		        catch(err){
-		            bot.sendMessage({
-		                to: channelID,
-		                message: err
-		            });
-		        }
+	        if(message.search(/[!]help/i) === 0) {	        	
+	        	if(message.search(" ") !== -1){
+	        		message = message.split(" ");
+	        		var type = message[1];
+	        		if(type === "general"){
+	        			bot.sendMessage ({
+	        				to: channelID,
+	        				message: "**General**\n"+
+							"• `!about`: About this bot\n"+
+							"• `!help`: Displays this\n"+
+							"• `!source`: Source code for this bot\n"+
+							"• `!invite`: If you wish to invite this bot to your server\n"+
+							"• `!upTime`: Bot up time\n"+
+							"• `!date`: Display the date\n"+
+							"• `!time`: Display the time\n"+							
+							"• `!stream [username]`: Checks if the user is live on Twitch or Hitbox or both\n"+
+							"• `!ask [Question]`: Ask the bot anything\n"
+	        			});
+	        		}
+
+	        		if(type === "admins" || type === "admin"){
+	        			bot.sendMessage({
+	        				to: channelID, 
+	        				message: "**Admins** *Must be admin*\n"+
+							"• `!say [message]`: Re-sends your message from any channel general channel\n"+
+							"• `!purge all`: Deletes up to fifteen messages at a time. [Optional] Add a number to specifiy an amount up to 100\n"+
+							"• `!purge me`: Deletes up to fifteen of your messages at a time. [Optional] Add a number to specifiy an amount up to 100\n"+
+							"• `!purge bot`: Deletes up to fifteen of the bot's messages at a time. [Optional] Add a number to specifiy an amount up to 100.\n"+
+							"• `!purge [Number]`: Deletes a specified amount of messages to be deleted\n"+							
+							"• `!ban [@user] [days]`: Ban the mentioned user for X number of days.\n"+
+							"• `!kick [@user]`: Kick the mentioned user from server.\n"
+	        			});
+	        		}
+
+	        		if(type === "commands" || type === "command"){
+	        			bot.sendMessage({
+	        				to: channelID,
+	        				message: "**Commands**\n"+
+	        				"• `!commands`: Show a list of all commands that are added\n"+
+	        				"• `!cmd [command]`: Check a command's details. E.G author, type, message\n"+
+							"• `!addcmd [command] [type] [message]`: Create a command \n"+
+							"• `!appcmd [command] [2nd command]`: To add a second command to your command"+
+							"• `!delcmd [command]`: Deletes your command if editable is true\n"+
+							"• `!editcmd [command] [new command] [type] [message]`: Edit existing commands\n"
+	        			});
+	        		}
+
+	        		if(type === "sounds" || type === "sound"){
+	        			bot.sendMessage({
+	        				to: channelID,
+	        				message: "**Sounds**\n"+
+	        				"• `!sounds`: Displays a list of all sounds\n"+
+							"• `!addsound`: Attach a mp3 file with this message to add a sound\n"+
+							"• `!delsound [sound name]`: Delete a sound. Do not include the '!' prefix\n"
+	        			});
+	        		}
+	        	}
+	        	else{
+	        		bot.sendMessage({
+	        			to: channelID,
+	        			message: "**"+Help+"**\n• `!help general`: For general commands\n• `!help admins`: For admin Commands\n• `!help commands`: For custom commands\n• `!help sounds`: For sound commands"
+	        		});
+	        	}
 		        		        
 	            return;
 	        }
@@ -439,7 +418,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        }
 
 	        // Delete messages
-	        if(message.toLowerCase().search("!purge") === 0){
+	        if(message.toLowerCase().search("!purge") === 0 && isAdmin(userID, channelID)){
 	        	var name = "";
 	        	var max = 100;
 	        	var amount = max;
@@ -554,12 +533,12 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        				target: targetID
 	        			}, function(error){
 	        				if(error) return console.log(error);
+	        				bot.sendMessage({
+		        				to: channelID,
+		        				message: targetName + " has been kicked."
+	        				});
 	        			});
-
-	        			bot.sendMessage({
-	        				to: channelID,
-	        				message: targetName + " has been kicked."
-	        			});
+	        			
 	        		}
 	        		else{
 	        			bot.sendMessage({
@@ -591,12 +570,12 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        				lastDays: Number(message[2])
 	        			}, function(error) {
 	        				if(error) return console.log(error);
+	        				bot.sendMessage({
+		        				to: channelID,
+		        				message: targetName + " has been banned for `" + message[2] + "` days."
+		        			});
 	        			});
-
-	        			bot.sendMessage({
-	        				to: channelID,
-	        				message: targetName + " has been banned for `" + message[2] + "` days."
-	        			});
+		        			
 	        		}
 	        		else{
 	        			bot.sendMessage({
@@ -624,7 +603,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            return;
 	        }
 
-	        if(message === "!cmds") {
+	        if(message === "!commands") {
 	   			try{
 	   				var file = fs.readFileSync('akebot/botCommands.json', 'utf8');
 	   				file = JSON.parse(file);
@@ -651,8 +630,8 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   			var cmd = "";
 	   			var type = "";
 	   			var output = [];
-	   			var reservedCMDS = ['!commands', '!time', '!date', '!purge', '!servers', '!stream', 
-	   			'!streamlist', '!streamwatch', '!uptime', '!cmds', '!addcmd', '!delcmd','!editcmd',
+	   			var reservedCMDS = ['!commands', '!time', '!date', '!purge', '!servers', '!stream',
+	   			'!streamwatch', '!uptime', '!help', '!addcmd', '!delcmd','!editcmd',
 	   			'!cmd', '!appcmd', '!sounds', '!addsound', '!delsound', '!say', '!reverse', '!about', '!ban', '!kick' ]
 	   			message = message.slice(8);
 
@@ -831,7 +810,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   			return; 
 	   		}
 
-	   		if(message.toLowerCase().search('!delcmd') === 0){
+	   		if(message.toLowerCase().search('!delcmd') === 0 && isAdmin(userID, channelID)){
 	   			message = message.slice(8);
 	   			try{ 
 	   				var commands = JSON.parse(fs.readFileSync('./akebot/botCommands.json', 'utf8'));
@@ -1352,16 +1331,72 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   			return;
 	   		}
 
-	   		// Check if the command matches a sound from the sounds folder
+	   		// Play sound if command equals to sound name
 	        if(message.toLowerCase().search("!") === 0){
-	        	if(message.length > 1) botSounds.playSound(bot, channelID, message.toLowerCase());
+	        	var inVC = false;
+	        	if(message.length > 1) {
+	        		var voiceID = "";
+	        		var server = bot.servers[bot.serverFromChannel(channelID)];
+	        		for(var channel in server.channels){
+	        			if(server.channels[channel].type === "voice"){
+	        				if(userID in server.channels[channel].members) {
+	        					voiceID = server.channels[channel].id; 
+	        					inVC = true;
+	        				}
+	        				break;       				
+	        			}
+	        		}
+
+		        	if(inVC){
+		        		var soundName = message.slice(1);
+		        		var soundsList = fs.readdirSync('./sounds');
+		        		for(var i = 0; i < soundsList.length; i ++){
+		        			if(soundName.toLowerCase() + '.mp3'  === soundsList[i]){
+		        				var soundfile = './sounds/' + soundsList[i];		        			
+			        			var voiceID = bot.servers[bot.serverFromChannel(channelID)].channels[channel].id;
+			        			bot.joinVoiceChannel(voiceID, function (){
+				        			bot.getAudioContext({channel: voiceID, stereo: true}, function (stream) {
+				        				stream.playAudioFile(soundfile);
+				        				stream.once('fileEnd', function () {
+				        					bot.leaveVoiceChannel(voiceID);
+				        				});
+				        			});
+			        			});
+			        			break;  			
+			        		}		        		
+		        		}
+		        	}
+	        	}
+	        	
 	        }
 
 	        // Check message to see if it triggers any commands in botCommands.json
+	        
 	   		try{var file = fs.readFileSync('./akebot/botCommands.json', 'utf8')}
-	   		catch(error) {return bot.sendMessage({to:channelID, message:"**Error:** Please check your botCommands.json file\n```javascript\n"+error+"\n```"})};
+	   		catch(error) {
+	   			if(delayMessage){
+	   				bot.sendMessage({
+		   				to:channelID, 
+		   				message:"**Error:** Please check your botCommands.json file\n```javascript\n"+error+"\n```"
+	   				});
+	   				delayMessage = false;
+	   				setTimeout(function () { delayMessage = true;}, 60000);
+	   			}	   			
+	   			return;
+	   		};
+	   		// Check for any errors when parsing file
 	   		try{var cmd = JSON.parse(file)}
-	   		catch(error){return bot.sendMessage({to:channelID, message: "**Error:** CMDS\n**Message**: *Your 'botCommands.json' file is causing an error, please revise!*```javascript\n"+error+"\n```"})};
+	   		catch(error){
+		   		if(delayMessage){
+		   			bot.sendMessage({
+		   				to:channelID,
+		   				message: "**Error:** CMDS\n**Message**: *Your 'botCommands.json' file is causing an error, please revise!*```javascript\n"+error+"\n```"
+		   			});
+		   			delayMessage = false;
+		   			setTimeout(function () { delayMessage = true;}, 60000);
+		   		}		   		
+	   			return;
+	   		};
 	   		for(var i in cmd){
 	   			if(message.toLowerCase() === cmd[i].command || message.toLowerCase() === cmd[i].command2){
 	   				// Check if theres type property	   				
@@ -1420,8 +1455,6 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   							tts: cmd[i].tts
 	   						});
 	   					}
-
-	   					return;
 	   				}
 
 	   				if(cmd[i].type === "image"){
@@ -1445,9 +1478,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 				                });
 				            }
 				        });
-				        return;
 	   				}
-
 	   			}
 	   		}
 
