@@ -92,17 +92,17 @@ Please follow the format in `akebot/botCommands.json` in order to create or edit
   - `!appcmd [command] [second command]`: Add a second command to your command to be triggered when called.
 
   *Current commands that come with this bot.*
-    - `!ping`: Pong
-    - `!rekt`: Rekt Meme
-    - `!Yes`: Creepy Jack Yes
-    - `!topkek`: TopKek
-    - `!feelsgood`: FeelsGoodMan
-    - `!feelsbad`: FeelsBadMan
-    - `!whoa`: Take it easy man
-    - `!bmj`: John Cena
-    - `!doit`: Do it
-    - `!nice`: Nice
-    - `!neil`: Neil Degrasse Tyson 
+  - `!ping`: Pong
+  - `!rekt`: Rekt Meme
+  - `!Yes`: Creepy Jack Yes
+  - `!topkek`: TopKek
+  - `!feelsgood`: FeelsGoodMan
+  - `!feelsbad`: FeelsBadMan
+  - `!whoa`: Take it easy man
+  - `!bmj`: John Cena
+  - `!doit`: Do it
+  - `!nice`: Nice
+  - `!neil`: Neil Degrasse Tyson 
 
 **Sounds**
  - `!sounds`: Displays a list of sounds
