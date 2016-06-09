@@ -388,7 +388,11 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        	else{
 	        		bot.sendMessage({
 	        			to: channelID,
-	        			message: "**"+Help+"**\n• `!help general`: For general commands\n• `!help admins`: For admin Commands\n• `!help commands`: For custom commands\n• `!help sounds`: For sound commands"
+	        			message: "**Help**\n"+
+	        			"• `!help general`: For general commands\n"+
+	        			"• `!help admins`: For admin Commands\n"+
+	        			"• `!help commands`: For custom commands\n"+
+	        			"• `!help sounds`: For sound commands"
 	        		});
 	        	}
 		        		        
