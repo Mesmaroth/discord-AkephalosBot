@@ -118,19 +118,24 @@ function serversConnected(){
     return count;
 }
 
-// bot.on('guildDelete', function (server){
-// 	console.log(server)
-// 	fs.writeFileSync("Guild_Delete.log",JSON.stringify(server,null,'\t'));
-// });
+bot.on('guildDelete', function (server){
+	console.log(server)
+ 	fs.writeFileSync("Guild_Delete.log",JSON.stringify(server,null,'\t'));
+});
 
 bot.on('ready', function (rawEvent) {
     console.log("\nAkeBot v" + botVersion);
     console.log("Discord.io - Version: " + bot.internals.version);
     console.log("Username: " + bot.username + " - (" + bot.id + ")");
-    setPresence("AkeBot v" + botVersion);    
-    var serverList = [];    
+    if(process.argv[2]){
+    	setPresence(process.argv[2] + " v" + botVersion);
+    } else{
+    	setPresence("AkeBot v" + botVersion);
+    }
+    var serverList = [];
+    // Display connected Servers
     for(var i in bot.servers){
-      serverList.push(bot.servers[i].name + ": (" + bot.servers[i].id + ")");
+       serverList.push(bot.servers[i].name + ": (" + bot.servers[i].id + ")");
     }
     console.log("Servers: \n" + serverList.join('\n')+"\n");
     sudoCheck();
@@ -175,13 +180,12 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        }
 
 	        if((message === "~disconnect" || message === "~exit") && isDev(userID)){
-	        	console.log("User disconnect")
+	        	 console.log("[DISCONNECTED]");
 	            bot.sendMessage({
 	                to: channelID,
 	                message: "*Exiting...*"
 	            });
-
-	            console.log("[DISCONNECTED]");
+	           
 	            bot.disconnect();	            
 	            return;
 	        }
@@ -197,11 +201,12 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            return;
 	        }	        
 
+	        // Announce will relay your message across all servers in their general channel
 	        if(message.search("~announce") === 0 && isDev(userID)){
 	        	message = message.slice(10);
 				for(var serverID in bot.servers){
 					for(var channelID in bot.servers[serverID].channels){
-						if(bot.servers[serverID].channels[channelID].name === "announcements" && bot.servers[serverID].channels[channelID].type === "text"){
+						if(bot.servers[serverID].channels[channelID].name === "general" && bot.servers[serverID].channels[channelID].type === "text"){
 							bot.sendMessage({
 								to: bot.servers[serverID].channels[channelID].id,
 								message: message
@@ -290,7 +295,8 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	            return;
 	        }	        
 
-	        if(message.toLowerCase().search("!stream") === 0){						// Check if user is streaming
+	        // Check if user is streaming
+	        if(message.toLowerCase().search("!stream") === 0){
 	            var searchUser = message.slice(8);
 	          	liveStream.getTwitchStream(searchUser, function(tiwtchStatus, twitchName, twitchGame, twitchUrl){
 	          		if(tiwtchStatus){
@@ -353,12 +359,12 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        				to: channelID, 
 	        				message: "**Admins** *Must be admin*\n"+
 							"• `!say [message]`: Re-sends your message from any channel general channel\n"+
-							"• `!purge all`: Deletes up to fifteen messages at a time. [Optional] Add a number to specifiy an amount up to 100\n"+
-							"• `!purge me`: Deletes up to fifteen of your messages at a time. [Optional] Add a number to specifiy an amount up to 100\n"+
-							"• `!purge bot`: Deletes up to fifteen of the bot's messages at a time. [Optional] Add a number to specifiy an amount up to 100.\n"+
-							"• `!purge [Number]`: Deletes a specified amount of messages to be deleted\n"+							
-							"• `!ban [@user] [days]`: Ban the mentioned user for X number of days.\n"+
-							"• `!kick [@user]`: Kick the mentioned user from server.\n"
+							"• `!purge all [Amount]`: Purges up to 100 messages. Add a number to specifiy\n"+
+							"• `!purge me [Amount]`: Purges up to 100 messages. Add a number to specifiy\n"+
+							"• `!purge bot [Amount]`: Purges up to 100 messages. Add a number to specifiy\n"+
+							"• `!purge [Amount]`: Deletes a specified amount of messages to be deleted\n"+							
+							"• `!ban [@user] [days]`: Ban the mentioned user for X number of days\n"+
+							"• `!kick [@user]`: Kick the mentioned user from server\n"
 	        			});
 	        		}
 
@@ -366,7 +372,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        			bot.sendMessage({
 	        				to: channelID,
 	        				message: "**Commands**\n"+
-	        				"• `!commands`: Show a list of all commands that are added\n"+
+	        				"• `!commands`: Show a list of all commands that have been added\n"+
 	        				"• `!cmd [command]`: Check a command's details. E.G author, type, message\n"+
 							"• `!addcmd [command] [type] [message]`: Create a command \n"+
 							"• `!appcmd [command] [2nd command]`: To add a second command to your command"+
@@ -621,7 +627,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	   				}
 	   				else commands.push((i+1)+". " + bot.fixMessage(file[i].command));
 	   			}
-	   			
+
 	   			bot.sendMessage({
 	   				to: channelID,
 	   				message: "\n**Commands**\n```javascript\n" + commands.join('\n') + "\n```"
@@ -683,7 +689,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   			}
 		   			output = output.join(" ");	
 
-	   				// Text type
+	   				// Check for Text type
 	   				if(type.toLowerCase() === "text"){
 
 	   					// Check if the commands already exist
@@ -729,7 +735,7 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   				return;
 	   				}
 
-	   				// Image type
+	   				// Check for Image type
 	   				if(type.toLowerCase() === 'image'){
 
 	   					// Check if the command already exist
@@ -1374,8 +1380,9 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 	        	
 	        }
 
+
 	        // Check message to see if it triggers any commands in botCommands.json
-	        
+	        // The command can be anywhere within a setence       
 	   		try{var file = fs.readFileSync('./akebot/botCommands.json', 'utf8')}
 	   		catch(error) {
 	   			if(delayMessage){
@@ -1401,8 +1408,26 @@ bot.on('message', function (user, userID, channelID, message, rawEvent) {
 		   		}		   		
 	   			return;
 	   		};
+
+	   		// If the message contains the command else if the message itself is the command
+	   		var keyword = "";	   		
+	   		if(message.search(" ") !== -1){
+	   			message = message.split(" ");
+	   			for(var x = 0; x < message.length; x++){
+	   				for(var i in cmd){
+	   					if(message[x].toLowerCase() === cmd[i].command){
+	   						keyword = cmd[i].command;
+	   					} else if(message[x].toLowerCase() === cmd[i].command2){
+	   						keyword = cmd[i].command2
+	   					}
+	   				}
+	   			}	   			
+	   		} else{
+	   			keyword = message.toLowerCase();
+	   		}
+
 	   		for(var i in cmd){
-	   			if(message.toLowerCase() === cmd[i].command || message.toLowerCase() === cmd[i].command2){
+	   			if(keyword.toLowerCase() === cmd[i].command || keyword.toLowerCase() === cmd[i].command2){
 	   				// Check if theres type property	   				
 	   				if(!(cmd[i].hasOwnProperty('type'))){			
 	   					bot.sendMessage({
