@@ -9,7 +9,7 @@ Library: [Discord.io](https://github.com/izy521/discord.io)
  - Custom sounds ready to be played, just drag and drop to the folder and your done.
  - Upload your sounds to the bot within discord.
  - Twitch/Hitbox, check if a user is streaming.
- - Purging messages or a channel.
+ - Purging messages or channels.
  - Admin controlled commands.
  - Clever Bot implemented, ask it anything.
 If you have any questions please ask them in my test Server:
@@ -26,7 +26,7 @@ If you don't want to setup a bot, you can also test this bot by [Authorizing Ake
  - Put your login details in `akebot/botLogin.js`
  - For cleverBot credentials you need to put them at `akebot/cleverBot.js`
  - Launch `StartBot.bat`(Windows) once login details and required modules have been installed.
- - Make sure you have a group called admin for using the commands admin commands.
+ - Make sure you have a group called "admin" for using the commands admin commands.
 
 ### Required Modules:
  - cleverbot: `npm install cleverbot.io`
@@ -35,31 +35,31 @@ If you don't want to setup a bot, you can also test this bot by [Authorizing Ake
  
 ### Playing Sounds:
 Sounds are executed when the command for that sound is called, the bot leaves the voice channel as soon as it is done playing the sound file.
-You don't need to code anything for putting custom sounds. You just need to drag and drop the file in to the `sounds` folder and you are all set. The command for executing the sound on discord is what ever the filename is. If I have a sound file named `example.mp3` in the sound folder, then the command for that would be `!example`
+You don't need to code anything for putting custom sounds. You just need to drag and drop the file in to the `sounds` folder and you are all set. The command for executing the sound on discord is what ever the filename is. If I have a sound file named `example.mp3` in the sound folder, then the command for that would be `!example`. Use `!sounds` to show a list of all sounds currently in the sounds folder.
 
 ### Adding commands: 
-Please follow the format in `akebot/botCommands.json` in order to create or edit your own commands. If you want to cusomize the output of how `!commands` is shown, edit `commandList.txt`
+You can use the `!addcmd [command] [type] [message]` to add command from discord. To customize your command more then you need to edit the properties in `akebot/botCommands.json`, make sure you follow the format.
 
  **Command Properties**:
-  - `command` or `command2`: Set the command you want this command to be triggered when someone types it
+  - `command` or `command2`: Set a command to be triggered.
   - `type`: The type of command you are trying to make. Either `text` or `image`
   - `delay`: The amount of time to delay your command from being executed in milliseconds e.g 5000 = 5 seconds Without quotes
-  - `typing`: Shows that the bot is typing depending on the length of your message Set this to either `true` or `false` without quotes
+  - `typing`: Shows that the bot is typing depending on the length of your message Set this to either `true` or `false` without quotes. *Not setting it, is false.
   - `message`: The output message you want to deliever after your command has been executed
-  - `file`: Path to your file, including extension `pictures/example.png`
-  - `filename`: Name of your file, be sure to include the extension if you want to display an image instead of uploading the image
-  - `tts`: Whether the message will be in Text To Speech
+  - `file`: Path to your file, including extension `"pictures/example.png"`
+  - `filename`: Name of your file, be sure to include the extension if you want to display an image instead of uploading the image `"example.png"`
+  - `tts`:  Whether the message will be in Text To Speech. `true` or `false`
 
 
 
 ## Bot Commands: 
 
- **Sudo Dev Commands** *Commands only for the bot developer, e.g You. Make sure your credenitals is correct in `akebot/sudo.json`*
+ **Sudo Dev Commands** *Commands only for the bot developer, E.G You. Make sure your credenitals is correct in `akebot/sudo.json`*
   - `~writeout`: Outputs the bot properties for data to a file called bot.JSON
   - `~reboot`: Reboot this bot
   - `~disconnect`: Disconnects the bot
   - `~announce`: Global announcment to all servers this bot is connected to. Can be used for emergencies
-  - `~setGame`: Set the bot presence. e.g `~setGame Overwatch` = `playing Overwatch` status
+  - `~setGame`: Set the bot presence to playing a game. E.G `~setGame Overwatch`
 
  **General**
   - `!about`: About this bot
@@ -91,7 +91,7 @@ Please follow the format in `akebot/botCommands.json` in order to create or edit
   - `!editcmd [command] [new command] [type] [message]`: Edit existing commands
   - `!appcmd [command] [second command]`: Add a second command to your command to be triggered when called.
 
-  *Current commands that come with this bot.*
+  *Current commands that come with this bot when downloaded.*
   - `!ping`: Pong
   - `!rekt`: Rekt Meme
   - `!Yes`: Creepy Jack Yes
