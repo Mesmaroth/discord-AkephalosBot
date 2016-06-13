@@ -4,14 +4,15 @@ Discord bot written in Node.js for [Discord](http://www.discord.gg) Anyone can e
 Library: [Discord.io](https://github.com/izy521/discord.io)
 
 ##Features:
- - Making commands can be written without a hassle in coding.
+ - Purging messages or channels.
+ - Admin controlled commands.
+ - Clever Bot implemented, ask it anything.
+ - Making commands can be written without a hassle with less code.
  - Making quick and simple commands within the discord client.
  - Custom sounds ready to be played, just drag and drop to the folder and your done.
  - Upload your sounds to the bot within discord.
  - Twitch/Hitbox, check if a user is streaming.
- - Purging messages or channels.
- - Admin controlled commands.
- - Clever Bot implemented, ask it anything.
+
 If you have any questions please ask them in my test Server:
 
 [![Discord](https://discordapp.com/api/servers/160436336095002624/widget.png?style=banner3)](https://discord.gg/0tYqr4FWusEQHErS)
@@ -69,7 +70,8 @@ You can use the `!addcmd [command] [type] [message]` to add command from discord
   - `!upTime`: bot up time
   - `!date`: Display the date
   - `!time`: Display the time  
-  - `!stream [username]`: Checks if the user is live on Twitch or Hitbox or both
+  - `!twitch [username]`: Checks if the user is live on Twitch 
+  - `!hitbox [username]`: Checks if the user is live on Hitbox
   - `!ask [Question]`: Ask the bot anything
 
 
