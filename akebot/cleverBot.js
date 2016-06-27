@@ -1,16 +1,13 @@
 var cleverbot = require('cleverbot.io');
-var clBot = new cleverbot("YOUR_API_USER", "YOUR_API_KEY"); 
+var botLogin = require("./botLogin.js");
+var cBot = new cleverbot(botLogin.cleverBot_API_User, botLogin.cleverBot_API_Key, "AkeSession");
 
-
-module.exports.askBot = function (bot, message, channelID){
-    clBot.setNick("AkeSession");
-    var message = message.slice(5);    
-    clBot.create(function (err, session){
-        clBot.ask(message, function (error, response){
-            bot.sendMessage({
-                to: channelID,
-                message: response
-            });
-        });
-    });
+module.exports = function (request, callback){	
+	cBot.create(function (error, session){
+	    if(error) return callback(error);
+	    cBot.ask(request, function (error, response){
+		    if(error) return callback(error);
+		    return callback(null, response);
+	    });
+	});
 }
