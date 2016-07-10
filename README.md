@@ -50,7 +50,7 @@ To customize your commands more, then you need to edit the properties in `akebot
 
 ## Bot Commands: 
 
-**Sudo Dev Commands** *Commands only for the bot developer, E.G You. Make sure your credenitals is correct in `akebot/sudo.json`*
+**Dev** *Commands only for the bot owner, E.G You. Make sure your credenitals is correct in `akebot/sudo.json`*
 
  - `~disconnect`: Disconnect the bot
  - `~announce [Your announcment]`: Global announcment to all servers this bot is connected to.
