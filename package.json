@@ -11,13 +11,14 @@
     "url": "git+https://github.com/Mesmaroth/Discord-AkephalosBot.git"
   },
   "dependencies": {
-    "discord.io": "^1.8.1",
+    "discord.io": "^1.13.4",
     "cleverbot.io": "^1.0.4",
-    "uptimer": "^0.1.2"
+    "uptimer": "^0.1.2",
+    "node-opus": "^0.2.1"
   },
   "keywords": [],
   "author": "Robert (Mesmaroth)",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/Mesmaroth/Discord-AkephalosBot/issues"
   },
