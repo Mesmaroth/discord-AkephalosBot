@@ -1,6 +1,6 @@
 {
   "name": "Discord-AkephalosBot",
-  "version": "1.1.9",
+  "version": "1.2.1",
   "description": "A multi-purpose bot written in JavaScript for [Discord](http://www.discord.gg)",
   "main": "akeBotLogin.js",
   "scripts": {
@@ -16,7 +16,7 @@
     "uptimer": "^0.1.2"
   },
   "keywords": [],
-  "author": "",
+  "author": "Robert (Mesmaroth)",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Mesmaroth/Discord-AkephalosBot/issues"
