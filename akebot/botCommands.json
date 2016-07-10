@@ -1,74 +1,76 @@
-[
-	{
-		"command": "!ping",
-		"type": "text",
-		"message": "pong",
-		"typing": true
-	},	
-	{
-		"command" : "!neil",
-		"type" : "image",
-		"file" : "pictures/neil.png",
-		"filename" : "neil.png"		
-	},
-	{
-		"command" : "!nice",
-		"type" : "image",
-		"file" : "pictures/noice.jpg",
-		"filename" : "noice.jpg"
-	},
-	{
-		"command" : "!whoa",
-		"type" : "image",
-		"file" : "pictures/whoaMan.jpg",
-		"filename" : "whoaMan.jpg"
-	},
-	{
-		"command" : "!feelsbad",
-		"type" : "image",
-		"file" : "pictures/feelsBadMan.png",
-		"filename" : "feelsBadMan.png"
-	},
-	{
-		"command" : "!feelsgood",
-		"type" : "image",
-		"file" : "pictures/feelsGoodMan.png",
-		"filename" : "feelsGoodMan.png"
-	},
-	{
-		"command" : "!rekt",
-		"command2" : "rekt",
-		"type" : "text",
-		"message" : "https://giphy.com/gifs/rekt-vSR0fhtT5A9by"
-	},
-	{
-		"command" : "!doit",
-		"type" : "text",
-		"message" : "https://media.giphy.com/media/TCaq4FekwSV5m/giphy.gif"
-	},
-	{
-		"command" : "!bmj",
-		"type" : "text",
-		"message": "http://cdn.makeagif.com/media/9-13-2015/28JfPx.gif"
-	},
-	{
-		"command" : "!yes",
-		"type": "text",
-		"message" : "https://media.giphy.com/media/3rgXBOmTlzyFCURutG/giphy.gif"
-	},
-	{
-		"command": "(╯°□°）╯︵ ┻━┻",
-		"type": "text",
-		"message": "┬─┬﻿ ノ( ゜-゜ノ)",
-		"typing": true,
-		"timeout": 500
-	},	
-	{
-		"command": "peace",
-		"command2": "goodnight",
-		"type": "text",
-		"typing": true,
-		"message": "Peace out! :wave:"
-	}
-	
-]
+{
+	"GLOBAL": [
+		{
+			"command": "!source",
+			"type": "text",
+			"message": "**Akephalos Source Code**\n**Link**: https://github.com/Mesmaroth/discord-AkephalosBot",
+			"editable": false,
+			"comment": "Source code on GitHub"
+		},
+		{
+			"command": "!ping",
+			"type": "text",
+			"message": "pong",
+			"typing": true,
+			"delay": 250,
+			"editable": false,
+			"comment": "Just a test command"
+		},
+		{
+			"command": "!rekt",
+			"command2": "rekt",
+			"type": "text",
+			"message": "https://giphy.com/gifs/rekt-vSR0fhtT5A9by",
+			"editable": false,
+			"comment": "Get rekt m8"
+		},
+		{
+			"command": "!yes",
+			"type": "text",
+			"message": "https://media.giphy.com/media/3rgXBOmTlzyFCURutG/giphy.gif",
+			"editable": false,
+			"comment": "Creepy Jack Nicholson"
+		},
+		
+		{
+			"command": "feelsbad",
+			"type": "image",
+			"file": "pictures/feelsBadMan.png",
+			"filename": "feelsBadMan.png",
+			"editable": false,
+			"comment": "FeelsGood Pepe"
+		},
+		{
+			"command": "feelsgood",
+			"type": "image",
+			"file": "pictures/feelsGoodMan.png",
+			"filename": "feelsGoodMan.png",
+			"editable": false,
+			"comment": "FeelsBad Pepe"
+		},
+		{
+			"command": "!whoa",
+			"type": "image",
+			"file": "pictures/whoaMan.jpg",
+			"filename": "whoaMan.jpg",
+			"editable": false,
+			"comment": "Just take it easy man."
+		},		
+		{
+			"command": "!doit",
+			"type": "text",
+			"message": "https://media.giphy.com/media/TCaq4FekwSV5m/giphy.gif",
+			"editable": false,
+			"comment": "Shia Lebouf"
+		},
+		{
+			"command": "!neil",
+			"type": "image",
+			"file": "pictures/neil.png",
+			"filename": "neil.png",
+			"editable": false,
+			"comment": "Neil Degrasse Tyson"
+		},
+		
+	]
+}
