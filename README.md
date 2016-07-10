@@ -25,7 +25,7 @@ Try out my bot first before you check it out [Authorize Akephalos](https://disco
   - Install [Python v2.7.x](https://www.python.org/downloads/)
   - Install [Visual C++ Build Tools](http://landinghub.visualstudio.com/visual-cpp-build-tools) using **Default Install**
   - Install [node-gyp](https://github.com/nodejs/node-gyp) (Open command prompt and enter `npm install -g node-gyp`)
-  - Enter bot token or email+pass in `akebot/botLogin.js` as well as cleverbot API key essentials
+  - Enter bot token or email+pass in `akebot/botLogin.js` as well as [Cleverbot](https://cleverbot.io/) API key essentials
   - Run `install_modules.bat`
   - Run `Start_Bot.bat` or `Start_Bot_Loop.bat` if you aren't using another program to handle the bot restarting.
  
