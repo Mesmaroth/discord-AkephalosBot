@@ -465,104 +465,119 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 	        // Delete messages
 	        if(message.toLowerCase().indexOf("!purge") === 0 && isAdmin(userID, channelID)){
-	        	var name = "";
-	        	var max = 100;
-	        	var amount = max;
-	        	// Array of messageIDs to delete
-	        	var msgArrIDs = [];				
-	        	message = message.slice(7);
-	        	if(message === "") return;
-	        	if(message.search(' ') !== -1){
+	        	if(message.indexOf(' ') !== -1) {
+	        		var amount = 100;	        		
 	        		message = message.split(' ');
-	        		name = message[0].toLowerCase();
-	        		amount = Number(message[1]) + 1;	        		
-
-	        		if(name === "me") {
-	        			name = user.toLowerCase();
-	        			amount+=1;
+	        		message.splice(0,1);
+	        		var name = message[0];
+	        		if(message[1]){
+	        			amount = Math.ceil(Number(message[1]));
 	        		}
-	        		if(name === "bot") name = bot.username.toLowerCase();
-	        	}
-	        	// Else if the user wants to either purge messages with a specific amount or purging all messages of a user
-	        	else{
-	        		name = message;
-	        		if(!(isNaN(message))){
-		        		name = Number(message);
-		        		amount = name + 1;
-		        	}
-		        	if(name === "me") {
-	        			name = user.toLowerCase();
-	        			amount+=1;
+
+	        		if(amount < 1) amount = 1;
+
+	        		function deleteMessages (channelID, list){
+        				if(list.length > 2){
+        					bot.deleteMessages({
+        						channelID: channelID,
+        						messageIDs: list
+        					});
+        				} else {
+        					for(var i  = 0; i < list.length; i++){
+        						bot.deleteMessage({
+        							channelID: channelID,
+        							messageID: list[i]
+        						});
+        					}
+        				}
 	        		}
-		        	if(name === "bot") name = bot.username.toLowerCase();
-	        	}
 
-		        if(name.toLowerCase() === "all") {
-	        		bot.getMessages({
-	        			channel: channelID,
-	        			limit: amount
-	        		}, (error, messageArr) => {	        				        			
-	        			for(var i = 0; i < messageArr.length; i++){
-	        				msgArrIDs.push(messageArr[i].id);	        				
+	        		if(!isNaN(name)) {	        			
+	        			amount = Number(name) + 1;		// Adding one to include the command message that called it.
+	        			bot.getMessages({
+	        				channelID: channelID,
+	        				limit: amount
+	        			}, (error, messageArry) => {
+	        				var ids = [];
+	        				for(var i  = 0; i < messageArry.length; i++){
+	        					ids.push(messageArry[i].id);
+	        				}
+	        				deleteMessages(channelID, ids);
+	        			});
+	        				        			
+	        		} else {
+	        			if(name === "all"){
+	        				bot.getMessages({
+		        				channelID: channelID,
+		        				limit: amount + 1
+		        			}, (error, messageArry) => {
+		        				var ids = [];
+		        				for(var i  = 0; i < messageArry.length; i++){
+		        					ids.push(messageArry[i].id);
+		        				}
+		        				deleteMessages(channelID, ids);
+		        			});
+	        			} else if(name === "me"){
+	        				bot.getMessages({
+	        					channelID: channelID,
+	        					limit: 100
+	        				}, (error, messageArry) => {
+	        					var ids = [];	        					
+		        				for(var i  = 0; i < messageArry.length; i++){
+		        					if(user === messageArry[i].author.username ){	
+		        						if(ids.length < (amount + 1)){		// Adding one to include the command message that called it.
+		        							ids.push(messageArry[i].id);
+		        						}		        						
+		        					}
+		        				}
+
+		        				if(ids.length > 0){
+		        					deleteMessages(channelID, ids);	 
+		        				}       					
+	        				});
+	        			} else if(name === "bot"){
+	        				bot.getMessages({
+	        					channelID: channelID,
+	        					limit: 100
+	        				}, (error, messageArry) => {
+	        					var ids = [];	        					
+		        				for(var i  = 0; i < messageArry.length; i++){
+		        					if(bot.username === messageArry[i].author.username ){	
+		        						if(ids.length < amount ){
+		        							ids.push(messageArry[i].id);
+		        						}		        						
+		        					}
+		        				}
+
+		        				if(ids.length > 0){
+		        					deleteMessages(channelID, ids);	 
+		        				}        					
+	        				});
+	        			} else {
+	        				// If the user specified a username to purge
+	        				bot.getMessages({
+	        					channelID: channelID,
+	        					limit: 100
+	        				}, (error, messageArry) => {
+	        					var ids = [];	        					
+		        				for(var i  = 0; i < messageArry.length; i++){
+		        					if(name.toLowerCase() === messageArry[i].author.username.toLowerCase()){	
+		        						if(ids.length < amount){
+		        							ids.push(messageArry[i].id);
+		        						}		        						
+		        					}
+		        				}
+
+		        				if(ids.length > 0){
+		        					deleteMessages(channelID, ids);	 
+		        				}        					
+	        				});
 	        			}
-	        			bot.deleteMessages({channelID: channelID,messageIDs: msgArrIDs});
-	        		})
-	        		return;
+
+	        		}
+
 	        	}
-
-	        	if(typeof name === 'number'){     		
-	        		bot.getMessages({
-	        			channel: channelID,
-	        			limit: amount
-	        		}, (error, messageArr) => {
-	        			for(var i = 0; i < messageArr.length; i++){
-	        				msgArrIDs.push(messageArr[i].id);
-	        			}
-	        			bot.deleteMessages({channelID: channelID,messageIDs: msgArrIDs});
-	        		})
-	        		return;
-	        	}
-	        	
-	        	if(typeof name === 'string'){
-		        	var targeMsgs = [];	        	
-		        	bot.getMessages({
-		        		channel: channelID,
-		        		limit: max
-		        	}, (error, messageArr) => {
-		        		// Push only the username specified to the target list
-		        		for(var i = 0; i < messageArr.length; i++){
-		        			if(messageArr[i].author.username.toLowerCase() === name.toLowerCase()){		        				
-		        				targeMsgs.push(messageArr[i]);
-		        			}
-		        		}
-		        		if(targeMsgs.length <= 0){
-		        			bot.sendMessage({to: channelID, message: "*No messages found.*"});
-		        			return;
-		        		}
-
-		        		// Pushing the amount specified to list of IDs to delete. If no amount specified then it will default to max amount of messages
-		        		for(var i = 0; i < targeMsgs.length; i++){
-		        			if(i === amount-1) break;
-		        			msgArrIDs.push(targeMsgs[i].id);		        			
-		        		}
-
-		        		// If the list of messages to be deleted is greater than 2 then use bot.deletemessages to mass delete
-		        		if(msgArrIDs.length < 3 && msgArrIDs.length > 0){
-		        			for(var i = 0; i < msgArrIDs.length; i++){
-		        				bot.deleteMessage({
-		        					channel: channelID,
-		        					messageID: msgArrIDs[i]
-		        				});
-		        			}
-		        		} else{
-		        			bot.deleteMessages({channelID: channelID,messageIDs: msgArrIDs}, (error, response) => {
-			        			if(error) console.log(error);
-			        		});
-		        		}
-			        		
-		        	});	        	
-		        	return;
-	        	}		        	
+	        	return;		        	
 	        }
 
 	        if(message.toLowerCase().indexOf("!kick") === 0 && isAdmin(userID, channelID)){
