@@ -27,9 +27,11 @@ try {
 // Otherwise you can edit it at the akebot/sudo.json file
 // Sudo grants privledge to using dev commands
 function sudoCheck(){
-	try {
+	try{
 		sudo = JSON.parse(fs.readFileSync('./akebot/sudo.json', 'utf8'))
-	} catch(e) {var sudo = {"id":"","username": "", "checked": false}};
+	} catch(error) {
+		var sudo = {"id":"","username": "", "checked": false}
+	};
 	if(sudo.checked === true) return;
 	var id = "";
 	var username = "";
@@ -286,8 +288,12 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 	        if(message.toLowerCase() === "!about"){
 	        	var devName = "Undefined";
-	        	try{devName = JSON.parse(fs.readFileSync('akebot/sudo.json','utf8')).username}
-	        	catch(e) {if(error) console.log(error)};
+	        	try{
+	        		devName = JSON.parse(fs.readFileSync('akebot/sudo.json','utf8')).username
+	        	}
+	        	catch(error){
+	        		if(error) console.log(error);
+	        	};
 
 	            bot.sendMessage({
 	                to: channelID,
