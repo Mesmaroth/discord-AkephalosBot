@@ -29,6 +29,7 @@ Try out my bot first before you check it out [Authorize Akephalos](https://disco
   - Enter bot token or email+pass in `akebot/botLogin.js` as well as [Cleverbot](https://cleverbot.io/) API key essentials
   - Run `install_modules.bat`
   - Run `Start_Bot.bat` or `Start_Bot_Loop.bat` if you aren't using another program to handle the bot restarting.
+  - Have a role called `Admin` to use admin commands
  
 ## Playing Sounds:
 Sounds are executed when the command for that sound is called, the bot leaves as soon as it is done playing the sound.
