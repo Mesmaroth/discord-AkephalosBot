@@ -668,103 +668,63 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        }
 
 	        if(message.toLowerCase().indexOf("!commands") === 0) {
+	        	var serverID = bot.channels[channelID].guild_id;
+	        	var commands = [];
+	        	var itemsPerMessage = 30;
+
+	        	try {
+	        		var file = fs.readFileSync(CMD_path);
+					file = JSON.parse(file);
+				} catch(error){
+					if(error){
+						bot.sendMessage({
+							to: channelID,
+							message: "Something is causing an error in your commands file. Please revise...\n**Error:**\n```js" + error +"\n```"
+						});
+						return;
+					}
+				}
+
 	   			if(message === "!commands global"){
-	   				message = message.split(" ");
-	        		var type = message[1];
-	        		fs.readFile(CMD_path, (error, file) => {
-		   				if(error) return console.error(error);
-		   				try {
-		   					file = JSON.parse(file);
-		   				} catch(error){
-		   					if(error){
-		   						bot.sendMessage({
-					   				to:channelID, 
-					   				message:"**Error:** Something is causing an error in your botCommands.json file. Please revise!\n```javascript\n"+error+"\n```"
-			   					});
-			   					return;
-		   					}
-		   				}	   				
-		   				var serverID = bot.channels[channelID].guild_id;		   				
-		   				var commands = [];
-		   				file = file["GLOBAL"];
-			   			for(var i = 0 ; i < file.length; i++){
-			   				if(file[i].hasOwnProperty("comment")){
-			   					commands.push("**"+(i+1)+".** `" + bot.fixMessage(file[i].command) + "`			*" + file[i].comment + "*");
-			   				} else commands.push("**"+(i+1)+".** `" + bot.fixMessage(file[i].command) +"`");
-			   			}
-				   		if(commands.length > 0){
-				   			if(commands.length > 50){
-				   				bot.sendMessage({
-					   				to: channelID,
-					   				message: "**Global Commands**\n" + commands.splice(0,50).join("\n")
-				   				}, (error) => {
-				   					if(error) return console.error(error);
-				   					bot.sendMessage({
-					   					to: channelID,
-					   					message: commands.join(" ")
-				   					});
-				   				});			   				
-				   			} else {
-				   				bot.sendMessage({
-					   				to: channelID,
-					   				message: "**Global Commands**\n" + commands.join("\n")
-				   				});
-				   			}			   			
-				   		}
-		   			});	 
+	   				file = file["GLOBAL"];
+	   				for(var i = 0; i < file.length; i++){
+   						commands.push("**"+(i+1)+".** `"+file[i].command+"`					*" + file[i].comment+"*");
+   					}
+
+   					if(commands.length > 0){
+		   				bot.sendMessage({
+		   					to: channelID,
+		   					message: "**Global Commands**\n" + commands.join('\n')
+		   				});
+		   			}
 	   			}
 
-	   			if(message === "!commands") {
-	   				fs.readFile(CMD_path, (error, file) => {
-		   				if(error) return console.error(error);
-		   				try {
-		   					file = JSON.parse(file);
-		   				} catch(error){
-		   					if(error){
-		   						bot.sendMessage({
-					   				to:channelID, 
-					   				message:"**Error:** Something is causing an error in your botCommands.json file. Please revise!\n```javascript\n"+error+"\n```"
-			   					});
-			   					return;
-		   					}
-		   				}
+	   			if(message === "!commands"){
+	   				file = file[serverID];
+	   				for(var i = 0; i < file.length; i++){
+	   					commands.push("**"+(i+1) + ".** `" + file[i].command + "`   by *" + (file[i].author ? file[i].author : "Server") +"*");  						
+   					}
 
-		   				var serverID = bot.channels[channelID].guild_id;	   				
-		   				var commands = [];
-		   				file = file[serverID];
-		   				if(!file || file.length === 0){
-		   					bot.sendMessage({
-		   						to: channelID,
-		   						message: "No custom commands for this server yet. Check out `!commands global`"
-		   					});
-		   					return;
-		   				}
-			   			for(var i = 0 ; i < file.length; i++){
-			   				if(file[i].hasOwnProperty("comment")){
-			   					commands.push("**"+(i+1)+".** `" + bot.fixMessage(file[i].command) + "`			*" + file[i].comment + "*");
-			   				} else commands.push("**"+(i+1)+".** `" + bot.fixMessage(file[i].command)+ "`");
-			   			}
-				   		if(commands.length > 0){
-				   			if(commands.length > 50){
-				   				bot.sendMessage({
-					   				to: channelID,
-					   				message: "**Server Commands**\n" + commands.splice(0,50).join("\n")
-				   				}, (error) => {
-				   					if(error) return console.error(error);
-				   					bot.sendMessage({
+   					if(commands.length > 0){
+		   				bot.sendMessage({
+		   					to: channelID,
+		   					message: "**Server Commands**\n" + commands.splice(0, 30).join("\n")
+		   				}, (error) => {
+		   					function loop(){
+		   						if(commands.length > 0){
+		   							bot.sendMessage({
 					   					to: channelID,
-					   					message: commands.join("\n")
-				   					});
-				   				});			   				
-				   			} else {
-				   				bot.sendMessage({
-					   				to: channelID,
-					   				message: "**Server Commands**\n" + commands.join("\n")
-				   				});
-				   			}			   			
-				   		}
-		   			});	 
+					   					message: "**More commands...**\n" + commands.splice(0, 30).join("\n")
+					   				}, error => {
+					   					loop();
+					   				});
+		   						}
+		   					}
+		   					loop();
+		   				});
+		   			}		   			
 	   			}
+	   			
 	   			return;
 	   		}
 
