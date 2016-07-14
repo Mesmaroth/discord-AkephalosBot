@@ -137,10 +137,10 @@ function serversConnected(){
 
 function folderCheck(folderPath){
 	try{
-		fs.accessSync(folderPath, fs.constants.F_OK); 
+		fs.accessSync(folderPath); 
 	} catch(error){
 		if(error){
-			fs.mkdirSync(folderPath, fs.constants.F_OK);			
+			fs.mkdirSync(folderPath);			
 		}
 	}
 }
