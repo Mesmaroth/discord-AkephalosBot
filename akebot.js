@@ -135,6 +135,16 @@ function serversConnected(){
     return count;
 }
 
+function folderCheck(folderPath){
+	try{
+		fs.accessSync(folderPath, fs.constants.F_OK); 
+	} catch(error){
+		if(error){
+			fs.mkdirSync(folderPath, fs.constants.F_OK);			
+		}
+	}
+}
+
 bot.on('guildMemberAdd', member => {
 	var serverName = bot.servers[member.guild_id].name;
 	for(var channel in bot.servers[member.guild_id].channels){
@@ -172,7 +182,10 @@ bot.on('ready', rawEvent => {
     for(var i in bot.servers){
        console.log(bot.servers[i].name + " ID: (" + bot.servers[i].id + ")");
     }
-    sudoCheck();	
+    sudoCheck();
+    folderCheck('./sounds');
+    folderCheck('./pictures');
+    folderCheck('./akebot');
 });
 
 bot.on('disconnected', (errMsg, code) => {
