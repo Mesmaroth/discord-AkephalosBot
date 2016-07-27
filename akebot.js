@@ -709,6 +709,11 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   					to: channelID,
 		   					message: "**Global Commands**\n" + commands.join('\n')
 		   				});
+		   			} else {
+		   				bot.sendMessage({
+		   					to: channelID,
+		   					message: "There seems to be no global commands added. Speak to the bot owner for commands."
+		   				});
 		   			}
 	   			}
 
@@ -735,7 +740,12 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   					}
 		   					loop();
 		   				});
-		   			}		   			
+		   			} else {
+		   				bot.sendMessage({
+		   					to: channelID,
+		   					message: "There are currently no commands for this server. Maybe you should add one! Enter `!general commands` for help."
+		   				});
+		   			}	   			
 	   			}
 	   			
 	   			return;
