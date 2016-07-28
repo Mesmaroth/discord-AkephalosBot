@@ -171,17 +171,20 @@ bot.on('ready', rawEvent => {
     console.log("\nAkeBot v" + botVersion);
     console.log("Discord.io - Version: " + bot.internals.version);
     console.log("Username: " + bot.username + " - (" + bot.id + ")");
-    if(process.argv[2]){
-    	setGame(process.argv[2] + " v" + botVersion);
-    } else{
-    	setGame("AkeBot v" + botVersion);
-    }
-   
+
     // Display connected Servers
     console.log("\nServers connected:");
     for(var i in bot.servers){
        console.log(bot.servers[i].name + " ID: (" + bot.servers[i].id + ")");
     }
+
+    // Set game
+    if(process.argv[2]){
+    	setGame(process.argv[2] + " v" + botVersion);
+    } else{
+    	setGame("Hλlf-Life");
+    }
+        
     sudoCheck();
     folderCheck('./sounds');
     folderCheck('./pictures');
