@@ -182,7 +182,7 @@ bot.on('ready', rawEvent => {
     if(process.argv[2]){
     	setGame(process.argv[2] + " v" + botVersion);
     } else{
-    	setGame("Hλlf-Life");
+    	setGame("Half-Life 3");
     }
         
     sudoCheck();
@@ -703,6 +703,14 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 	   			if(message === "!commands global"){
 	   				file = file["GLOBAL"];
+	   				if(!file) {
+	   					bot.sendMessage({
+		   					to: channelID,
+		   					message: "There seems to be no global commands added. Speak to the bot owner for commands."
+		   				});
+		   				return;
+	   				}
+
 	   				for(var i = 0; i < file.length; i++){
    						commands.push("**"+(i+1)+".** `"+file[i].command+"`					*" + file[i].comment+"*");
    					}
@@ -712,16 +720,19 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   					to: channelID,
 		   					message: "**Global Commands**\n" + commands.join('\n')
 		   				});
-		   			} else {
-		   				bot.sendMessage({
-		   					to: channelID,
-		   					message: "There seems to be no global commands added. Speak to the bot owner for commands."
-		   				});
 		   			}
 	   			}
 
 	   			if(message === "!commands"){
 	   				file = file[serverID];
+	   				if(!file){ 
+	   					bot.sendMessage({
+		   					to: channelID,
+		   					message: "There are currently no commands for this server. Maybe you should add one! Enter `!help commands` for help."
+		   				});
+		   				return;
+	   				}
+
 	   				for(var i = 0; i < file.length; i++){
 	   					commands.push("**"+(i+1) + ".** `" + file[i].command + "`   by *" + (file[i].author ? file[i].author : "Server") +"*");  						
    					}
@@ -742,11 +753,6 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   						}
 		   					}
 		   					loop();
-		   				});
-		   			} else {
-		   				bot.sendMessage({
-		   					to: channelID,
-		   					message: "There are currently no commands for this server. Maybe you should add one! Enter `!general commands` for help."
 		   				});
 		   			}	   			
 	   			}
