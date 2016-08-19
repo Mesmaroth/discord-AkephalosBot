@@ -1,4 +1,4 @@
-var DiscordClient = require('discord.io');
+var Discord = require('discord.io');
 var fs = require('fs');
 var request = require('request');
 var uptimer = require('uptimer');
@@ -6,7 +6,7 @@ var botLogin = require('./akebot/botLogin.js');
 var liveStream = require('./akebot/liveStream.js');
 var cleverBot = require('./akebot/cleverBot.js');
 
-var bot = new DiscordClient({
+var bot = new Discord.Client({
 	token: botLogin.token, // Or add botLogin.email, botLogin.password
 	autorun: true,
 	messageCacheLimit: 100
@@ -182,7 +182,7 @@ bot.on('ready', rawEvent => {
     if(process.argv[2]){
     	setGame(process.argv[2] + " v" + botVersion);
     } else{
-    	setGame("Half-Life 3");
+    	setGame("!help");
     }
         
     sudoCheck();
@@ -495,7 +495,6 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        		if(message[1]){
 	        			amount = Math.ceil(Number(message[1]));
 	        		}
-
 	        		if(amount < 1) amount = 1;
 
 	        		function deleteMessages (channelID, list){
@@ -520,30 +519,32 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        				channelID: channelID,
 	        				limit: amount
 	        			}, (error, messageArry) => {
+	        				if(error) return console.error(error);
 	        				var ids = [];
 	        				for(var i  = 0; i < messageArry.length; i++){
 	        					ids.push(messageArry[i].id);
 	        				}
 	        				deleteMessages(channelID, ids);
-	        			});
-	        				        			
+	        			});	        				        			
 	        		} else {
 	        			if(name === "all"){
 	        				bot.getMessages({
-		        				channelID: channelID,
-		        				limit: amount + 1
-		        			}, (error, messageArry) => {
-		        				var ids = [];
-		        				for(var i  = 0; i < messageArry.length; i++){
-		        					ids.push(messageArry[i].id);
-		        				}
-		        				deleteMessages(channelID, ids);
-		        			});
+	        					channelID: channelID,
+	        					limit: amount
+	        				}, (error, messageArray) => {
+	        					if(error) return console.error(error);
+	        					var ids = []
+	        					for(var i = 0; i < messageArray.length; i++){
+	        						ids.push(messageArray[i].id)
+	        					}
+	        					deleteMessages(channelID, ids);
+	        				});
 	        			} else if(name === "me"){
 	        				bot.getMessages({
 	        					channelID: channelID,
 	        					limit: 100
 	        				}, (error, messageArry) => {
+	        					if(error) return console.error(error);
 	        					var ids = [];	        					
 		        				for(var i  = 0; i < messageArry.length; i++){
 		        					if(user === messageArry[i].author.username ){	
@@ -562,6 +563,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        					channelID: channelID,
 	        					limit: 100
 	        				}, (error, messageArry) => {
+	        					if(error) return console.error(error);
 	        					var ids = [];	        					
 		        				for(var i  = 0; i < messageArry.length; i++){
 		        					if(bot.username === messageArry[i].author.username ){	
@@ -581,6 +583,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        					channelID: channelID,
 	        					limit: 100
 	        				}, (error, messageArry) => {
+	        					if(error) return console.error(error);
 	        					var ids = [];	        					
 		        				for(var i  = 0; i < messageArry.length; i++){
 		        					if(name.toLowerCase() === messageArry[i].author.username.toLowerCase()){	
