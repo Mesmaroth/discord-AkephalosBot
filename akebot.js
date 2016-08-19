@@ -1556,7 +1556,8 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		        			if(error) return console.error(error);
 		        			if(soundsList.indexOf(sound) !== -1){
 		        				bot.joinVoiceChannel(voiceID, () => {
-		        					bot.getAudioContext(voiceID, (stream) => {
+		        					bot.getAudioContext(voiceID, (error, stream) => {
+		        						if(error) return console.error(error);
 		        						stream.playAudioFile(location + sound);
 		        						stream.once('fileEnd', () => {
 		        							bot.leaveVoiceChannel(voiceID);		        							
