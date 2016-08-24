@@ -72,7 +72,11 @@ function printDateTime(options){
 }
 
 function setGame(gameName){
-    bot.setPresence({game: gameName});
+    bot.setPresence({
+    		game: {
+    			name: gameName
+    			}
+    	});
 }
 
 function botUptime(){
@@ -191,7 +195,7 @@ bot.on('ready', rawEvent => {
     folderCheck('./akebot');
 });
 
-bot.on('disconnected', (errMsg, code) => {
+bot.on('disconnect', (errMsg, code) => {
     if(errMsg) console.log(errMsg);
 	console.log("\nExited with code " + code);
 	process.exit();
