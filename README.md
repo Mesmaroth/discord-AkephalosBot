@@ -12,10 +12,6 @@ Library: [Discord.io](https://github.com/izy521/discord.io)
  - Upload your sounds to the bot within discord to play them
  - Twitch/Hitbox status, check if a user is live streaming
 
-If you have any questions please ask them in my test Server:
-
-[![Discord](https://discordapp.com/api/servers/160436336095002624/widget.png?style=banner3)](https://discord.gg/0tYqr4FWusEQHErS)
-
 Try out my bot first before you check it out [Authorize Akephalos](https://discordapp.com/oauth2/authorize?&client_id=158451686627737600&scope=bot)
 
 ## Installation:
