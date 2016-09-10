@@ -14,7 +14,8 @@ var bot = new Discord.Client({
 
 var delayMessage = true,
 	botVersion = "#?",
-	CMD_path = "./akebot/botCommands.json";
+	CMD_path = "./akebot/botCommands.json",
+	peaceTimer = true;
 
 
 try {
@@ -198,7 +199,9 @@ bot.on('ready', rawEvent => {
 bot.on('disconnect', (errMsg, code) => {
     if(errMsg) console.log(errMsg);
 	console.log("\nExited with code " + code);
-	process.exit();
+	setTimeout(() =>{
+		process.exit();
+	}, 300);
 });
 
 bot.on('message', (user, userID, channelID, message, rawEvent) => {
@@ -437,7 +440,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        				"• `!commands global`: Show a list of all commands that are global across servers\n"+
 	        				"• `!cmd [command]`: Check a command's details. E.G author, type, message\n"+
 							"• `!addcmd [command] [type] [message]`: Create a command \n"+
-							"• `!appcmd [command] [2nd command]`: To add a second command to your command"+
+							"• `!appcmd [command] [2nd command]`: To add a second command to your command\n"+
 							"• `!delcmd [command]`: Deletes your command if it is editable\n"+
 							"• `!editcmd [command] [new command] [type] [message]`: Edit existing commands if it's editable\n"
 	        			});
@@ -831,7 +834,9 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   				for(var i = 2; i < message.length; i++){		
 		   					output.push(message[i]);
 			   			}
-			   			output = output.join(" ");	
+			   			output = output.join(" ");
+
+			   			// * Make it detect wether an image was uploaded or not and then decide whether to have it's type set to text or image
 
 		   				// Check for Text type
 		   				if(type.toLowerCase() === "text"){
@@ -1547,6 +1552,24 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   			}	   			
 	   			return;
 	   		}
+
+	   		// ----- Special Commands -----
+
+	   		if (message.toLowerCase().indexOf("peace") !== -1) {
+	   			if(peaceTimer){
+	   				bot.sendMessage({
+		   				to: channelID,
+		   				message: "Peace out! :wave:"
+	   				});
+
+	   				peaceTimer = false;
+	   			}
+
+	   			setTimeout(() => {
+	   				peaceTimer = true;
+	   			}, 10000);
+	   		}
+
 
 	   		// Play Sound
 	        if(message.toLowerCase().indexOf("!") === 0) {	        	
