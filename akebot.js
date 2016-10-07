@@ -1603,7 +1603,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 	   		fs.readFile(CMD_path, 'utf8', (error, file) => {
 	   			if(error){
-	   				console.log(error);
+	   				console.error(error);
 	   				if(delayMessage){
 		   				bot.sendMessage({
 			   				to:channelID, 
@@ -1619,7 +1619,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   				var cmd = JSON.parse(file)
 	   			} catch(error) {
 	   				if(error){
-	   					console.log(error);
+	   					console.error(error);
 		   				if(delayMessage){
 			   				bot.sendMessage({
 				   				to:channelID, 
