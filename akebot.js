@@ -187,7 +187,7 @@ bot.on('ready', rawEvent => {
     if(process.argv[2]){
     	setGame(process.argv[2] + " v" + botVersion);
     } else{
-    	setGame("!help");
+    	setGame("with code");	// Set a defualt game Title
     }
         
     sudoCheck();
