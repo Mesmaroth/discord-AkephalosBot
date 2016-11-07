@@ -1567,7 +1567,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 	   			setTimeout(() => {
 	   				peaceTimer = true;
-	   			}, 10000);
+	   			}, 300000);
 	   		}
 
 
