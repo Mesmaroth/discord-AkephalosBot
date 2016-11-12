@@ -17,6 +17,11 @@ var delayMessage = true,
 	CMD_path = "./akebot/botCommands.json",
 	peaceTimer = true;
 
+var reservedCMDS = [
+	'!commands', '!time', '!date', '!purge', '!servers',
+	'!twitch', '!hitbox', '!uptime', '!help', '!addcmd', '!delcmd','!editcmd',
+	'!cmd', '!appcmd', '!sounds', '!addsound', '!delsound', '!say', '!reverse',
+	'!about', '!ban', '!kick' ]
 
 try {
 	botVersion = require('./package.json')["version"];
@@ -775,10 +780,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   			var cmd = "";
 	   			var type = "";
 	   			var output = [];
-	   			var serverID = bot.channels[channelID].guild_id;
-	   			var reservedCMDS = ['!commands', '!time', '!date', '!purge', '!servers', '!stream',
-	   			'!streamwatch', '!uptime', '!help', '!addcmd', '!delcmd','!editcmd',
-	   			'!cmd', '!appcmd', '!sounds', '!addsound', '!delsound', '!say', '!reverse', '!about', '!ban', '!kick' ]
+	   			var serverID = bot.channels[channelID].guild_id;	   			
 	   			message = message.slice(8);
 
 				fs.readFile(CMD_path, 'utf8', (error, file) => {
@@ -1475,6 +1477,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   					return;
 		   				}
 		   				
+		   				// check if the file is already added
 		   				for(var i = 0; i < sounds.length; i++){
 		   					if(fileName === sounds[i]){
 		   						bot.sendMessage({
