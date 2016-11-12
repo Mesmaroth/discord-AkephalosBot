@@ -1,6 +1,6 @@
 var request = require('request');
+var twitch_Client_ID = require('./botLogin.js').twitch_Client_ID;
 
-// Check if Hitbox user is live
 function getHitBoxStatus(user, callback){
 	request('https://api.hitbox.tv/user/' + user, function(error, response, body){		
 		if(error || response.statusCode !== 200){
@@ -16,14 +16,15 @@ function getHitBoxStatus(user, callback){
 	});
 }
 
-module.exports.getTwitchStream = function(user, callback){     // Checks to see if the stream is live
-    request('https://api.twitch.tv/kraken/streams/' + user, function(error, response, body){		
+module.exports.getTwitchStream = function(user, callback){
+    request('https://api.twitch.tv/kraken/streams/' + user + "?client_id=" + twitch_Client_ID, function(error, response, body){    	
 		if(error || response.statusCode !== 200){
-			return callback(error);			
+			if(!error) var error = response.statusCode;
+			return callback(error);
 		}
 		body = JSON.parse(body);
 		if(body.stream != null){
-			return callback(null, true, body.stream.game, body.stream.channel.url);				
+			return callback(null, true, body.stream.game, body.stream.channel.url);
 		} else{
 			return callback(null, false);
 		}
