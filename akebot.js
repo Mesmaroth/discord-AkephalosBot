@@ -426,7 +426,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        			bot.sendMessage({
 	        				to: channelID, 
 	        				message: "**Admins** *Must be admin*\n"+
-							"• `!say [message]`: Re-sends your message from any channel general channel\n"+
+							"• `!say [message]`: Re-sends your message from any channel in general channel\n"+
 							"• `!purge all [Amount]`: Purges up to 100 messages. Add a number to specify\n"+
 							"• `!purge me [Amount]`: Purges up to 100 messages. Add a number to specify\n"+
 							"• `!purge bot [Amount]`: Purges up to 100 messages. Add a number to specify\n"+
