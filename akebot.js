@@ -17,11 +17,12 @@ var delayMessage = true,
 	CMD_path = "./akebot/botCommands.json",
 	peaceTimer = true;
 
+// List of keywords that are reserved for the bot when users try to add commands or sounds with these keywords.
 var reservedCMDS = [
-	'!commands', '!time', '!date', '!purge', '!servers',
-	'!twitch', '!hitbox', '!uptime', '!help', '!addcmd', '!delcmd','!editcmd',
-	'!cmd', '!appcmd', '!sounds', '!addsound', '!delsound', '!say', '!reverse',
-	'!about', '!ban', '!kick' ]
+	'commands', 'help', 'time', 'date', 'purge', 'servers',
+	'twitch', 'hitbox', 'uptime', 'help', 'addcmd', 'delcmd','editcmd',
+	'cmd', 'appcmd', 'sounds', 'addsound', 'delsound', 'say', 'reverse',
+	'about', 'ban', 'kick' ]
 
 try {
 	botVersion = require('./package.json')["version"];
@@ -527,7 +528,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 	        		if(!isNaN(name)) {
 	        			name = Number(name);      			
-	        			amount = (name === 100) ? name: name +1;
+	        			amount = (name === 100) ? name : name +1;
 	        			bot.getMessages({
 	        				channelID: channelID,
 	        				limit: amount
@@ -614,6 +615,12 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 	        		}
 
+	        	}
+	        	else {
+	        		bot.sendMessage({
+	        			to: channelID,
+	        			message: "Nothing was specified."
+	        		});
 	        	}
 	        	return;		        	
 	        }
@@ -823,11 +830,11 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   				}
 
 		   				// Check if any of the command equals any of the reserved commands 
-		   				for(var i = 0; i < reservedCMDS.length; i++){					
-		   					if(reservedCMDS[i] === cmd){
+		   				for(var i = 0; i < reservedCMDS.length; i++){		   					
+		   					if('!'+reservedCMDS[i].indexOf(cmd) !== -1){
 		   						bot.sendMessage({
 		   							to: channelID,
-		   							message: "*This command `" + cmd +"` is reserved for the bot.*"
+		   							message: "*This command name `" + cmd +"` is reserved for the bot.*"
 		   						});
 		   						return;
 		   					}
@@ -1476,6 +1483,17 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   						message: "**Error:** This file is not a `.mp3` file."
 		   					});
 		   					return;
+		   				}
+
+		   				// Check if the name is not taken from the reserved command names
+		   				for(var i = 0; i < reservedCMDS.length; i++){
+		   					if(fileName.indexOf(reservedCMDS[i]) !== -1){
+		   						bot.sendMessage({
+		   							to: channelID,
+		   							message: "This sound name is reserved for the bot. Please rename this file."
+		   						});
+		   						return;
+		   					}
 		   				}
 		   				
 		   				// check if the file is already added
