@@ -525,8 +525,9 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
         				}
 	        		}
 
-	        		if(!isNaN(name)) {	        			
-	        			amount = Number(name) + 1;		// Adding one to include the command message that called it.
+	        		if(!isNaN(name)) {
+	        			name = Number(name);      			
+	        			amount = (name === 100) ? name: name +1;
 	        			bot.getMessages({
 	        				channelID: channelID,
 	        				limit: amount
