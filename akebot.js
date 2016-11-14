@@ -21,7 +21,7 @@ var delayMessage = true,
 var reservedCMDS = [
 	'commands', 'help', 'time', 'date', 'purge', 'servers',
 	'twitch', 'hitbox', 'uptime', 'help', 'addcmd', 'delcmd','editcmd',
-	'cmd', 'appcmd', 'sounds', 'addsound', 'delsound', 'say', 'reverse',
+	'cmd', 'appcmd', 'sounds', 'addsound', 'editsound', 'delsound', 'say', 'reverse',
 	'about', 'ban', 'kick' ]
 
 try {
@@ -457,7 +457,8 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        				to: channelID,
 	        				message: "**Sounds**\n"+
 	        				"• `!sounds`: Displays a list of all sounds\n"+
-							"• `!addsound`: Attach a mp3 file with this message to add a sound\n"+
+							"• `!addsound`: Attach a mp3 file with this command to add your sound\n"+
+							"• `!editsound [old name] [new name]`: Rename the sound file\n"+
 							"• `!delsound [sound name]`: Delete a sound. Do not include the '!' prefix\n"
 	        			});
 	        		}
@@ -1469,7 +1470,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   		}
 
 	   		// Add sounds to play
-	   		if(message.toLowerCase() === "!addsound"){
+	   		if(message.toLowerCase() === "!addsound" && isAdmin(userID, channelID)){
 	   			if(rawEvent.d.attachments.length > 0){
 	   				var url = rawEvent.d.attachments[0].url;
 	   				var fileName = rawEvent.d.attachments[0].filename.toLowerCase();
@@ -1571,6 +1572,61 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   					message: "No sound `" + sound + ".mp3` found."
 		   				});	
 	   				});	   				
+	   			}	   			
+	   			return;
+	   		}
+
+	   		if(message.toLowerCase().indexOf('!editsound') === 0 && isAdmin(userID, channelID)){
+	   			if(message.indexOf(" ") !== -1){
+	   				message = message.toLowerCase().split(" ");
+	   				if(message.length !== 3){
+	   					bot.sendMessage({
+	   						to: channelID,
+	   						message: "**Error**: Missing values, please follow the format:\n`!editsound [old name] [new name]`"
+	   					});
+	   					return;
+	   				}
+	   				var oldName = message[1];
+	   				var newName = message[2];
+	   				var oldPath = './sounds/'+oldName+'.mp3';
+	   				var newPath = './sounds/'+newName+'.mp3';
+
+	   				if(oldName === newName){
+	   					bot.sendMessage({
+	   						to: channelID,
+	   						message: "**Error**: Trying to rename the file the same name ehh?"
+	   					});
+	   					return;
+	   				}
+
+	   				fs.readdir('./sounds/', (error, files) =>{
+	   					if(error) return console.error(error);
+	   					for(var i = 0; i < files.length; i++){
+	   						var sound = files[i].split(".")[0];
+
+		   					if(sound === oldName){
+		   						fs.rename(oldPath, newPath, () => {
+				   					console.log("Sound file edited: ("+oldPath+") to ("+newPath+")");
+				   					bot.sendMessage({
+				   						to: channelID,
+				   						message: "**Sound Edited**\n`!"+oldName+"` has been renamed to `!"+newName+"`"
+				   					});
+			   					});
+			   					return;
+		   					}
+	   					}
+
+	   					bot.sendMessage({
+	   						to: channelID,
+	   						message: "**Error**: `!"+oldName+"` was not found."
+	   					});
+	   					return;
+	   				});
+	   			} else{
+	   				bot.sendMessage({
+		   				to: channelID,
+		   				message: "**Error**: Missing values, please follow the format:\n`!editsound [old name] [new name]`"
+		   			});
 	   			}	   			
 	   			return;
 	   		}
