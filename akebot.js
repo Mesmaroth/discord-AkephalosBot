@@ -1049,7 +1049,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   		}
 
 	   		// Edit a command
-	   		if(message.indexOf("!editcmd")=== 0){
+	   		if(message.indexOf("!editcmd") === 0 && isAdmin(userID, channelID)){
 	   			if(message.search(' ') != -1){
 	   				message = message.split(" ");
 	   				if(message.length < 4) return;   				
@@ -1245,7 +1245,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   		}
 
 	   		// Append a second command to a command.
-	   		if(message.toLowerCase().indexOf("!appcmd") === 0){	   			
+	   		if(message.toLowerCase().indexOf("!appcmd") === 0 && isAdmin(userID, channelID)){	   			
 	   			if(message.search(" ") !== -1){
 	   				message = message.split(" ");
 	   				var cmd = message[1].toLowerCase();
