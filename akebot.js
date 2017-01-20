@@ -80,10 +80,10 @@ function printDateTime(options){
 
 function setGame(gameName){
     bot.setPresence({
-    		game: {
-    			name: gameName
-    			}
-    	});
+    	game: {
+    		name: gameName
+    	}
+    });
 }
 
 function botUptime(){
