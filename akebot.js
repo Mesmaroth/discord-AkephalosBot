@@ -80,7 +80,9 @@ function printDateTime(options){
 function setGame(gameName){
     bot.setPresence({
     	game: {
-    		name: gameName
+    		name: gameName,
+    		type: 0,
+    		url: "http://twitch.com/SomeProfile"
     	}
     });
 }
