@@ -1,6 +1,6 @@
 {
   "name": "Discord-AkephalosBot",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "A multi-purpose bot written in JavaScript for [Discord](http://www.discord.gg)",
   "main": "akeBotLogin.js",
   "scripts": {
@@ -11,10 +11,9 @@
     "url": "git+https://github.com/Mesmaroth/Discord-AkephalosBot.git"
   },
   "dependencies": {
-    "discord.io": "^1.13.4",
+    "discord.io": "^2.4.2",
     "cleverbot.io": "^1.0.4",
-    "uptimer": "^0.1.2",
-    "node-opus": "^0.2.1"
+    "uptimer": "^0.1.2"
   },
   "keywords": [],
   "author": "Robert (Mesmaroth)",
