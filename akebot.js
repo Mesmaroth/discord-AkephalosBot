@@ -750,7 +750,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 	   			if(message === "!commands"){
 	   				file = file[serverID];
-	   				if(!file){ 
+	   				if(!file || file.length === 0){ 
 	   					bot.sendMessage({
 		   					to: channelID,
 		   					message: "There are currently no commands for this server. Maybe you should add one! Enter `!help commands` for help."
