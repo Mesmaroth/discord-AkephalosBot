@@ -819,8 +819,21 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 					// Check if user forgot to put anything after the command is called.
 		   			if(message.search(" ") !== -1){
 		   				message = message.split(" ");
-		   				cmd = message[0].toLowerCase();
-		   				type = message[1];
+		   				cmd = message[0].toLowerCase();		   				
+
+		   				// Specify a type if not then text will be default
+		   				if(message[1] === 'text' || message[1] === 'image'){
+		   					type = message[1];
+		   					for(var i = 2; i < message.length; i++){
+		   						output.push(message[i]);
+		   					}
+		   				} else{
+		   					type = "text";
+		   					for(var i = 1; i < message.length; i++){
+		   						output.push(message[i]);
+		   					}
+		   				}
+		   				output = output.join(" ");
 
 		   				// All tilde commands or future commmands are reserved for global dev commands
 		   				if(cmd.search("~") === 0){					
@@ -842,17 +855,8 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   					}
 		   				}
 
-					   	// Adds everything after the second index which is 'type'
-		   				for(var i = 2; i < message.length; i++){		
-		   					output.push(message[i]);
-			   			}
-			   			output = output.join(" ");
-
-			   			// * Make it detect wether an image was uploaded or not and then decide whether to have it's type set to text or image
-
-		   				// Check for Text type
-		   				if(type.toLowerCase() === "text"){
-
+		   				// Check if the command is of text type command
+		   				if(type.toLowerCase() === 'text'){
 		   					// Check if the commands already exist
 			   				for(var i = 0; i < commands[serverID].length; i++){ 	
 			   					if((commands[serverID][i].command === cmd || commands[serverID][i].command2 === cmd) && commands[serverID][i].editable === true){
@@ -870,7 +874,8 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 			   						});
 			   						return;
 			   					}
-			   				}
+			   				}			   				
+
 			   				// Check if there was any message at all.		   				
 			   				if (output === ""){
 			   					bot.sendMessage({
@@ -896,8 +901,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 			   				return;
 		   				}
 
-		   				// Check for Image type
-		   				if(type.toLowerCase() === 'image'){
+		   				if(type.toLowerCase() === 'image'){ // Check for Image type
 
 		   					// Check if the command already exist
 			   				for(var i = 0; i < commands[serverID].length; i++){
@@ -968,11 +972,11 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 			   					});
 			   				}		   					   				
 			   				return;
-		   				}
-
+			   			}
+		   			} else{
 		   				bot.sendMessage({
-		   					to: channelID, 
-		   					message: "**Error:** No `type` found. Use `text` or `image` and be sure you are following this format:`!addcmd [COMMAND] [TYPE] [MESSAGE]`"
+		   					to: channelID,
+		   					message: "Looks like your missing your message or did not specify a `type` for your command."
 		   				});
 		   			}
 				});					
