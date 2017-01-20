@@ -792,7 +792,6 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   			var output = [];
 	   			var serverID = bot.channels[channelID].guild_id;	   			
 	   			message = message.slice(8);
-	   			console.log(message);
 
 				fs.readFile(CMD_path, 'utf8', (error, file) => {
 					if(error) return console.error(error);
