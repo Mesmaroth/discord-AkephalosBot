@@ -790,6 +790,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   			var output = [];
 	   			var serverID = bot.channels[channelID].guild_id;	   			
 	   			message = message.slice(8);
+	   			console.log(message);
 
 				fs.readFile(CMD_path, 'utf8', (error, file) => {
 					if(error) return console.error(error);
@@ -831,7 +832,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 		   				// Check if any of the command equals any of the reserved commands 
 		   				for(var i = 0; i < reservedCMDS.length; i++){		   					
-		   					if('!'+reservedCMDS[i].indexOf(cmd) !== -1){
+		   					if('!'+reservedCMDS[i] === cmd){
 		   						bot.sendMessage({
 		   							to: channelID,
 		   							message: "*This command name `" + cmd +"` is reserved for the bot.*"
@@ -1635,7 +1636,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 
 
-	   			   		
+
 	   		// Play Sound
 	        if(message.toLowerCase().indexOf("!") === 0) {	        	
 	        	var serverID = bot.channels[channelID].guild_id;
