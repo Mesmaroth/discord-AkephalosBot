@@ -14,8 +14,7 @@ var bot = new Discord.Client({
 
 var delayMessage = true,
 	botVersion = "#?",
-	CMD_path = "./akebot/botCommands.json",
-	peaceTimer = true;
+	CMD_path = "./akebot/botCommands.json"
 
 // List of keywords that are reserved for the bot when users try to add commands or sounds with these keywords.
 var reservedCMDS = [
@@ -1633,22 +1632,10 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 	   		// ----- Special Commands -----
 
-	   		if (message.toLowerCase().indexOf("peace") !== -1) {
-	   			if(peaceTimer){
-	   				bot.sendMessage({
-		   				to: channelID,
-		   				message: "Peace out! :wave:"
-	   				});
-
-	   				peaceTimer = false;
-	   			}
-
-	   			setTimeout(() => {
-	   				peaceTimer = true;
-	   			}, 300000);
-	   		}
 
 
+
+	   			   		
 	   		// Play Sound
 	        if(message.toLowerCase().indexOf("!") === 0) {	        	
 	        	var serverID = bot.channels[channelID].guild_id;
