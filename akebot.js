@@ -1060,20 +1060,25 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   				if(message.length < 3) return;
 	   				var cmd = message[1].toLowerCase();
 	   				var newCmd = message[2].toLowerCase();
-	   				var type = message[3].toLowerCase();
+	   				if(message.length > 3) var type = message[3].toLowerCase();
 	   				var msg = [];
+	   				var keepMessage = false;
 
-	   				if(type === 'image' || type === 'text'){
-	   					for(var i = 4; i < message.length; i++){
-	   						msg.push(message[i]);
-	   					}
+	   				if(message.length === 3){
+	   					keepMessage = true;
 	   				} else{
-	   					type = "text";
-	   					for(var i = 3; i < message.length; i++){
-	   						msg.push(message[i]);
-	   					}
+	   					if(type === 'image' || type === 'text'){
+		   					for(var i = 4; i < message.length; i++){
+		   						msg.push(message[i]);
+		   					}
+		   				} else{
+		   					type = "text";
+		   					for(var i = 3; i < message.length; i++){
+		   						msg.push(message[i]);
+		   					}
+		   				}
+		   				msg = msg.join(" ");
 	   				}
-	   				msg = msg.join(" ");
 
 	   				// Check for errors and read botComamnds list
 	   				fs.readFile(CMD_path, 'utf8', (error, file) => {
@@ -1105,6 +1110,32 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   							var author = user.toLowerCase();
 		   							if(isDev(userID)) author = null;
 
+		   							// Editing just the command name
+		   							if(keepMessage){
+		   								var oldCMD = commands[serverID][i].command;
+		   								var author = commands[serverID][i].author;
+
+		   								if(oldCMD === newCmd){
+		   									bot.sendMessage({
+		   										to: channelID,
+		   										message: "**Error:** Same command that you're trying to change!"
+		   									});
+		   									return;
+		   								}
+
+		   								msg = commands[serverID][i].message;
+		   								type = commands[serverID][i].type;
+		   								commands[serverID][i].command = newCmd;
+
+		   								bot.sendMessage({
+		   									to:channelID,
+		   									message: "**Command Edited**\n```Command: <" + newCmd + ">\nOld Command: <" + oldCMD + ">\nType: " + type + "\nAuthor: " + author +"\nMessage: <" + msg + ">```"
+		   								});
+
+		   								fs.writeFileSync(CMD_path, JSON.stringify(commands, null, '\t'), 'utf8');
+		   								return;
+		   							}
+
 		   							// Editing text commands
 			   						if(type === "text"){
 			   							// check if theres any text
@@ -1125,7 +1156,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 				   								to: channelID,
 				   								message: "**Error:** No message was added."
 			   								});
-			   								return;		   								
+			   								return;
 			   							}
 
 			   							// If the command was an image type, the image is then removed
