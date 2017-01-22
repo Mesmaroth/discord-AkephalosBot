@@ -1,5 +1,5 @@
 # Discord-AkephalosBot (Node.js)
-Discord bot written in Node.js for [Discord](http://www.discord.gg) Anyone can edit or modify this project of their own doing, all I ask is to leave `!about` in "author" with my name intact.
+Discord bot written in Node.js for [Discord](http://www.discord.gg) Anyone can edit or modify this project of their own doing, all I ask is to leave "author" in `!about` with my name intact.
 
 Library: [Discord.io](https://github.com/izy521/discord.io)
 
