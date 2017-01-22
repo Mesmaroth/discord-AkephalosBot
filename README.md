@@ -1,5 +1,5 @@
 # Discord-AkephalosBot (Node.js)
-Discord bot written in Node.js for [Discord](http://www.discord.gg) Anyone can edit or modify this project of their own doing, all I ask is a mention of me or by leaving `!about` with "author" with my name intact.
+Discord bot written in Node.js for [Discord](http://www.discord.gg) Anyone can edit or modify this project of their own doing, all I ask is to leave `!about` in "author" with my name intact.
 
 Library: [Discord.io](https://github.com/izy521/discord.io)
 
@@ -8,7 +8,7 @@ Library: [Discord.io](https://github.com/izy521/discord.io)
  - Clever Bot implemented, ask anything
  - Making commands can be written without a hassle with less code
  - Making quick and simple commands within the discord client
- - Custom sounds ready to be played, just drag and drop to the folder and your done
+ - Custom sounds ready to be played, just drag and drop to the folder and you're done
  - Upload your sounds to the bot within discord to play them
  - Twitch/Hitbox status, check if a user is live streaming
 
@@ -19,17 +19,15 @@ Try out my bot first before you check it out [Authorize Akephalos](https://disco
 ### Windows
   - Install [Node.JS](https://nodejs.org/dist/v4.4.7/node-v4.4.7-x64.msi)
   - Install [Python v2.7.x](https://www.python.org/downloads/)
-  - Install [Visual C++ Build Tools](http://landinghub.visualstudio.com/visual-cpp-build-tools) using **Default Install**
-  - Install [node-gyp](https://github.com/nodejs/node-gyp) (Open command prompt and enter `npm install -g node-gyp`)
+  - Install [Visual C++ Build Tools](http://landinghub.visualstudio.com/visual-cpp-build-tools) using **Default Install**  
   - Install [FFMPEG static build](https://ffmpeg.zeranoe.com/builds/) to PATH. [Tutorial to install FFMPEG on Windows](http://www.wikihow.com/Install-FFmpeg-on-Windows)
   - Enter bot token or email+pass in `akebot/botLogin.js` as well as [Cleverbot](https://cleverbot.io/) API key essentials
-  - Run `install_modules.bat`
   - Run `Start_Bot.bat` or `Start_Bot_Loop.bat` if you aren't using another program to handle the bot restarting.
   - Have a role called `Admin` to use admin commands
  
 ## Playing Sounds:
 Sounds are executed when the command for that sound is called, the bot leaves as soon as it is done playing the sound.
-You don't need to do work when adding sounds. You just need to drag and drop your sound file in to the `sounds` folder and you are all set. The command for executing the sound on discord is what ever the filename is. If I have a sound file named `example.mp3` in the sound folder, then the command for that would be `!example`. Use `!sounds` to show a list of all sounds currently in the sounds folder.
+You need to drag and drop your sound file in to the `sounds` folder and you are all set. The command for executing the sound on discord is an `!` plus what ever the filename is. If I have a sound file named `example.mp3` in the sound folder, then the command for that would be `!example`. Use `!sounds` to show a list of all sounds currently in the sounds folder.
 
 ## Adding commands:
 To customize your commands more, then you need to edit the properties in `akebot/botCommands.json`, make sure you follow the format.
