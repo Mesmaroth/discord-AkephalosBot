@@ -1127,10 +1127,17 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   								type = commands[serverID][i].type;
 		   								commands[serverID][i].command = newCmd;
 
-		   								bot.sendMessage({
-		   									to:channelID,
-		   									message: "**Command Edited**\n```Command: <" + newCmd + ">\nOld Command: <" + oldCMD + ">\nType: " + type + "\nAuthor: " + author +"\nMessage: <" + msg + ">```"
-		   								});
+		   								if(commands[serverID][i].message != ""){
+		   									bot.sendMessage({
+			   									to:channelID,
+			   									message: "**Command Edited**\n```Command: <" + newCmd + ">\nOld Command: <" + oldCMD + ">\nType: " + type + "\nAuthor: " + author + "\nMessage: <" + commands[serverID][i].message+">```"
+			   								});
+		   								} else{
+		   									bot.sendMessage({
+			   									to:channelID,
+			   									message: "**Command Edited**\n```Command: <" + newCmd + ">\nOld Command: <" + oldCMD + ">\nType: " + type + "\nAuthor: " + author +"```"
+			   								});
+		   								}
 
 		   								fs.writeFileSync(CMD_path, JSON.stringify(commands, null, '\t'), 'utf8');
 		   								return;
