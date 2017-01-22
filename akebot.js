@@ -1055,20 +1055,25 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 	   		// Edit a command
 	   		if(message.indexOf("!editcmd") === 0 && isAdmin(userID, channelID)){
-	   			if(message.search(' ') != -1){
+	   			if(message.search(' ') != -1){	   				
 	   				message = message.split(" ");
-	   				if(message.length < 4) return;   				
+	   				if(message.length < 3) return;
 	   				var cmd = message[1].toLowerCase();
 	   				var newCmd = message[2].toLowerCase();
 	   				var type = message[3].toLowerCase();
-	   				var msg = [];	   				
+	   				var msg = [];
 
-	   				// Push everything after the 4th index as a message
-	   				for(var i = 4; i < message.length; i++){
-	   					msg.push(message[i]);
+	   				if(type === 'image' || type === 'text'){
+	   					for(var i = 4; i < message.length; i++){
+	   						msg.push(message[i]);
+	   					}
+	   				} else{
+	   					type = "text";
+	   					for(var i = 3; i < message.length; i++){
+	   						msg.push(message[i]);
+	   					}
 	   				}
 	   				msg = msg.join(" ");
-	   				if(msg === '') msg = null;
 
 	   				// Check for errors and read botComamnds list
 	   				fs.readFile(CMD_path, 'utf8', (error, file) => {
@@ -1102,6 +1107,15 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 		   							// Editing text commands
 			   						if(type === "text"){
+			   							// check if theres any text
+			   							if(msg === ''){
+			   								bot.sendMessage({
+			   									to: channelID,
+			   									message: "No message was entered."
+			   								});
+			   								return;
+			   							}
+
 			   							var oldCMD = commands[serverID][i].command;
 			   							var oldMsg = "None";
 
