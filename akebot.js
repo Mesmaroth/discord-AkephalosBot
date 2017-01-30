@@ -801,7 +801,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   				if(error){
 		   					bot.sendMessage({
 								to:channelID, 
-								message:"**Error:** Something is causing an error in your botCommands.json file. Please revise!\n```javascript\n"+error+"\n```"
+								message:"**Error:** Something is causing an error in your botCommands.json file. Please revise!\n```\n"+error+"\n```"
 			   				});
 			   				return;
 		   				}
@@ -862,7 +862,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 			   					if((commands[serverID][i].command === cmd || commands[serverID][i].command2 === cmd) && commands[serverID][i].editable === true){
 			   						bot.sendMessage({
 			   							to: channelID,
-			   							message: "**Error:** This command already exist but is editable. Use `!editcmd` instead.`\n```javascript\n"+JSON.stringify(commands[serverID][i], null, '\t')+"\n```"
+			   							message: "**Error:** This command already exist but is editable. Use `!editcmd` instead.`\n```\n"+JSON.stringify(commands[serverID][i], null, '\t')+"\n```"
 			   						});
 			   						return;
 			   					}
@@ -870,7 +870,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 			   					if((commands[serverID][i].command === cmd || commands[serverID][i].command2 === cmd)  && commands[serverID][i].editable === false){
 			   						bot.sendMessage({
 			   							to: channelID,
-			   							message: "**Error:** This command already exist and isn't editable.\n```javascript\n"+JSON.stringify(commands[serverID][i], null, '\t')+"\n```"
+			   							message: "**Error:** This command already exist and isn't editable.\n```\n"+JSON.stringify(commands[serverID][i], null, '\t')+"\n```"
 			   						});
 			   						return;
 			   					}
@@ -896,7 +896,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 			   				fs.writeFileSync(CMD_path, JSON.stringify(commands,null,'\t'));
 			   				bot.sendMessage({
 			   					to: channelID,
-			   					message: "\n**Command Added**\n```javascript\nCommand: <"+bot.fixMessage(cmd)+">\nType: " + type +"\nBy: <"+ user +">\nMessage: " + bot.fixMessage(output)+ "```"
+			   					message: "\n**Command Added**\n```\nCommand: <"+bot.fixMessage(cmd)+">\nType: " + type +"\nBy: <"+ user +">\nMessage: " + bot.fixMessage(output)+ "```"
 			   				});
 			   				return;
 		   				}
@@ -908,7 +908,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 			   					if((commands[serverID][i].command === cmd || commands[serverID][i].command2 === cmd) && commands[serverID][i].editable === true){
 			   						bot.sendMessage({
 			   							to: channelID,
-			   							message: "**Error:** This command already exist but is **editable**. Use `!editcmd` instead.\n```javascript\n"+JSON.stringify(commands[i], null, '\t')+"\n```"
+			   							message: "**Error:** This command already exist but is **editable**. Use `!editcmd` instead.\n```\n"+JSON.stringify(commands[i], null, '\t')+"\n```"
 			   						});
 			   						return;
 			   					}
@@ -916,7 +916,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 			   					if((commands[serverID][i].command === cmd || commands[serverID][i].command2 === cmd)  && commands[serverID][i].editable === false){
 			   						bot.sendMessage({
 			   							to: channelID,
-			   							message: "**Error:** This command already exist.\n```javascript\n"+JSON.stringify(commands[serverID][i], null, '\t')+"\n```"
+			   							message: "**Error:** This command already exist.\n```\n"+JSON.stringify(commands[serverID][i], null, '\t')+"\n```"
 			   						});
 			   						return;
 			   					}
@@ -961,13 +961,13 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 			   					delete commands[serverID][commands[serverID].length - 1].message;
 			   					bot.sendMessage({
 			   						to: channelID,
-			   						message: "\n**Command Added**\n```javascript\nCommand: <"+bot.fixMessage(cmd)+">\nType: " + type +"\nBy: <"+ user + ">\nPath: " + location+fileName+
+			   						message: "\n**Command Added**\n```\nCommand: <"+bot.fixMessage(cmd)+">\nType: " + type +"\nBy: <"+ user + ">\nPath: " + location+fileName+
 			   						"\nFilename: " + fileName + "```"
 			   					});
 			   				} else {
 			   					bot.sendMessage({
 				   					to: channelID,
-				   					message: "\n**Command Added**\n```javascript\nCommand: <"+bot.fixMessage(cmd)+">\nType: " + type +"\nBy: <"+ user + ">\nPath: "+ location+fileName+
+				   					message: "\n**Command Added**\n```\nCommand: <"+bot.fixMessage(cmd)+">\nType: " + type +"\nBy: <"+ user + ">\nPath: "+ location+fileName+
 				   					"\nFilename: " + fileName + "\nMessage: " + bot.fixMessage(output)+ "```"
 			   					});
 			   				}		   					   				
@@ -993,7 +993,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   				if(error){
 		   					bot.sendMessage({
 								to:channelID, 
-								message:"**Error:** Something is causing an error in your botCommands.json file. Please revise!\n```javascript\n"+error+"\n```"
+								message:"**Error:** Something is causing an error in your botCommands.json file. Please revise!\n```\n"+error+"\n```"
 			   				});
 			   				return;
 		   				}
@@ -1089,7 +1089,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 			   				if(error){
 			   					bot.sendMessage({
 									to:channelID, 
-									message:"**Error:** Something is causing an error in your botCommands.json file. Please revise!\n```javascript\n"+error+"\n```"
+									message:"**Error:** Something is causing an error in your botCommands.json file. Please revise!\n```\n"+error+"\n```"
 				   				});
 				   				return;
 			   				}
@@ -1182,7 +1182,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 			   							bot.sendMessage({
 			   								to: channelID,
-			   								message: "\n**Command Edited**\n```javascript\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nOld Command: <" + bot.fixMessage(oldCMD) +">\nType: " + commands[serverID][i].type +
+			   								message: "\n**Command Edited**\n```\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nOld Command: <" + bot.fixMessage(oldCMD) +">\nType: " + commands[serverID][i].type +
 			   								"\nBy: <"+user+ ">\nMessage: <" + bot.fixMessage(commands[serverID][i].message) + ">\nOld Message: <" + bot.fixMessage(oldMsg) + ">\n```"
 			   							});
 
@@ -1225,7 +1225,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 			   								bot.sendMessage({
 				   								to: channelID,
-				   								message: "\n**Command Edited**\n```javascript\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nOld Command: <" + bot.fixMessage(oldCMD) + ">\nType: " + commands[serverID][i].type +
+				   								message: "\n**Command Edited**\n```\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nOld Command: <" + bot.fixMessage(oldCMD) + ">\nType: " + commands[serverID][i].type +
 				   								"\nBy: " + user + "\nPath: " + commands[serverID][i].file + "\nFile Name: " + commands[serverID][i].filename+
 				   								"\nMessage: <" + bot.fixMessage(msg) +">\nOld Message: <" + bot.fixMessage(oldMsg) + ">\n```"
 			   								});
@@ -1265,14 +1265,14 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 			   								if(isText){
 			   									bot.sendMessage({
 			   										to: channelID,
-			   										message: "\n**Command Edited**\n```javascript\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nOld Command: <" + bot.fixMessage(oldCMD) + ">\nType: " + commands[serverID][i].type +
+			   										message: "\n**Command Edited**\n```\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nOld Command: <" + bot.fixMessage(oldCMD) + ">\nType: " + commands[serverID][i].type +
 			   												 "\nBy: " + user +"\nFile Name: " + commands[serverID][i].filename+"\nPath: " + commands[serverID][i].file+ 
 			   												 "\nMessage: <" + bot.fixMessage(msg) + ">\nOld Message: <" +  + ">\n```"
 			   									})
 			   								} else{
 			   									bot.sendMessage({
 					   								to: channelID,
-					   								message: "\n**Command Edited**\n```javascript\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nOld Command: <" + bot.fixMessage(oldCMD) + ">\nType: " + commands[serverID][i].type +
+					   								message: "\n**Command Edited**\n```\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nOld Command: <" + bot.fixMessage(oldCMD) + ">\nType: " + commands[serverID][i].type +
 				   											 "\nBy: " + user +"\nFile Name: " + commands[serverID][i].filename + "\nOld File Name: " + oldFileName + "\nPath: " + commands[serverID][i].file + "\nOld Path: " + oldFile + 
 				   											 "\nMessage: <" + bot.fixMessage(msg) +">\nOld Message: <"+bot.fixMessage(oldMsg) +">\n```"		   								
 				   								});
@@ -1316,7 +1316,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 			   				if(error){
 			   					bot.sendMessage({
 									to:channelID, 
-									message:"**Error:** Something is causing an error in your botCommands.json file. Please revise!\n```javascript\n"+error+"\n```"
+									message:"**Error:** Something is causing an error in your botCommands.json file. Please revise!\n```\n"+error+"\n```"
 				   				});
 				   				return;
 			   				}
@@ -1344,7 +1344,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 				   							if(commands[serverID][i].type === "text"){
 					   							bot.sendMessage({
 					   								to: channelID,
-					   								message: "**Second Command Removed**\n```javascript\nCommand: <" + commands[serverID][i].command + ">\nType: " + commands[serverID][i].type + "\nBy: <" + author + ">\nMessage: <" + commands[serverID][i].message + ">\n```"
+					   								message: "**Second Command Removed**\n```\nCommand: <" + commands[serverID][i].command + ">\nType: " + commands[serverID][i].type + "\nBy: <" + author + ">\nMessage: <" + commands[serverID][i].message + ">\n```"
 					   							});
 				   							}
 
@@ -1352,13 +1352,13 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 					   							if(commands[serverID][i].hasOwnProperty("message")){
 					   								bot.sendMessage({
 						   								to: channelID,
-						   								message: "**Second Command Removed**\n```javascript\nCommand: <" + commands[serverID][i].command + ">\nType: " + commands[serverID][i].type + 
+						   								message: "**Second Command Removed**\n```\nCommand: <" + commands[serverID][i].command + ">\nType: " + commands[serverID][i].type + 
 						   								"\nPath: " + commands[serverID][i].file +"\nFile Name: " + commands[serverID][i].filename + "\nBy: <" + author + ">\nMessage: <" + commands[serverID][i].message  + ">\n```"
 						   							});
 					   							} else{
 					   								bot.sendMessage({
 						   								to: channelID,
-						   								message: "**Second Command Removed**\n```javascript\nCommand: <" + commands[serverID][i].command + ">\nType: " + commands[serverID][i].type +
+						   								message: "**Second Command Removed**\n```\nCommand: <" + commands[serverID][i].command + ">\nType: " + commands[serverID][i].type +
 						   								"\nPath: " + commands[serverID][i].file +"\nFile Name: " + commands[serverID][i].filename + "\nBy: <" + author + ">\n```"
 						   							});
 					   							}	   							
@@ -1389,7 +1389,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 			   						if(commands[serverID][i].type === "text"){
 			   							bot.sendMessage({
 			   								to: channelID,
-			   								message: "**Command Appended**\n```javascript\nCommand: <" + commands[serverID][i].command + ">\nCommand 2: <" + commands[serverID][i].command2 + ">\nType: " + commands[serverID][i].type +
+			   								message: "**Command Appended**\n```\nCommand: <" + commands[serverID][i].command + ">\nCommand 2: <" + commands[serverID][i].command2 + ">\nType: " + commands[serverID][i].type +
 			   								"\nBy: " + author + "\nMessage: " + commands[serverID][i].message + "\n```"
 			   							});
 			   						}
@@ -1398,13 +1398,13 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 			   							if(commands[serverID][i].hasOwnProperty("message")){
 			   								bot.sendMessage({
 				   								to: channelID,
-				   								message: "**Command Appended**\n```javascript\nCommand: <" + commands[serverID][i].command + ">\nCommand 2: <" + commands[serverID][i].command2 + ">\nType: " + commands[serverID][i].type +
+				   								message: "**Command Appended**\n```\nCommand: <" + commands[serverID][i].command + ">\nCommand 2: <" + commands[serverID][i].command2 + ">\nType: " + commands[serverID][i].type +
 				   								"Path: " + commands[serverID][i].file +"\nFile Name: " +commands[serverID][i].filename + "\nBy: <" + author + ">\nMessage: <" + commands[serverID][i].message  + ">\n```"
 				   							});
 			   							} else{
 			   								bot.sendMessage({
 				   								to: channelID,
-				   								message: "**Command Appended**\n```javascript\nCommand: <" + commands[serverID][i].command + ">\nCommand 2: <" + commands[serverID][i].command2 + ">\nType: " + commands[serverID][i].type +
+				   								message: "**Command Appended**\n```\nCommand: <" + commands[serverID][i].command + ">\nCommand 2: <" + commands[serverID][i].command2 + ">\nType: " + commands[serverID][i].type +
 				   								"Path: " + commands[serverID][i].file +"\nFile Name: " +commands[serverID][i].filename + "\nBy: <" + author + ">\n```"
 				   							});
 			   							}	   							
@@ -1438,7 +1438,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   			if(error){
 		   				bot.sendMessage({
 							to:channelID, 
-							message:"**Error:** Something is causing an error in your botCommands.json file. Please revise!\n```javascript\n"+error+"\n```"
+							message:"**Error:** Something is causing an error in your botCommands.json file. Please revise!\n```\n"+error+"\n```"
 			   			});
 			   			return;
 		   			}
@@ -1463,14 +1463,14 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 			   				if(commands[serverID][i].hasOwnProperty("command2")){
 			   					bot.sendMessage({
 			   						to: channelID,
-			   						message: "\n**Command**\n```javascript\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nCommand 2: <"+ bot.fixMessage(commands[serverID][i].command2)+ ">\nType: " + commands[serverID][i].type +"\nBy: <"+ author +">\nMessage: " + bot.fixMessage(commands[serverID][i].message) + "```"
+			   						message: "\n**Command**\n```\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nCommand 2: <"+ bot.fixMessage(commands[serverID][i].command2)+ ">\nType: " + commands[serverID][i].type +"\nBy: <"+ author +">\nMessage: " + bot.fixMessage(commands[serverID][i].message) + "```"
 			   					});
 			   					return;
 			   				}
 			   				
 			   				bot.sendMessage({
 			   					to: channelID,
-			   					message: "\n**Command**\n```javascript\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nType: " + commands[serverID][i].type +"\nBy: <"+ author +">\nMessage: " + bot.fixMessage(commands[serverID][i].message) + "```"
+			   					message: "\n**Command**\n```\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nType: " + commands[serverID][i].type +"\nBy: <"+ author +">\nMessage: " + bot.fixMessage(commands[serverID][i].message) + "```"
 			   				});
 			   				return;
 		   				}
@@ -1484,7 +1484,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   					if( commands[serverID][i].hasOwnProperty('message') && commands[serverID][i].hasOwnProperty("command2")){
 		   						bot.sendMessage({
 			   						to: channelID,
-			   						message: "\n**Command**\n```javascript\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nCommand 2: <"+ bot.fixMessage(commands[serverID][i].command2) + ">\nType: " + commands[serverID][i].type +"\nPath: "+commands[serverID][i].file+
+			   						message: "\n**Command**\n```\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nCommand 2: <"+ bot.fixMessage(commands[serverID][i].command2) + ">\nType: " + commands[serverID][i].type +"\nPath: "+commands[serverID][i].file+
 			   						"\nFile Name: "+ commands[serverID][i].filename+"\nBy: <"+ author +">\nMessage: " + bot.fixMessage(message) + "```"
 			   					});
 			   					return;
@@ -1492,7 +1492,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   					if( commands[serverID][i].hasOwnProperty('message') && !(commands[serverID][i].hasOwnProperty("command2")) ){
 		   						bot.sendMessage({
 			   						to: channelID,
-			   						message: "\n**Command**\n```javascript\nCommand: <" + bot.fixMessage(commands[serverID][i].command) +">\nType: " + commands[serverID][i].type +"\nPath: "+commands[serverID][i].file+
+			   						message: "\n**Command**\n```\nCommand: <" + bot.fixMessage(commands[serverID][i].command) +">\nType: " + commands[serverID][i].type +"\nPath: "+commands[serverID][i].file+
 			   						"\nFile Name: "+ commands[serverID][i].filename+"\nBy: <"+ author +">\nMessage: " + bot.fixMessage(message) + "```"
 			   					});
 		   						return;
@@ -1501,7 +1501,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   					if( !(commands[serverID][i].hasOwnProperty('message')) && commands[serverID][i].hasOwnProperty("command2")){
 		   						bot.sendMessage({
 			   						to: channelID,
-			   						message: "\n**Command**\n```javascript\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nCommand 2: <" + bot.fixMessage(commands[serverID][i].command2) + ">\nType: " + commands[serverID][i].type +"\nPath: "+commands[serverID][i].file+
+			   						message: "\n**Command**\n```\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nCommand 2: <" + bot.fixMessage(commands[serverID][i].command2) + ">\nType: " + commands[serverID][i].type +"\nPath: "+commands[serverID][i].file+
 			   						"\nFile Name: "+ commands[serverID][i].filename+"\nBy: <"+ author +">\n```"
 			   					});
 		   						return;
@@ -1510,7 +1510,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   					if( !(commands[serverID][i].hasOwnProperty('message')) && !(commands[serverID][i].hasOwnProperty("command2")) ){
 		   						bot.sendMessage({
 			   						to: channelID,
-			   						message: "\n**Command**\n```javascript\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nType: " + commands[serverID][i].type +"\nPath: "+commands[serverID][i].file+
+			   						message: "\n**Command**\n```\nCommand: <" + bot.fixMessage(commands[serverID][i].command) + ">\nType: " + commands[serverID][i].type +"\nPath: "+commands[serverID][i].file+
 			   						"\nFile Name: "+ commands[serverID][i].filename+"\nBy: <"+ author +">\n```"
 			   					});
 		   						return;
@@ -1730,7 +1730,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   				if(delayMessage){
 		   				bot.sendMessage({
 			   				to:channelID, 
-			   				message:"**Error:** Please check your botCommands.json file\n```javascript\n"+error+"\n```"
+			   				message:"**Error:** Please check your botCommands.json file\n```\n"+error+"\n```"
 		   				});
 		   				delayMessage = false;
 		   				setTimeout( () => { delayMessage = true;}, 60000);
@@ -1746,7 +1746,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   				if(delayMessage){
 			   				bot.sendMessage({
 				   				to:channelID, 
-				   				message:"**Error:** Something is causing an error in your botCommands.json file. Please revise!\n```javascript\n"+error+"\n```"
+				   				message:"**Error:** Something is causing an error in your botCommands.json file. Please revise!\n```\n"+error+"\n```"
 			   				});
 			   				delayMessage = false;
 			   				setTimeout( () => { delayMessage = true;}, 60000);
