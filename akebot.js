@@ -204,11 +204,11 @@ bot.on('ready', rawEvent => {
 });
 
 bot.on('disconnect', (errMsg, code) => {
-    if(errMsg) console.log(errMsg);
-	console.log("\nExited with code " + code);
+    if(errMsg) console.error(errMsg);	
 	setTimeout(() =>{
+		console.log("\nExited with code " + code);
 		process.exit();
-	}, 300);
+	}, 1000);
 });
 
 bot.on('message', (user, userID, channelID, message, rawEvent) => {
