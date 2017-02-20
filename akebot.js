@@ -1,11 +1,11 @@
-var Discord = require('discord.io');
-var fs = require('fs');
-var request = require('request');
-var uptimer = require('uptimer');
-var botLogin = require('./akebot/botLogin.js');
-var liveStream = require('./akebot/liveStream.js');
-var cleverBot = require('./akebot/cleverBot.js');
-
+var Discord = require('discord.io'),
+	fs = require('fs'),
+	request = require('request'),
+	uptimer = require('uptimer'),
+	botLogin = require('./akebot/botLogin.js'),
+	liveStream = require('./akebot/liveStream.js'),
+	cleverBot = require('./akebot/cleverBot.js');
+	
 var bot = new Discord.Client({
 	token: botLogin.token, // Or add botLogin.email, botLogin.password
 	autorun: true,
@@ -22,6 +22,10 @@ var reservedCMDS = [
 	'twitch', 'hitbox', 'uptime', 'help', 'addcmd', 'delcmd','editcmd',
 	'cmd', 'appcmd', 'sounds', 'addsound', 'editsound', 'delsound', 'say', 'reverse',
 	'about', 'ban', 'kick' ]
+
+// command initializer to start executing bot commands
+const CMD_INIT = "!";
+const SUDO_INIT = "~";	// Admin initializer
 
 try {
 	botVersion = require('./package.json')["version"];
@@ -190,11 +194,11 @@ bot.on('ready', rawEvent => {
        console.log(bot.servers[i].name + " ID: (" + bot.servers[i].id + ")");
     }
 
-    // Set game
+    // Set a default game title
     if(process.argv[2]){
     	setGame(process.argv[2] + " v" + botVersion);
     } else{
-    	setGame("with code");	// Set a defualt game Title
+    	setGame("v"+botVersion);	
     }
         
     sudoCheck();
@@ -224,8 +228,8 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	}
 	else{
 	    if(rawEvent.d.author.username !== bot.username){
-	    	// All commands with a tilde prefix are dev commands which only the bot owner can use unless admin checks are added.
-	        if(message === "~writeout" && isDev(userID)){
+	    	// SUDO commands
+	        if(message === SUDO_INIT + "writeout" && isDev(userID)){
 	            fs.writeFile('bot.json', "Updated at: "+ printDateTime() + "\n\n" + JSON.stringify(bot, null, '\t'), function(error){
 	                if(error) throw error;
 	                console.log("Succesfully written bot properties");
@@ -237,13 +241,13 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	            return;
 	        }
 
-	        if(message === "~disconnect" || message === "~exit"){
+	        if(message === SUDO_INIT + "disconnect" || message === SUDO_INIT + "exit"){
 	            bot.disconnect();	            
 	            return;
 	        }
 
 	        // Send a message to all servers.
-	        if(message.indexOf("~announce")=== 0 && isDev(userID)){
+	        if(message.indexOf(SUDO_INIT + "announce")=== 0 && isDev(userID)){
 	        	message = message.slice(10);
 				for(var serverID in bot.servers){
 					for(var channelID in bot.servers[serverID].channels){
@@ -259,7 +263,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        	return;
 	        }
 
-	        if(message.toLowerCase().indexOf("~setgame") === 0 && isDev(userID)){
+	        if(message.toLowerCase().indexOf(SUDO_INIT + "setgame") === 0 && isDev(userID)){
 	            var message = message.slice(9);
 	            setGame(message);
 	            if(message === ''){
@@ -270,7 +274,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 	        //-----------------------------
 
-	        if(message.toLowerCase() === "!uptime"){
+	        if(message.toLowerCase() === CMD_INIT + "uptime"){
 	            bot.sendMessage({
 	                to: channelID,
 	                message: botUptime()
@@ -278,7 +282,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	            return;
 	        }
 
-	        if(message.toLowerCase() === "!servers"){
+	        if(message.toLowerCase() === CMD_INIT + "servers"){
 	            bot.sendMessage({
 	                to: channelID,
 	                message: ("*Akephalos is connected to `" + serversConnected() +"` servers*")
@@ -286,7 +290,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	            return;
 	        }
 
-	        if(message.toLowerCase().indexOf("!ask") === 0){ 
+	        if(message.toLowerCase().indexOf(CMD_INIT + "ask") === 0){ 
 	        	var input = message.slice(5);
 	        	cleverBot(input, (error, response) => {
 	        		if(error) return console.error(error);
@@ -298,7 +302,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        	return;
 	        }
 
-	        if(message.toLowerCase() === "!invite"){
+	        if(message.toLowerCase() === CMD_INIT + "invite"){
 	        	bot.sendMessage({
 	        		to: channelID, 
 	        		message: "**Invite link:**\n"+bot.inviteURL
@@ -306,7 +310,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        	return;
 	        }
 
-	        if(message.search("!reverse") === 0){
+	        if(message.search(CMD_INIT + "reverse") === 0){
 	            var userString = message.slice(8);
 	            userString = bot.fixMessage(userString);
 	            bot.sendMessage({
@@ -316,7 +320,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	            return;
 	        }
 
-	        if(message.toLowerCase() === "!about"){
+	        if(message.toLowerCase() === CMD_INIT + "about"){
 	        	var devName = "Undefined";
 	        	try{
 	        		devName = JSON.parse(fs.readFileSync('akebot/sudo.json','utf8')).username
@@ -334,7 +338,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	            return;
 	        }
 
-	        if(message.toLowerCase().indexOf("!twitch") === 0 ){
+	        if(message.toLowerCase().indexOf(CMD_INIT + "twitch") === 0 ){
 	        	if(message.search(" ") !== -1){
 	        		message = message.split(" ");
 	        		var user = message[1];
@@ -357,7 +361,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        	return;
 	        }
 
-	        if(message.toLowerCase().indexOf("!hitbox") === 0){
+	        if(message.toLowerCase().indexOf(CMD_INIT + "hitbox") === 0){
 	        	if(message.search(" ") !== -1){
 	        		message = message.split(" ");
 	        		var user = message[1];
@@ -381,7 +385,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        }
 
 	        // List sounds in sounds directory
-	        if(message.toLowerCase() === '!sounds'){
+	        if(message.toLowerCase() === CMD_INIT + "sounds"){
 	            fs.readdir('./sounds/', (error, songList) => {
 	            	if(error) return console.error(error);
 	            	for(var i = 0; i < songList.length; i++){
@@ -403,7 +407,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	            return;
 	        }
 
-	        if(message.indexOf("!help") === 0) {
+	        if(message.indexOf(CMD_INIT + "help") === 0) {
 	        	if(message !== "!help"){
 	        		message = message.split(" ");
 	        		var type = message[1];
@@ -478,7 +482,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        }
 
 	        // Outputs your message to the general channel from any channel.
-	        if(message.toLowerCase().indexOf("!say") === 0 && isAdmin(userID, channelID)){
+	        if(message.toLowerCase().indexOf(CMD_INIT + "say") === 0 && isAdmin(userID, channelID)){
 	            var newMsg = message.slice(5);
 	            var generalChannel = "";
 	            var serverID = bot.channels[channelID].guild_id;
@@ -501,7 +505,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        }
 
 	        // Delete messages
-	        if(message.toLowerCase().indexOf("!purge") === 0 && isAdmin(userID, channelID)){
+	        if(message.toLowerCase().indexOf(CMD_INIT + "purge") === 0 && isAdmin(userID, channelID)){
 	        	if(message.indexOf(' ') !== -1) {
 	        		var amount = 100;	        		
 	        		message = message.split(' ');
@@ -627,7 +631,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        	return;		        	
 	        }
 
-	        if(message.toLowerCase().indexOf("!kick") === 0 && isAdmin(userID, channelID)){
+	        if(message.toLowerCase().indexOf(CMD_INIT + "kick") === 0 && isAdmin(userID, channelID)){
 	        	if(message.search(" ") !== -1){
 	        		message = message.split(" ");       		
 	        		// Check for mentions
@@ -656,7 +660,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        	return;
 	        }
 
-	        if(message.toLowerCase().indexOf("!ban") === 0 && isAdmin(userID, channelID)){
+	        if(message.toLowerCase().indexOf(CMD_INIT + "ban") === 0 && isAdmin(userID, channelID)){
 	        	if(message.search(" ") !== -1){
 	        		message = message.split(" ");
 	        		if(message.length !== 3){
@@ -692,7 +696,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        	return;
 	        }
 
-	        if(message.toLowerCase() === "!date"){
+	        if(message.toLowerCase() === CMD_INIT + "date"){
 	            bot.sendMessage({
 	                to: channelID,
 	                message: printDateTime("date")
@@ -700,7 +704,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	            return;
 	        }
 
-	        if(message.toLowerCase() === "!time"){
+	        if(message.toLowerCase() === CMD_INIT + "time"){
 	            bot.sendMessage({
 	                to: channelID,
 	                message: printDateTime("time")
@@ -708,7 +712,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	            return;
 	        }
 
-	        if(message.toLowerCase().indexOf("!commands") === 0) {
+	        if(message.toLowerCase().indexOf(CMD_INIT + "commands") === 0) {
 	        	var serverID = bot.channels[channelID].guild_id;
 	        	var commands = [];
 	        	var itemsPerMessage = 30;
@@ -726,7 +730,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 					}
 				}
 
-	   			if(message === "!commands global"){
+	   			if(message === CMD_INIT + "commands global"){
 	   				file = file["GLOBAL"];
 	   				if(!file) {
 	   					bot.sendMessage({
@@ -748,7 +752,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   			}
 	   			}
 
-	   			if(message === "!commands"){
+	   			if(message === CMD_INIT + "commands"){
 	   				file = file[serverID];
 	   				if(!file || file.length === 0){ 
 	   					bot.sendMessage({
@@ -786,7 +790,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   		}
 
 	   		// Add a command
-	   		if(message.toLowerCase().indexOf("!addcmd") === 0){
+	   		if(message.toLowerCase().indexOf(CMD_INIT + "addcmd") === 0){
 	   			var cmd = "";
 	   			var type = "";
 	   			var output = [];
@@ -983,7 +987,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   			return; 
 	   		}
 
-	   		if(message.toLowerCase().indexOf("!delcmd") === 0 && isAdmin(userID, channelID)){	   			
+	   		if(message.toLowerCase().indexOf(CMD_INIT + "delcmd") === 0 && isAdmin(userID, channelID)){	   			
 	   			fs.readFile(CMD_path, 'utf8', (error, file) => {
 	   				if(error) return console.error(error);
 	   				message = message.slice(8);
@@ -1054,7 +1058,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   		}
 
 	   		// Edit a command
-	   		if(message.indexOf("!editcmd") === 0 && isAdmin(userID, channelID)){
+	   		if(message.indexOf(CMD_INIT + "editcmd") === 0 && isAdmin(userID, channelID)){
 	   			if(message.search(' ') != -1){	   				
 	   				message = message.split(" ");
 	   				if(message.length < 3) return;
@@ -1302,7 +1306,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   		}
 
 	   		// Append a second command to a command.
-	   		if(message.toLowerCase().indexOf("!appcmd") === 0 && isAdmin(userID, channelID)){	   			
+	   		if(message.toLowerCase().indexOf(CMD_INIT + "appcmd") === 0 && isAdmin(userID, channelID)){	   			
 	   			if(message.search(" ") !== -1){
 	   				message = message.split(" ");
 	   				var cmd = message[1].toLowerCase();
@@ -1425,7 +1429,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   		}
 
 	   		// Displays details of the command
-	   		if(message.toLowerCase().indexOf("!cmd") === 0){
+	   		if(message.toLowerCase().indexOf(CMD_INIT + "cmd") === 0){
 	   			var serverID = bot.channels[channelID].guild_id;
 	   			var author = "Server";
 	   			message = message.split(" ");
@@ -1527,7 +1531,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   		}
 
 	   		// Add sounds to play
-	   		if(message.toLowerCase() === "!addsound" && isAdmin(userID, channelID)){
+	   		if(message.toLowerCase() === CMD_INIT + "addsound" && isAdmin(userID, channelID)){
 	   			if(rawEvent.d.attachments.length > 0){
 	   				var url = rawEvent.d.attachments[0].url;
 	   				var fileName = rawEvent.d.attachments[0].filename.toLowerCase();
@@ -1588,7 +1592,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   		}
 
 	   		// Delete sounds that are in the sounds folder.
-	   		if(message.toLowerCase().indexOf("!delsound") === 0 && isAdmin(userID, channelID)){
+	   		if(message.toLowerCase().indexOf(CMD_INIT + "delsound") === 0 && isAdmin(userID, channelID)){
 	   			if(message.search(" ") !== -1){
 	   				message = message.split(" ");	   				
 	   				var sound = message[1].split(".")[0];
@@ -1633,7 +1637,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   			return;
 	   		}
 
-	   		if(message.toLowerCase().indexOf('!editsound') === 0 && isAdmin(userID, channelID)){
+	   		if(message.toLowerCase().indexOf(CMD_INIT + "editsound") === 0 && isAdmin(userID, channelID)){
 	   			if(message.indexOf(" ") !== -1){
 	   				message = message.toLowerCase().split(" ");
 	   				if(message.length !== 3){
@@ -1695,7 +1699,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 
 	   		// Play Sound
-	        if(message.toLowerCase().indexOf("!") === 0) {	        	
+	        if(message.toLowerCase().indexOf(CMD_INIT) === 0) {	        	
 	        	var serverID = bot.channels[channelID].guild_id;
 	        	var voiceID = bot.servers[serverID].members[userID].voice_channel_id;
 	        	var location = './sounds/';
