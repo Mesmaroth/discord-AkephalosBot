@@ -322,6 +322,8 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 	        if(message.toLowerCase() === CMD_INIT + "about"){
 	        	var devName = "Undefined";
+	        	var botAvatarURL = "https://cdn.discordapp.com/avatars/" + bot.id + "/" + bot.avatar + ".jpg";
+
 	        	try{
 	        		devName = JSON.parse(fs.readFileSync('akebot/sudo.json','utf8')).username
 	        	}
@@ -331,9 +333,9 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 	            bot.sendMessage({
 	                to: channelID,
-	                message: "\n**Bot Username:** "+bot.username+"\n**Bot Owner:** "+devName+"\n**Servers Connected:** "+serversConnected()+"\n"+
+	                message: "__**About**__\n**Bot Username:** "+bot.username+"\n**Bot Owner:** "+devName+"\n**Servers Connected:** "+serversConnected()+"\n"+
 	                botUptime()+"\n**Version:** Akebot v" + botVersion + "\n**Author:** Mesmaroth\n**Written in:** Node.js\n"+
-	                "**Library:** Discord.io\n**Library Version:** "+bot.internals["version"]+"\n**Avatar:** https://goo.gl/kp8L7m\n**Thanks to:** izy521, negativereview, yukine."
+	                "**Library:** Discord.io\n**Library Version:** "+bot.internals["version"]+"\n**Avatar:** " +botAvatarURL+"\n**Thanks to:** izy521, negativereview, yukine."
 	            });
 	            return;
 	        }
