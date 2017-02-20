@@ -410,23 +410,23 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        }
 
 	        if(message.indexOf(CMD_INIT + "help") === 0) {
-	        	if(message !== "!help"){
+	        	if(message !== CMD_INIT + "help"){
 	        		message = message.split(" ");
 	        		var type = message[1];
 	        		if(type === "general"){
 	        			bot.sendMessage ({
 	        				to: channelID,
 	        				message: "**General**\n"+
-							"• `!about`: About this bot\n"+
-							"• `!help`: Displays this\n"+
-							"• `!source`: Source code for this bot\n"+
-							"• `!invite`: If you wish to invite this bot to your server\n"+
-							"• `!upTime`: Bot up time\n"+
-							"• `!date`: Display the date\n"+
-							"• `!time`: Display the time\n"+							
-							"• `!twitch [username]`: Checks if the user is live on Twitch\n"+
-							"• `!hitbox [username]`: Checks if the user is live on HitBox\n"+
-							"• `!ask [Question]`: Ask the bot anything\n"
+							"• `"+ CMD_INIT + "about`: About this bot\n"+
+							"• `"+ CMD_INIT + "help`: Displays this\n"+
+							"• `"+ CMD_INIT + "source`: Source code for this bot\n"+
+							"• `"+ CMD_INIT + "invite`: If you wish to invite this bot to your server\n"+
+							"• `"+ CMD_INIT + "upTime`: Bot up time\n"+
+							"• `"+ CMD_INIT + "date`: Display the date\n"+
+							"• `"+ CMD_INIT + "time`: Display the time\n"+							
+							"• `"+ CMD_INIT + "twitch [username]`: Checks if the user is live on Twitch\n"+
+							"• `"+ CMD_INIT + "hitbox [username]`: Checks if the user is live on HitBox\n"+
+							"• `"+ CMD_INIT + "ask [Question]`: Ask the bot anything\n"
 	        			});
 	        		}
 
@@ -434,14 +434,14 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        			bot.sendMessage({
 	        				to: channelID, 
 	        				message: "**Admins** *Must be admin*\n"+
-							"• `!say [message]`: Re-sends your message from any channel in general channel\n"+
-							"• `!purge all [Amount]`: Purges up to 100 messages. Add a number to specify\n"+
-							"• `!purge me [Amount]`: Purges up to 100 messages. Add a number to specify\n"+
-							"• `!purge bot [Amount]`: Purges up to 100 messages. Add a number to specify\n"+
-							"• `!purge username [Amount]`: Purges up to 100 messages. Add a number to specify\n"+
-							"• `!purge [Amount]`: Deletes a specified amount of messages to be deleted\n"+							
-							"• `!ban [@user] [days]`: Ban the mentioned user for X number of days\n"+
-							"• `!kick [@user]`: Kick the mentioned user from server\n"
+							"• `"+ CMD_INIT + "say [message]`: Re-sends your message from any channel in general channel\n"+
+							"• `"+ CMD_INIT + "purge all [Amount]`: Purges up to 100 messages. Add a number to specify\n"+
+							"• `"+ CMD_INIT + "purge me [Amount]`: Purges up to 100 messages. Add a number to specify\n"+
+							"• `"+ CMD_INIT + "purge bot [Amount]`: Purges up to 100 messages. Add a number to specify\n"+
+							"• `"+ CMD_INIT + "purge username [Amount]`: Purges up to 100 messages. Add a number to specify\n"+
+							"• `"+ CMD_INIT + "purge [Amount]`: Deletes a specified amount of messages to be deleted\n"+							
+							"• `"+ CMD_INIT + "ban [@user] [days]`: Ban the mentioned user for X number of days\n"+
+							"• `"+ CMD_INIT + "kick [@user]`: Kick the mentioned user from server\n"
 	        			});
 	        		}
 
@@ -449,13 +449,13 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        			bot.sendMessage({
 	        				to: channelID,
 	        				message: "**Commands**\n"+
-	        				"• `!commands`: Show a list of all commands that have been added to your server\n"+
-	        				"• `!commands global`: Show a list of all commands that are global across servers\n"+
-	        				"• `!cmd [command]`: Check a command's details. E.G author, type, message\n"+
-							"• `!addcmd [command] [type] [message]`: Create a command \n"+
-							"• `!appcmd [command] [2nd command]`: To add a second command to your command\n"+
-							"• `!delcmd [command]`: Deletes your command if it is editable\n"+
-							"• `!editcmd [command] [new command] [type] [message]`: Edit existing commands if it's editable\n"
+	        				"• `"+ CMD_INIT + "commands`: Show a list of all commands that have been added to your server\n"+
+	        				"• `"+ CMD_INIT + "commands global`: Show a list of all commands that are global across servers\n"+
+	        				"• `"+ CMD_INIT + "cmd [command]`: Check a command's details. E.G author, type, message\n"+
+							"• `"+ CMD_INIT + "addcmd [command] [type] [message]`: Create a command \n"+
+							"• `"+ CMD_INIT + "appcmd [command] [2nd command]`: To add a second command to your command\n"+
+							"• `"+ CMD_INIT + "delcmd [command]`: Deletes your command if it is editable\n"+
+							"• `"+ CMD_INIT + "editcmd [command] [new command] [type] [message]`: Edit existing commands if it's editable\n"
 	        			});
 	        		}
 
@@ -463,20 +463,20 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        			bot.sendMessage({
 	        				to: channelID,
 	        				message: "**Sounds**\n"+
-	        				"• `!sounds`: Displays a list of all sounds\n"+
-							"• `!addsound`: Attach a mp3 file with this command to add your sound\n"+
-							"• `!editsound [old name] [new name]`: Rename the sound file\n"+
-							"• `!delsound [sound name]`: Delete a sound. Do not include the '!' prefix\n"
+	        				"• `"+ CMD_INIT + "sounds`: Displays a list of all sounds\n"+
+							"• `"+ CMD_INIT + "addsound`: Attach a mp3 file with this command to add your sound\n"+
+							"• `"+ CMD_INIT + "editsound [old name] [new name]`: Rename the sound file\n"+
+							"• `"+ CMD_INIT + "delsound [sound name]`: Delete a sound. Do not include the '!' prefix\n"
 	        			});
 	        		}
 	        	} else{
 	        		bot.sendMessage({
 	        			to: channelID,
 	        			message: "**Help**\n"+
-	        			"• `!help general`: For general commands\n"+
-	        			"• `!help admins`: For admin Commands\n"+
-	        			"• `!help commands`: For custom commands\n"+
-	        			"• `!help sounds`: For sound commands"
+	        			"• `"+ CMD_INIT + "help general`: For general commands\n"+
+	        			"• `"+ CMD_INIT + "help admins`: For admin Commands\n"+
+	        			"• `"+ CMD_INIT + "help commands`: For custom commands\n"+
+	        			"• `"+ CMD_INIT + "help sounds`: For sound commands"
 	        		});
 	        	}
 		        		        
