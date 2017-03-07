@@ -27,13 +27,19 @@
 		{
 			"command": "!yes",
 			"type": "text",
-			"message": "https://media.giphy.com/media/3rgXBOmTlzyFCURutG/giphy.gif",
+			"message": "https://media.giphy.com/media/S3Ot3hZ5bcy8o/giphy.gif",
 			"editable": false,
 			"comment": "Creepy Jack Nicholson"
 		},
-		
 		{
-			"command": "feelsbad",
+			"command": "kek",
+			"type": "text",
+			"message": "http://i1.kym-cdn.com/photos/images/list/000/706/368/0cc.gif",
+			"editable": false,
+			"comment": "Top kek"
+		},
+		{
+			"command": "!feelsbad",
 			"type": "image",
 			"file": "pictures/feelsBadMan.png",
 			"filename": "feelsBadMan.png",
@@ -41,7 +47,7 @@
 			"comment": "FeelsGood Pepe"
 		},
 		{
-			"command": "feelsgood",
+			"command": "!feelsgood",
 			"type": "image",
 			"file": "pictures/feelsGoodMan.png",
 			"filename": "feelsGoodMan.png",
@@ -55,7 +61,14 @@
 			"filename": "whoaMan.jpg",
 			"editable": false,
 			"comment": "Just take it easy man."
-		},		
+		},
+		{
+			"command": "!bmj",
+			"type": "text",
+			"message": "http://cdn.makeagif.com/media/9-13-2015/28JfPx.gif",
+			"editable": false,
+			"comment": "John Cena"
+		},
 		{
 			"command": "!doit",
 			"type": "text",
@@ -71,6 +84,12 @@
 			"editable": false,
 			"comment": "Neil Degrasse Tyson"
 		},
-		
+		{
+			"command": "!nothing",
+			"type": "text",
+			"message": "http://www.neontommy.com/sites/default/files/users/user535/you-lose-wanka-meme-generator-you-get-nothing-you-lose-a68cbb.jpg",
+			"editable": false,
+			"comment": "You get nothing."
+		}
 	]
 }
