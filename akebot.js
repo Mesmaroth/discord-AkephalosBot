@@ -297,7 +297,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	            return;
 	        }
 
-	        if(message.toLowerCase().indexOf(CMD_INIT + "ask") === 0){ 
+	        if(matchCMD(message, "ask")){ 
 	        	var input = message.slice(5);
 	        	cleverBot(input, (error, response) => {
 	        		if(error) return console.error(error);
@@ -317,7 +317,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        	return;
 	        }
 
-	        if(message.search(CMD_INIT + "reverse") === 0){
+	        if(matchCMD(message, "search")){
 	            var userString = message.slice(8);
 	            userString = bot.fixMessage(userString);
 	            bot.sendMessage({
@@ -347,7 +347,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	            return;
 	        }
 
-	        if(message.toLowerCase().indexOf(CMD_INIT + "twitch") === 0 ){
+	        if(matchCMD(message, "twitch")){
 	        	if(message.search(" ") !== -1){
 	        		message = message.split(" ");
 	        		var user = message[1];
@@ -370,7 +370,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        	return;
 	        }
 
-	        if(message.toLowerCase().indexOf(CMD_INIT + "hitbox") === 0){
+	        if(matchCMD(message, "hitbox")){
 	        	if(message.search(" ") !== -1){
 	        		message = message.split(" ");
 	        		var user = message[1];
@@ -416,7 +416,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	            return;
 	        }
 
-	        if(message.indexOf(CMD_INIT + "help") === 0) {
+	        if(matchCMD(message, "help")) {
 	        	if(message !== CMD_INIT + "help"){
 	        		message = message.split(" ");
 	        		var type = message[1];
@@ -491,7 +491,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        }
 
 	        // Outputs your message to the general channel from any channel.
-	        if(message.toLowerCase().indexOf(CMD_INIT + "say") === 0 && isAdmin(userID, channelID)){
+	        if(matchCMD(message, "say") && isAdmin(userID, channelID)){
 	            var newMsg = message.slice(5);
 	            var generalChannel = "";
 	            var serverID = bot.channels[channelID].guild_id;
@@ -514,7 +514,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        }
 
 	        // Delete messages
-	        if(message.toLowerCase().indexOf(CMD_INIT + "purge") === 0 && isAdmin(userID, channelID)){
+	        if(matchCMD(message, "purge") && isAdmin(userID, channelID)){
 	        	if(message.indexOf(' ') !== -1) {
 	        		var amount = 100;	        		
 	        		message = message.split(' ');
@@ -640,7 +640,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        	return;		        	
 	        }
 
-	        if(message.toLowerCase().indexOf(CMD_INIT + "kick") === 0 && isAdmin(userID, channelID)){
+	        if(matchCMD(message, "kick") && isAdmin(userID, channelID)){
 	        	if(message.search(" ") !== -1){
 	        		message = message.split(" ");       		
 	        		// Check for mentions
@@ -669,7 +669,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	        	return;
 	        }
 
-	        if(message.toLowerCase().indexOf(CMD_INIT + "ban") === 0 && isAdmin(userID, channelID)){
+	        if(matchCMD(message, "ban") && isAdmin(userID, channelID)){
 	        	if(message.search(" ") !== -1){
 	        		message = message.split(" ");
 	        		if(message.length !== 3){
@@ -721,7 +721,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	            return;
 	        }
 
-	        if(message.toLowerCase().indexOf(CMD_INIT + "commands") === 0) {
+	        if(matchCMD(message, "commands")) {
 	        	var serverID = bot.channels[channelID].guild_id;
 	        	var commands = [];
 	        	var itemsPerMessage = 30;
@@ -799,7 +799,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   		}
 
 	   		// Add a command
-	   		if(message.toLowerCase().indexOf(CMD_INIT + "addcmd") === 0){
+	   		if(matchCMD(message, "addcmd")){
 	   			var cmd = "";
 	   			var type = "";
 	   			var output = [];
@@ -996,7 +996,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   			return; 
 	   		}
 
-	   		if(message.toLowerCase().indexOf(CMD_INIT + "delcmd") === 0 && isAdmin(userID, channelID)){	   			
+	   		if(matchCMD(message, "delcmd") && isAdmin(userID, channelID)){	   			
 	   			fs.readFile(CMD_path, 'utf8', (error, file) => {
 	   				if(error) return console.error(error);
 	   				message = message.slice(8);
@@ -1067,7 +1067,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   		}
 
 	   		// Edit a command
-	   		if(message.indexOf(CMD_INIT + "editcmd") === 0 && isAdmin(userID, channelID)){
+	   		if( matchCMD(message, "editcmd")  && isAdmin(userID, channelID)){
 	   			if(message.search(' ') != -1){	   				
 	   				message = message.split(" ");
 	   				if(message.length < 3) return;
@@ -1315,7 +1315,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   		}
 
 	   		// Append a second command to a command.
-	   		if(message.toLowerCase().indexOf(CMD_INIT + "appcmd") === 0 && isAdmin(userID, channelID)){	   			
+	   		if(matchCMD(message, "appcmd") && isAdmin(userID, channelID)){	   			
 	   			if(message.search(" ") !== -1){
 	   				message = message.split(" ");
 	   				var cmd = message[1].toLowerCase();
@@ -1438,7 +1438,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   		}
 
 	   		// Displays details of the command
-	   		if(message.toLowerCase().indexOf(CMD_INIT + "cmd") === 0){
+	   		if(matchCMD(message, "cmd")){
 	   			var serverID = bot.channels[channelID].guild_id;
 	   			var author = "Server";
 	   			message = message.split(" ");
@@ -1601,7 +1601,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   		}
 
 	   		// Delete sounds that are in the sounds folder.
-	   		if(message.toLowerCase().indexOf(CMD_INIT + "delsound") === 0 && isAdmin(userID, channelID)){
+	   		if(matchCMD(message, "delsound") && isAdmin(userID, channelID)){
 	   			if(message.search(" ") !== -1){
 	   				message = message.split(" ");	   				
 	   				var sound = message[1].split(".")[0];
@@ -1646,7 +1646,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   			return;
 	   		}
 
-	   		if(message.toLowerCase().indexOf(CMD_INIT + "editsound") === 0 && isAdmin(userID, channelID)){
+	   		if(matchCMD(message, "editsound") && isAdmin(userID, channelID)){
 	   			if(message.indexOf(" ") !== -1){
 	   				message = message.toLowerCase().split(" ");
 	   				if(message.length !== 3){
