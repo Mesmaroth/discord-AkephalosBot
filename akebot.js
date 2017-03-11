@@ -399,7 +399,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	            	if(error) return console.error(error);
 	            	for(var i = 0; i < songList.length; i++){
 		            	songList[i] = songList[i].split('.');
-		            	songList[i] = "`!"+songList[i][0]+"`";
+		            	songList[i] = "`" + CMD_INIT + songList[i][0] + "`";
 		            }
 		            if(songList.length >=1){
 		            	bot.sendMessage({
@@ -1584,7 +1584,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 		   							if(error) return console.log(error);
 		   							bot.sendMessage({
 					   					to: channelID,
-					   					message: "**Sound Added**\nUse `!" + songName + "` to play." 
+					   					message: "**Sound Added**\nUse `" + CMD_INIT + songName + "` to play." 
 					   				});
 		   						});
 		   					}
@@ -1607,10 +1607,10 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 	   				var sound = message[1].split(".")[0];
 
 	   				// Check if prefix has been added
-	   				if(sound.search("!") === 0){
+	   				if(sound.search(CMD_INIT) === 0){
 	   					bot.sendMessage({
 	   						to: channelID,
-	   						message: "Do not include the `!` prefix when deleting sounds."
+	   						message: "Do not include the `" + CMD_INIT +"` prefix when deleting sounds."
 	   					});
 	   					return;
 	   				}
@@ -1679,7 +1679,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 				   					console.log("Sound file edited: ("+oldPath+") to ("+newPath+")");
 				   					bot.sendMessage({
 				   						to: channelID,
-				   						message: "**Sound Edited**\n`!"+oldName+"` has been renamed to `!"+newName+"`"
+				   						message: "**Sound Edited**\n`" + CMD_INIT + oldName + "` has been renamed to `" + CMD_INIT + newName + "`"
 				   					});
 			   					});
 			   					return;
@@ -1688,7 +1688,7 @@ bot.on('message', (user, userID, channelID, message, rawEvent) => {
 
 	   					bot.sendMessage({
 	   						to: channelID,
-	   						message: "**Error**: `!"+oldName+"` was not found."
+	   						message: "**Error**: `" + CMD_INIT + oldName + "` was not found."
 	   					});
 	   					return;
 	   				});
