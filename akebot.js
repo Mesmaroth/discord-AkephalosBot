@@ -161,6 +161,13 @@ function folderCheck(folderPath){
 	}
 }
 
+function matchCMD(message, command){
+	if(message[0] === CMD_INIT && (message.toLowerCase().slice(1) === command.toLowerCase() || message.toLowerCase().slice(1, message.indexOf(" ")) === command.toLowerCase()) ){
+		return true;
+	}
+	return false;
+}
+
 bot.on('guildMemberAdd', member => {
 	var serverName = bot.servers[member.guild_id].name;
 	for(var channel in bot.servers[member.guild_id].channels){
