@@ -108,6 +108,14 @@ bot.on('message', message => {
 		bot.destroy();
 	}
 
+	if(isCommand(msgContent, 'setgame') && isAdmin(message)){
+		if(msgContent.indexOf('') !== -1){
+			var game = msgContent.split(' ')[1];
+			setGame(game);
+			botLog("Game set to: " + game);
+		}
+	}
+
 	// GENERAL commands
 
   	if(isCommand(msgContent, 'help')){
