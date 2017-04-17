@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const botLogin = require('./config/botlogin.js');
+const liveStream = require('./modules/livestream.js');
 const bot = new Discord.Client();
 bot.login(botLogin.token);
 
@@ -142,6 +143,44 @@ bot.on('message', message => {
 		}
 
   		mChannel.sendMessage("**Uptime:** " + uptimeHours + " hour(s) : " + uptimeMinutes + " minute(s) : " + uptimeSeconds +" second(s)");
+  	}
+
+  	if(isCommand(mContent, 'twitch')){
+  		if(mContent.indexOf(' ') !== -1){
+  			var name = mContent.split(' ')[1];
+
+  			liveStream.getTwitchStream(name, (error, status, gameTitle, streamURL)=> {
+  				if(status){
+  					mChannel.sendMessage(
+  					"**Twitch**\n**Name:** " + name +
+  					"\n**Status:** `Online`\n**Game:** " + gameTitle +
+  					"\n**URL:** " + streamURL);  	
+  				} else{
+  					mChannel.sendMessage(
+  						"**Twitch**\n**Name:** " + name +
+  						"\n**Status:** `Offline`");
+  				}		
+  			});
+  		}
+  	}
+
+  	if(isCommand(mContent, 'hitbox')){
+  		if(mContent.indexOf(' ')!== -1){
+  			var name = mContent.split(' ')[1];
+
+  			liveStream.getHitboxStream(name, (error, status, gameTitle, streamURL) =>{
+  				if(status){
+  					mChannel.sendMessage(
+  					"**HitBox**\n**Name:**" + name +
+  					"\n**Status:** `Online`\n**Game:** " + gameTitle +
+  					"\n**URL:** " + streamURL);
+  				} else{
+  					mChannel.sendMessage(
+  					"**HitBox**\n**Name:**" + name +
+  					"\n**Status:** `Offline`");
+  				}
+  			});
+  		}
   	}
 
 });
