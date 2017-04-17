@@ -16,9 +16,7 @@ try{
 	}
 }
 var CMDINT = "?";
-var defaultStatus = botVersion + " | " + CMDINT + "help";
-
-
+var defaultStatus = "v"+botVersion + " | " + CMDINT + "help";
 
 // Checks if the message is a command input from the user
 function isCommand(message, command){
@@ -99,18 +97,18 @@ bot.on('guildMemberAdd', guildMember =>{
 });
 
 bot.on('message', message => {
-	const msgContent = message.content;
-	const msgChannel = message.channel;
+	const mContent = message.content;
+	const mChannel = message.channel;
 
 	// Admin commands
 
-	if(isCommand(msgContent, 'exit') && isAdmin(message)){
+	if(isCommand(mContent, 'exit') && isAdmin(message)){
 		bot.destroy();
 	}
 
-	if(isCommand(msgContent, 'setgame') && isAdmin(message)){
-		if(msgContent.indexOf('') !== -1){
-			var game = msgContent.slice(msgContent.indexOf(' ') + 1);
+	if(isCommand(mContent, 'setgame') && isAdmin(message)){
+		if(mContent.indexOf('') !== -1){
+			var game = mContent.slice(mContent.indexOf(' ') + 1);
 			setGame(game);
 			botLog("Game set to: " + game);
 		}
@@ -118,8 +116,14 @@ bot.on('message', message => {
 
 	// GENERAL commands
 
-  	if(isCommand(msgContent, 'help')){
+  	if(isCommand(mContent, 'help')){
   		message.channel.sendMessage("**In progress!**");
+  	}
+
+  	if(isCommand(mContent, 'invite')){
+  		bot.generateInvite().then( link =>{
+  			mChannel.sendMessage("**Invite:** " + link);
+  		});
   	}
 
 });
