@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const botLogin = require('./config/botlogin.js');
 const liveStream = require('./modules/livestream.js');
+const fs = require('fs');
 const bot = new Discord.Client();
 bot.login(botLogin.token);
 
@@ -47,10 +48,15 @@ function setGame(game){
 }
 
 function getChannelByName(guild, channelName){
-	return guild.channels.filterArray( channel => {
+	var channel = guild.channels.filterArray( channel => {
 		if(channel.name === channelName)
 			return channel;
 	})[0];
+
+	if(channel)
+		return channel
+	else
+		return null;
 }
 
 function botLog(message){
@@ -72,7 +78,7 @@ function displayServers(){
 		servers.push(guilds[i].name);
 	}
 
-	return "Servers:\n " + servers.join("\n") + "\n";
+	return "Servers:\n" + servers.join("\n") + "\n";
 }
 
 //	Credit: https://stackoverflow.com/questions/1303646/check-whether-variable-is-number-or-string-in-javascript#1303650
