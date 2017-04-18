@@ -10,6 +10,13 @@ const adminRole = "admin";
 var botVersion = "?#";
 try{
 	botVersion = require('./package.json').version;
+
+	var notifyChannel = {}
+	if(!(fs.existsSync('.config/notifychannels.json'))){
+		fs.writeFileSync('./config/notifychannels.json', "{}");
+	}
+	notifyChannel = fs.readFileSync('./config/notifychannels.json');
+	notifyChannel = JSON.parse(notifyChannel);
 } catch(error){
 	if(error) {
 		console.log("------- ERROR --------");
@@ -98,8 +105,6 @@ bot.on('ready', () => {
 	console.log(displayServers());
 
 	setGame(defaultStatus);
-
-	fileExist('./config/notifychannels.json', "{}");
 });
 
 bot.on('disconnect', event =>{
@@ -120,22 +125,14 @@ bot.on('guildMemberAdd', guildMember =>{
 bot.on('presenceUpdate', (oldGuildMember, newGuildMember) =>{
 	if(newGuildMember.presence.game !== null){
 		var defaultChannel = "general";
-		var textChannel = getChannelByName(newGuildMember.guild, defaultChannel);
-		var file = './config/notifychannels.json';
-
-		try{
-			var notifyChannel = fs.readFileSync(file);
-			notifyChannel = JSON.parse(notifyChannel);
-		}catch(error){
-			if(error) return sendError("Reading and Parsing Notify Channel File", error, textChannel);
-		}
+		var textChannel = getChannelByName(newGuildMember.guild, defaultChannel);			
 
 		if(!(notifyChannel.hasOwnProperty(newGuildMember.guild.id))){
 			notifyChannel[newGuildMember.guild.id] = {
 				channel: defaultChannel,
 				notify: true
 			}
-			fs.writeFile(file, JSON.stringify(notifyChannel, null, '\t'), error=>{
+			fs.writeFile('./config/notifychannels.json', JSON.stringify(notifyChannel, null, '\t'), error=>{
 				if(error) return sendError("Writing Notify Channel File", error, textChannel);
 			});
 		}
@@ -180,7 +177,7 @@ bot.on('message', message => {
 			var channel = mContent.split(' ')[1];
 
 			try{
-				var notifyChannel = fs.readFileSync(file);
+				notifyChannel = fs.readFileSync(file);
 				notifyChannel = JSON.parse(notifyChannel);
 			}catch(error){
 				if(error) return sendError("Reading Notify Channels File", error, mChannel);
@@ -189,7 +186,8 @@ bot.on('message', message => {
 			if(getChannelByName(message.guild, channel) !== null){
 				if(!(notifyChannel.hasOwnProperty(message.member.guild.id))){
 					notifyChannel[message.member.guild.id] = {
-						channel: channel
+						channel: channel,
+						notify: true
 					}
 				} else{
 					notifyChannel[message.member.guild.id].channel = channel;
@@ -211,31 +209,32 @@ bot.on('message', message => {
 	if(isCommand(mContent, 'notify') && isAdmin(message)){
 		var file = './config/notifychannels.json';
 		try{
-			var streamList = fs.readFileSync(file);
-			streamList = JSON.parse(streamList);
+			notifyChannel = fs.readFileSync(file);
+			notifyChannel = JSON.parse(notifyChannel);
 		}catch(error){
 			if(error) return sendError("Reading Stream Black List File", error, mChannel);
 		}
 
-		if(!(streamList.hasOwnProperty(message.member.guild.id))){
-			streamList[message.member.guild.id] = {
+		if(!(notifyChannel.hasOwnProperty(message.member.guild.id))){
+			notifyChannel[message.member.guild.id] = {
+				channel: "general",
 				notify: true
 			}
 		} else{
-			if(streamList[message.member.guild.id].notify){
-				streamList[message.member.guild.id].notify = false;
+			if(notifyChannel[message.member.guild.id].notify){
+				notifyChannel[message.member.guild.id].notify = false;
 			} else{
-				streamList[message.member.guild.id].notify = true;
+				notifyChannel[message.member.guild.id].notify = true;
 			}
 		}
 
-		if(streamList[message.member.guild.id].notify){
+		if(notifyChannel[message.member.guild.id].notify){
 			mChannel.sendMessage("Notifications for this server set to `true`");
 		} else{
 			mChannel.sendMessage("Notifications for this server set to `false`");
 		}
 
-		fs.writeFile(file, JSON.stringify(streamList, null, '\t'), error =>{
+		fs.writeFile(file, JSON.stringify(notifyChannel, null, '\t'), error =>{
 			if(error) return sendError("Reading Stream Black List File", error, mChannel);			
 		});
 	}
