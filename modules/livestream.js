@@ -1,5 +1,5 @@
 var request = require('request');
-var twitchClientID = require('../config/botLogin.js').twitchClientID;
+var twitchClientID = require('../config/botlogin.js').twitchClientID;
 
 function getHitBoxStatus(user, callback){
 	request('https://api.hitbox.tv/user/' + user, function(error, response, body){		
