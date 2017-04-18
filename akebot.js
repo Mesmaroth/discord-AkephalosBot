@@ -97,6 +97,17 @@ bot.on('guildMemberAdd', guildMember =>{
 	botLog(guildMember.guild.name + " welcomes " + guildMember.user.username + " to their server.");
 });
 
+bot.on('presenceUpdate', (oldGuildMember, newGuildMember) =>{
+	var generalChannel = getChannelByName(newGuildMember.guild, 'general');
+	if(newGuildMember.presence.game !== null){
+		if(newGuildMember.presence.game.streaming){
+			generalChannel.sendMessage("**LIVE**\n" +
+				newGuildMember.user.username + " is now streaming!\n**Title:** " + newGuildMember.presence.game.name +
+				"\n**URL:** " + newGuildMember.presence.game.url);
+		}
+	}		
+});
+
 bot.on('message', message => {
 	const mContent = message.content;
 	const mChannel = message.channel;
@@ -182,5 +193,4 @@ bot.on('message', message => {
   			});
   		}
   	}
-
 });
