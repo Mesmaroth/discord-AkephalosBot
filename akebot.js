@@ -73,6 +73,11 @@ function displayServers(){
 	}
 
 	return "Servers:\n " + servers.join("\n") + "\n";
+}
+
+//	Credit: https://stackoverflow.com/questions/1303646/check-whether-variable-is-number-or-string-in-javascript#1303650
+function isNumber(obj) {	
+	return !isNaN(parseFloat(obj))
 }	
 
 bot.on('ready', () => {
