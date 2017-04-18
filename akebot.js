@@ -16,7 +16,7 @@ try{
 		console.log("----------------------");
 	}
 }
-var CMDINT = "?";
+var CMDINT = "!";
 var defaultStatus = "v"+botVersion + " | " + CMDINT + "help";
 
 // Checks if the message is a command input from the user
