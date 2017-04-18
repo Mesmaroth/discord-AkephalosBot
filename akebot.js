@@ -81,6 +81,13 @@ function displayServers(){
 	return "Servers:\n" + servers.join("\n") + "\n";
 }
 
+function fileExist(path, data){
+	if(!(fs.existsSync(path))){
+		fs.writeFileSync(path, data);
+		console.log("Config file: " + path + " created.");
+	}
+}
+
 //	Credit: https://stackoverflow.com/questions/1303646/check-whether-variable-is-number-or-string-in-javascript#1303650
 function isNumber(obj) {	
 	return !isNaN(parseFloat(obj))
@@ -91,6 +98,8 @@ bot.on('ready', () => {
 	console.log(displayServers());
 
 	setGame(defaultStatus);
+
+	fileExist('./config/notifychannels.json', "{}");
 });
 
 bot.on('disconnect', event =>{
@@ -163,7 +172,7 @@ bot.on('message', message => {
 			botLog("Game set to: " + game);
 		}
 	}
-	
+
 	// Sets the preferred channel for live streaming notifications
 	if(isCommand(mContent, 'setchannel') && isAdmin(message)){
 		var file = './config/notifychannels.json';
