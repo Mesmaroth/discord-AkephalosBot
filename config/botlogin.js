@@ -1,5 +1,6 @@
 //
 
 module.exports = {
-	token: "TOKEN_key"
+	token: "TOKEN_KEY",
+	twitchClientID: "TWITCH_CLIENT_ID"
 }
