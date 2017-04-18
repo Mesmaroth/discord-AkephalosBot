@@ -135,7 +135,7 @@ bot.on('presenceUpdate', (oldGuildMember, newGuildMember) =>{
 		if(textChannel === null){
 			textChannel = getChannelByName(newGuildMember.guild, defaultChannel);
 		}
-		
+
 		if(newGuildMember.presence.game.streaming){
 			if(notifyChannel[newGuildMember.guild.id].notify){
 				textChannel.sendMessage("**LIVE**\n" +
@@ -162,6 +162,73 @@ bot.on('message', message => {
 			setGame(game);
 			botLog("Game set to: " + game);
 		}
+	}
+	
+	// Sets the preferred channel for live streaming notifications
+	if(isCommand(mContent, 'setchannel') && isAdmin(message)){
+		var file = './config/notifychannels.json';
+		if(mContent.indexOf(' ') !== -1){
+			var channel = mContent.split(' ')[1];
+
+			try{
+				var notifyChannel = fs.readFileSync(file);
+				notifyChannel = JSON.parse(notifyChannel);
+			}catch(error){
+				if(error) return sendError("Reading Notify Channels File", error, mChannel);
+			}
+
+			if(getChannelByName(message.guild, channel) !== null){
+				if(!(notifyChannel.hasOwnProperty(message.member.guild.id))){
+					notifyChannel[message.member.guild.id] = {
+						channel: channel
+					}
+				} else{
+					notifyChannel[message.member.guild.id].channel = channel;
+				}
+
+
+				fs.writeFile(file, JSON.stringify(notifyChannel, null, '\t'), error =>{
+					if(error) return sendError("Writing Data to Notify Channels File", error, mChannel);
+
+					mChannel.sendMessage("Channel `" + channel + "` set as default notifications channel");
+				});
+			}else{
+				mChannel.sendMessage("No channel found with that name");
+			}
+		}
+	}
+
+	// Enables or disables streaming notifcations on a server
+	if(isCommand(mContent, 'notify') && isAdmin(message)){
+		var file = './config/notifychannels.json';
+		try{
+			var streamList = fs.readFileSync(file);
+			streamList = JSON.parse(streamList);
+		}catch(error){
+			if(error) return sendError("Reading Stream Black List File", error, mChannel);
+		}
+
+		if(!(streamList.hasOwnProperty(message.member.guild.id))){
+			streamList[message.member.guild.id] = {
+				notify: true
+			}
+		} else{
+			if(streamList[message.member.guild.id].notify){
+				streamList[message.member.guild.id].notify = false;
+			} else{
+				streamList[message.member.guild.id].notify = true;
+			}
+		}
+
+		if(streamList[message.member.guild.id].notify){
+			mChannel.sendMessage("Notifications for this server set to `true`");
+		} else{
+			mChannel.sendMessage("Notifications for this server set to `false`");
+		}
+
+		fs.writeFile(file, JSON.stringify(streamList, null, '\t'), error =>{
+			if(error) return sendError("Reading Stream Black List File", error, mChannel);			
+		});
 	}
 
 	// GENERAL commands
