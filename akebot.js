@@ -72,7 +72,7 @@ function displayServers(){
 		servers.push(guilds[i].name);
 	}
 
-	return "Servers:\n " + servers.join(", ") + "\n";
+	return "Servers:\n " + servers.join("\n") + "\n";
 }	
 
 bot.on('ready', () => {
@@ -129,7 +129,22 @@ bot.on('message', message => {
 	// GENERAL commands
 
   	if(isCommand(mContent, 'help')){
-  		message.channel.sendMessage("**In progress!**");
+  		message.channel.sendMessage("**Help**\nIn progress!");
+  	}
+
+  	if(isCommand(mContent, 'about')){
+  		var content = "**About**\n" + "**Bot Version:** Akephalos Bot v" + botVersion +
+  			"\n**Bot Username:** " + bot.user.username +
+  			"\n**Servers Connected:** `" + bot.guilds.array().length + "`" +
+  			"\n**Author:** Mesmaroth" +
+  			"\n**Library:** Discord.js" +  			
+  			"\n**Source:** <https://github.com/Mesmaroth/discord-AkephalosBot>"
+
+  		message.channel.sendFile( bot.user.displayAvatarURL, 'botAvatar.jpg', content);
+  	}
+
+  	if(isCommand(message.content, 'source')){
+  		message.channel.sendMessage("**Source:** https://github.com/Mesmaroth/discord-AkephalosBot");
   	}
 
   	if(isCommand(mContent, 'invite')){
