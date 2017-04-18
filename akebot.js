@@ -161,6 +161,7 @@ bot.on('message', message => {
   			var name = mContent.split(' ')[1];
 
   			liveStream.getTwitchStream(name, (error, status, gameTitle, streamURL)=> {
+  				if(error) return sendError("Getting Twitch Stream Data", error, mChannel);
   				if(status){
   					mChannel.sendMessage(
   					"**Twitch**\n**Name:** " + name +
@@ -180,6 +181,7 @@ bot.on('message', message => {
   			var name = mContent.split(' ')[1];
 
   			liveStream.getHitboxStream(name, (error, status, gameTitle, streamURL) =>{
+  				if(error) return sendError("Getting HitBox Stream Data", error, mChannel);
   				if(status){
   					mChannel.sendMessage(
   					"**HitBox**\n**Name:**" + name +
