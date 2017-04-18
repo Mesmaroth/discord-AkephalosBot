@@ -109,12 +109,39 @@ bot.on('guildMemberAdd', guildMember =>{
 });
 
 bot.on('presenceUpdate', (oldGuildMember, newGuildMember) =>{
-	var generalChannel = getChannelByName(newGuildMember.guild, 'general');
 	if(newGuildMember.presence.game !== null){
+		var defaultChannel = "general";
+		var textChannel = getChannelByName(newGuildMember.guild, defaultChannel);
+		var file = './config/notifychannels.json';
+
+		try{
+			var notifyChannel = fs.readFileSync(file);
+			notifyChannel = JSON.parse(notifyChannel);
+		}catch(error){
+			if(error) return sendError("Reading and Parsing Notify Channel File", error, textChannel);
+		}
+
+		if(!(notifyChannel.hasOwnProperty(newGuildMember.guild.id))){
+			notifyChannel[newGuildMember.guild.id] = {
+				channel: defaultChannel,
+				notify: true
+			}
+			fs.writeFile(file, JSON.stringify(notifyChannel, null, '\t'), error=>{
+				if(error) return sendError("Writing Notify Channel File", error, textChannel);
+			});
+		}
+		
+		textChannel = getChannelByName(newGuildMember.guild, notifyChannel[newGuildMember.guild.id].channel);
+		if(textChannel === null){
+			textChannel = getChannelByName(newGuildMember.guild, defaultChannel);
+		}
+		
 		if(newGuildMember.presence.game.streaming){
-			generalChannel.sendMessage("**LIVE**\n" +
+			if(notifyChannel[newGuildMember.guild.id].notify){
+				textChannel.sendMessage("**LIVE**\n" +
 				newGuildMember.user.username + " is now streaming!\n**Title:** " + newGuildMember.presence.game.name +
 				"\n**URL:** " + newGuildMember.presence.game.url);
+			}
 		}
 	}		
 });
