@@ -116,15 +116,6 @@ bot.on('disconnect', event =>{
 	console.log("Exited with code: " + event.code);
 	if(event.message)
 		console.log("Message: " + event.message);
-
-	fs.writeFile('./config/notifychannels.json', JSON.stringify(notifyChannel, null, '\t'), error=>{
-		if(error) {
-			console.log("------- ERROR --------");
-			console.log(error);
-			console.log("----------------------");
-		}
-	});
-
 	process.exit(0);
 });
 
