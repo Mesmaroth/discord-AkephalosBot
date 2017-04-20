@@ -12,11 +12,16 @@ try{
 	botVersion = require('./package.json').version;
 
 	var notifyChannel = {}
-	if(!(fs.existsSync('.config/notifychannels.json'))){
+	if((fs.existsSync('./config/notifychannels.json'))){
+		notifyChannel = fs.readFileSync('./config/notifychannels.json');
+		notifyChannel = JSON.parse(notifyChannel);
+		
+	}else{
 		fs.writeFileSync('./config/notifychannels.json', "{}");
+		notifyChannel = fs.readFileSync('./config/notifychannels.json');
+		notifyChannel = JSON.parse(notifyChannel);
 	}
-	notifyChannel = fs.readFileSync('./config/notifychannels.json');
-	notifyChannel = JSON.parse(notifyChannel);
+	
 } catch(error){
 	if(error) {
 		console.log("------- ERROR --------");
@@ -112,6 +117,14 @@ bot.on('disconnect', event =>{
 	if(event.message)
 		console.log("Message: " + event.message);
 
+	fs.writeFile('./config/notifychannels.json', JSON.stringify(notifyChannel, null, '\t'), error=>{
+		if(error) {
+			console.log("------- ERROR --------");
+			console.log(error);
+			console.log("----------------------");
+		}
+	});
+
 	process.exit(0);
 });
 
@@ -131,10 +144,7 @@ bot.on('presenceUpdate', (oldGuildMember, newGuildMember) =>{
 			notifyChannel[newGuildMember.guild.id] = {
 				channel: defaultChannel,
 				notify: true
-			}
-			fs.writeFile('./config/notifychannels.json', JSON.stringify(notifyChannel, null, '\t'), error=>{
-				if(error) return sendError("Writing Notify Channel File", error, textChannel);
-			});
+			}			
 		}
 		
 		textChannel = getChannelByName(newGuildMember.guild, notifyChannel[newGuildMember.guild.id].channel);
