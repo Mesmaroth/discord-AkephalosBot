@@ -156,6 +156,8 @@ bot.on('presenceUpdate', (oldGuildMember, newGuildMember) =>{
 bot.on('message', message => {
 	const mContent = message.content;
 	const mChannel = message.channel;
+	const mGuild = message.guild;
+	const mMember = message.member;
 
 	// Admin commands
 
@@ -326,4 +328,58 @@ bot.on('message', message => {
   			});
   		}
   	}
+
+  	// 102910652447752192
+	fs.readFile('./config/botCommands.json', (error, commands) =>{
+		if(error) return sendError("Reading Bot Commands Config File", error, mChannel);
+
+		try{
+			commands = JSON.parse(commands);  			
+		}catch(error){
+			if(error) return sendError("Parsing Bot Commands Config File", error, mChannel);
+		}
+
+		if(commands.hasOwnProperty('GLOBAL')){
+			var globalCommands = commands['GLOBAL'];
+			for(var i = 0; i < globalCommands.length; i++){
+				if(mContent.toLowerCase() === globalCommands[i].command){
+					if(globalCommands[i].type === 'text'){
+						mChannel.sendMessage(globalCommands[i].message);
+					}else if(globalCommands[i].type === 'image'){
+						if(!fs.existsSync(serverCommands[i].file)){
+							return sendError("Reading Custom Commands File", {name: "No file found: " + serverCommands[i].file, message: "File not found."}, mChannel);
+						}
+						if(globalCommands[i].hasOwnProperty('message')){
+							mChannel.sendFile(globalCommands[i].file, globalCommands[i].filename, globalCommands[i].message);
+						}else{
+							mChannel.sendFile(globalCommands[i].file, globalCommands[i].filename);
+						}
+					}
+					return;
+				}
+			}
+		}
+
+		if(commands.hasOwnProperty(mGuild.id)){
+			var serverCommands = commands[mGuild.id];			
+			for(var i = 0; i < serverCommands.length; i++){
+				if(mContent.toLowerCase() === serverCommands[i].command){
+					if(serverCommands[i].type === 'text'){
+						mChannel.sendMessage(serverCommands[i].message);
+					}else if(serverCommands[i].type === 'image'){
+						if(!fs.existsSync(serverCommands[i].file)){
+							return sendError("Reading Custom Commands File", {name: "No file found: " + serverCommands[i].file, message: "File not found"}, mChannel);
+						}
+						if(serverCommands[i].hasOwnProperty('message')){
+							mChannel.sendFile(serverCommands[i].file, serverCommands[i].filename, serverCommands[i].message);
+						}else{
+							mChannel.sendFile(serverCommands[i].file, serverCommands[i].filename);
+						}
+					}
+					return;
+				}
+			}			
+		}
+	});
+
 });
