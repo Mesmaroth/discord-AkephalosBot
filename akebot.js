@@ -417,7 +417,7 @@ bot.on('message', message => {
 					if(globalCommands[i].type === 'text'){
 						mChannel.sendMessage(globalCommands[i].message);
 					}else if(globalCommands[i].type === 'image'){
-						if(!fs.existsSync(serverCommands[i].file)){
+						if(!fs.existsSync(globalCommands[i].file)){
 							return sendError("Reading Custom Commands File", {name: "No file found: " + serverCommands[i].file, message: "File not found."}, mChannel);
 						}
 						if(globalCommands[i].hasOwnProperty('message')){
