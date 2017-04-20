@@ -185,67 +185,69 @@ bot.on('message', message => {
 		var file = './config/notifychannels.json';
 		if(mContent.indexOf(' ') !== -1){
 			var channel = mContent.split(' ')[1];
-
-			try{
-				notifyChannel = fs.readFileSync(file);
-				notifyChannel = JSON.parse(notifyChannel);
-			}catch(error){
+			fs.readFile(file, (error, notifyChannel) =>{
 				if(error) return sendError("Reading Notify Channels File", error, mChannel);
-			}
-
-			if(getChannelByName(message.guild, channel) !== null){
-				if(!(notifyChannel.hasOwnProperty(message.member.guild.id))){
-					notifyChannel[message.member.guild.id] = {
-						channel: channel,
-						notify: true
-					}
-				} else{
-					notifyChannel[message.member.guild.id].channel = channel;
+				try{
+					notifyChannel = JSON.parse(notifyChannel);
+				}catch(error){
+					if(error) return sendError("Parsing Notify Channels File");
 				}
+				if(getChannelByName(message.guild, channel) !== null){
+					if(!(notifyChannel.hasOwnProperty(message.member.guild.id))){
+						notifyChannel[message.member.guild.id] = {
+							channel: channel,
+							notify: true
+						}
+					} else{
+						notifyChannel[message.member.guild.id].channel = channel;
+					}
 
 
-				fs.writeFile(file, JSON.stringify(notifyChannel, null, '\t'), error =>{
-					if(error) return sendError("Writing Data to Notify Channels File", error, mChannel);
+					fs.writeFile(file, JSON.stringify(notifyChannel, null, '\t'), error =>{
+						if(error) return sendError("Writing Notify Channels File", error, mChannel);
 
-					mChannel.sendMessage("Channel `" + channel + "` set as default notifications channel");
-				});
-			}else{
-				mChannel.sendMessage("No channel found with that name");
-			}
+						mChannel.sendMessage("Channel `" + channel + "` set as default notifications channel");
+					});
+				}else{
+					mChannel.sendMessage("No channel found with that name");
+				}
+			});
 		}
 	}
 
 	// Enables or disables streaming notifcations on a server
 	if(isCommand(mContent, 'notify') && isAdmin(message)){
 		var file = './config/notifychannels.json';
-		try{
-			notifyChannel = fs.readFileSync(file);
-			notifyChannel = JSON.parse(notifyChannel);
-		}catch(error){
-			if(error) return sendError("Reading Stream Black List File", error, mChannel);
-		}
-
-		if(!(notifyChannel.hasOwnProperty(message.member.guild.id))){
-			notifyChannel[message.member.guild.id] = {
-				channel: "general",
-				notify: true
+		fs.readFile(file, (error, notifyChannel) =>{
+			if(error) return sendError("Reading Notify Channels File", error, mChannel);
+			try{
+				notifyChannel = JSON.parse(notifyChannel);
+			}catch(error){
+				if(error) return sendError("Parsing Notify Channels File", error, mChannel);
 			}
-		} else{
-			if(notifyChannel[message.member.guild.id].notify){
-				notifyChannel[message.member.guild.id].notify = false;
+
+			if(!(notifyChannel.hasOwnProperty(message.member.guild.id))){
+				notifyChannel[message.member.guild.id] = {
+					channel: "general",
+					notify: true
+				}
 			} else{
-				notifyChannel[message.member.guild.id].notify = true;
+				if(notifyChannel[message.member.guild.id].notify){
+					notifyChannel[message.member.guild.id].notify = false;
+				} else{
+					notifyChannel[message.member.guild.id].notify = true;
+				}
 			}
-		}
 
-		if(notifyChannel[message.member.guild.id].notify){
-			mChannel.sendMessage("Notifications for this server set to `true`");
-		} else{
-			mChannel.sendMessage("Notifications for this server set to `false`");
-		}
+			if(notifyChannel[message.member.guild.id].notify){
+				mChannel.sendMessage("Notifications for this server set to `true`");
+			} else{
+				mChannel.sendMessage("Notifications for this server set to `false`");
+			}
 
-		fs.writeFile(file, JSON.stringify(notifyChannel, null, '\t'), error =>{
-			if(error) return sendError("Reading Stream Black List File", error, mChannel);			
+			fs.writeFile(file, JSON.stringify(notifyChannel, null, '\t'), error =>{
+				if(error) return sendError("Reading Stream Black List File", error, mChannel);			
+			});
 		});
 	}
 
