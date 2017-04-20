@@ -163,6 +163,7 @@ bot.on('message', message => {
 
 	if(isCommand(mContent, 'exit') && isAdmin(message)){
 		bot.destroy();
+		return;
 	}
 
 	if(isCommand(mContent, 'setgame') && isAdmin(message)){
@@ -171,6 +172,7 @@ bot.on('message', message => {
 			setGame(game);
 			botLog("Game set to: " + game);
 		}
+		return;
 	}
 
 	// Sets the preferred channel for live streaming notifications
@@ -206,6 +208,7 @@ bot.on('message', message => {
 				}
 			});
 		}
+		return;
 	}
 
 	// Enables or disables streaming notifcations on a server
@@ -242,12 +245,14 @@ bot.on('message', message => {
 				if(error) return sendError("Reading Stream Black List File", error, mChannel);			
 			});
 		});
+		return;
 	}
 
 	// GENERAL commands
 
   	if(isCommand(mContent, 'help')){
   		message.channel.sendMessage("**Help**\nIn progress!");
+  		return;
   	}
 
   	if(isCommand(mContent, 'about')){
@@ -259,16 +264,19 @@ bot.on('message', message => {
   			"\n**Source:** <https://github.com/Mesmaroth/discord-AkephalosBot>"
 
   		message.channel.sendFile( bot.user.displayAvatarURL, 'botAvatar.jpg', content);
+  		return;
   	}
 
   	if(isCommand(message.content, 'source')){
   		message.channel.sendMessage("**Source:** https://github.com/Mesmaroth/discord-AkephalosBot");
+  		return;
   	}
 
   	if(isCommand(mContent, 'invite')){
   		bot.generateInvite().then( link =>{
   			mChannel.sendMessage("**Invite:** " + link);
   		});
+  		return;
   	}
 
   	if(isCommand(mContent, 'uptime')){
@@ -287,6 +295,7 @@ bot.on('message', message => {
 		}
 
   		mChannel.sendMessage("**Uptime:** " + uptimeHours + " hour(s) : " + uptimeMinutes + " minute(s) : " + uptimeSeconds +" second(s)");
+  		return;
   	}
 
   	if(isCommand(mContent, 'twitch')){
@@ -307,6 +316,7 @@ bot.on('message', message => {
   				}		
   			});
   		}
+  		return;
   	}
 
   	if(isCommand(mContent, 'hitbox')){
@@ -327,9 +337,70 @@ bot.on('message', message => {
   				}
   			});
   		}
+  		return;
   	}
 
-  	// 102910652447752192
+  	if(isCommand(mContent, 'commands')){
+  		if(mContent.indexOf(' ') !== -1){
+  			var param = mContent.split(' ')[1];
+
+  			if(param.toLowerCase() === "global"){
+  				fs.readFile('./config/botCommands.json', (error, commands)=>{
+	  				if(error) return sendError("Reading Bot Commands Config File", error, mChannel);
+
+					try{
+						commands = JSON.parse(commands);  			
+					}catch(error){
+						if(error) return sendError("Parsing Bot Commands Config File", error, mChannel);
+					}
+
+					if(commands.hasOwnProperty("GLOBAL")){
+						var globalCommands = commands["GLOBAL"];
+						var commands = [];
+
+						for(var i = 0; i < globalCommands.length; i++){
+							commands.push("**"+(i+1) + ".** " + globalCommands[i].command);
+						}
+
+						if(commands.length > 0)
+							mChannel.sendMessage("**Commands**\n" + commands.join('\n'));
+						else
+							mChannel.sendMessage("No commands found on this server");
+					}else{
+						mChannel.sendMessage("No commands found on this server");
+					}
+	  			});
+  			}
+  		}else{
+  			fs.readFile('./config/botCommands.json', (error, commands)=>{
+  				if(error) return sendError("Reading Bot Commands Config File", error, mChannel);
+
+				try{
+					commands = JSON.parse(commands);  			
+				}catch(error){
+					if(error) return sendError("Parsing Bot Commands Config File", error, mChannel);
+				}
+
+				if(commands.hasOwnProperty(mGuild.id)){
+					var serverCommands = commands[mGuild.id];
+					var commands = [];
+
+					for(var i = 0; i < serverCommands.length; i++){
+						commands.push("**"+(i+1) + ".** " + serverCommands[i].command);
+					}
+
+					if(commands.length > 0)
+						mChannel.sendMessage("**Commands**\n" + commands.join('\n'));
+					else
+						mChannel.sendMessage("No commands found on this server");
+				}else{
+					mChannel.sendMessage("No commands found on this server");
+				}
+  			});
+  		}
+  	}
+
+  	// Custom commands
 	fs.readFile('./config/botCommands.json', (error, commands) =>{
 		if(error) return sendError("Reading Bot Commands Config File", error, mChannel);
 
