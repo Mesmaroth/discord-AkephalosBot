@@ -368,6 +368,40 @@ bot.on('message', message => {
 		return;
 	}
 
+	// Deleting custom commands
+	if(isCommand(mContent, 'delcmd') && isAdmin(message)){
+  		if(mContent.indexOf(' ') !== -1){
+  			var input = mContent.split(' ')[1];
+
+  			var file = './config/botCommands.json';
+
+  			fs.readFile(file, (error, commands) =>{
+  				if(error) return sendError("Reading Bot Commands File", error, mChannel);
+  				try{
+  					commands = JSON.parse(commands);
+  				}catch(error){
+  					if(error) return sendError("Parsing Bot Commands File", error, mChannel);  					
+  				}
+
+  				if(commands.hasOwnProperty(mGuild.id)){
+  					for(var i = 0; i < commands[mGuild.id].length; i++){
+  						if(commands[mGuild.id][i].command === input.toLowerCase()){
+  							var commandName = commands[mGuild.id][i].command;
+  							commands[mGuild.id].splice(i, 1);
+  							fs.writeFile(file, JSON.stringify(commands, null, '\t'), error =>{
+  								if(error) return sendError("Writng to Bot Commands File", error, mChannel);
+  								mChannel.sendMessage("Command `" + commandName + "` removed");
+  							}); 
+  							return;							
+  						}
+  					}
+  					mChannel.sendMessage("Command not found");
+  				}
+  			});
+  		}
+  		return;
+  	}
+
 	// GENERAL commands
 
   	if(isCommand(mContent, 'help')){
@@ -460,6 +494,7 @@ bot.on('message', message => {
   		return;
   	}
 
+  	// Display commands
   	if(isCommand(mContent, 'commands')){
   		var botCommandsFile = './config/botCommands.json';
   		if(mContent.indexOf(' ') !== -1){
