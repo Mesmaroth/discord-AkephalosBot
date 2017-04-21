@@ -348,8 +348,22 @@ bot.on('message', message => {
 				 			 });
 				 		}
 				 	 }
+				 })
+				 .catch(error =>{
+				 	if(error) return sendError('Getting Messages', error, mChannel);
 				 });
 			}
+		} else{
+			mChannel.fetchMessages({limit: 100})
+			.then(messages =>{
+				mChannel.bulkDelete(messages)
+		 	 	.catch(error=>{
+		 	 		if(error) return sendError('Deleting Messages', error, mChannel);
+		 		});
+			})
+			.catch(error =>{
+			 	if(error) return sendError('Getting Messages', error, mChannel);
+			 });
 		}
 		return;
 	}
