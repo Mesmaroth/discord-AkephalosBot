@@ -1,13 +1,6 @@
 {
 	"GLOBAL": [
 		{
-			"command": "!source",
-			"type": "text",
-			"message": "**Akephalos Source Code**\n**Link**: https://github.com/Mesmaroth/discord-AkephalosBot",
-			"editable": false,
-			"comment": "Source code on GitHub"
-		},
-		{
 			"command": "!ping",
 			"type": "text",
 			"message": "pong",
