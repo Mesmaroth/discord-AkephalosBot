@@ -356,14 +356,16 @@ bot.on('message', message => {
 
 					if(commands.hasOwnProperty("GLOBAL")){
 						var globalCommands = commands["GLOBAL"];
-						var commands = [];
+						var cmds = [];
 
 						for(var i = 0; i < globalCommands.length; i++){
-							commands.push("**"+(i+1) + ".** " + globalCommands[i].command);
+							cmds.push("**"+(i+1) + ".** " + globalCommands[i].command);
 						}
 
-						if(commands.length > 0)
-							mChannel.sendMessage("**Commands**\n" + commands.join('\n'));
+						if(cmds.length > 0)
+							while(cmds.length !== 0){
+								mChannel.sendMessage("**Commands**\n" + cmds.splice(0,30).join('\n'));
+							}
 						else
 							mChannel.sendMessage("No commands found on this server");
 					}else{
@@ -383,14 +385,16 @@ bot.on('message', message => {
 
 				if(commands.hasOwnProperty(mGuild.id)){
 					var serverCommands = commands[mGuild.id];
-					var commands = [];
+					var cmds = [];
 
 					for(var i = 0; i < serverCommands.length; i++){
-						commands.push("**"+(i+1) + ".** " + serverCommands[i].command);
+						cmds.push("**"+(i+1) + ".** " + serverCommands[i].command);
 					}
 
-					if(commands.length > 0)
-						mChannel.sendMessage("**Commands**\n" + commands.join('\n'));
+					if(cmds.length > 0)
+						while(cmds.length !== 0){
+							mChannel.sendMessage("**Commands**\n" + cmds.splice(0,30).join('\n'));
+						}
 					else
 						mChannel.sendMessage("No commands found on this server");
 				}else{
