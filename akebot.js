@@ -341,11 +341,12 @@ bot.on('message', message => {
   	}
 
   	if(isCommand(mContent, 'commands')){
+  		var botCommandsFile = './config/botCommands.json';
   		if(mContent.indexOf(' ') !== -1){
   			var param = mContent.split(' ')[1];
 
   			if(param.toLowerCase() === "global"){
-  				fs.readFile('./config/botCommands.json', (error, commands)=>{
+  				fs.readFile(botCommandsFile, (error, commands)=>{
 	  				if(error) return sendError("Reading Bot Commands Config File", error, mChannel);
 
 					try{
@@ -374,7 +375,7 @@ bot.on('message', message => {
 	  			});
   			}
   		}else{
-  			fs.readFile('./config/botCommands.json', (error, commands)=>{
+  			fs.readFile(botCommandsFile, (error, commands)=>{
   				if(error) return sendError("Reading Bot Commands Config File", error, mChannel);
 
 				try{
@@ -387,16 +388,22 @@ bot.on('message', message => {
 					var serverCommands = commands[mGuild.id];
 					var cmds = [];
 
+					if(commands[mGuild.id].length === 0){
+						mChannel.sendMessage("No Commands found on this server");
+						delete commands[mGuild.id];
+						fs.writeFile(botCommandsFile, JSON.stringify(commands, null, '\t'), error =>{
+							if(error) return sendError('Writing to Bot Commands File', error, mChannel);
+						});
+						return;
+					}					
+
 					for(var i = 0; i < serverCommands.length; i++){
 						cmds.push("**"+(i+1) + ".** " + serverCommands[i].command);
 					}
 
-					if(cmds.length > 0)
-						while(cmds.length !== 0){
-							mChannel.sendMessage("**Commands**\n" + cmds.splice(0,30).join('\n'));
-						}
-					else
-						mChannel.sendMessage("No commands found on this server");
+					while(cmds.length !== 0){
+						mChannel.sendMessage("**Commands**\n" + cmds.splice(0,30).join('\n'));
+					}
 				}else{
 					mChannel.sendMessage("No commands found on this server");
 				}
