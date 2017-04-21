@@ -1,0 +1,88 @@
+{
+	"GLOBAL": [
+		{
+			"command": "!ping",
+			"type": "text",
+			"message": "pong",
+			"typing": true,
+			"delay": 250,
+			"editable": false,
+			"comment": "Just a test command"
+		},
+		{
+			"command": "!rekt",
+			"command2": "rekt",
+			"type": "text",
+			"message": "https://giphy.com/gifs/rekt-vSR0fhtT5A9by",
+			"editable": false,
+			"comment": "Get rekt m8"
+		},
+		{
+			"command": "!yes",
+			"type": "text",
+			"message": "https://media.giphy.com/media/S3Ot3hZ5bcy8o/giphy.gif",
+			"editable": false,
+			"comment": "Creepy Jack Nicholson"
+		},
+		{
+			"command": "kek",
+			"type": "text",
+			"message": "http://i1.kym-cdn.com/photos/images/list/000/706/368/0cc.gif",
+			"editable": false,
+			"comment": "Top kek"
+		},
+		{
+			"command": "!feelsbad",
+			"type": "image",
+			"file": "pictures/feelsBadMan.png",
+			"filename": "feelsBadMan.png",
+			"editable": false,
+			"comment": "FeelsGood Pepe"
+		},
+		{
+			"command": "!feelsgood",
+			"type": "image",
+			"file": "pictures/feelsGoodMan.png",
+			"filename": "feelsGoodMan.png",
+			"editable": false,
+			"comment": "FeelsBad Pepe"
+		},
+		{
+			"command": "!whoa",
+			"type": "image",
+			"file": "pictures/whoaMan.jpg",
+			"filename": "whoaMan.jpg",
+			"editable": false,
+			"comment": "Just take it easy man."
+		},
+		{
+			"command": "!bmj",
+			"type": "text",
+			"message": "http://cdn.makeagif.com/media/9-13-2015/28JfPx.gif",
+			"editable": false,
+			"comment": "John Cena"
+		},
+		{
+			"command": "!doit",
+			"type": "text",
+			"message": "https://media.giphy.com/media/TCaq4FekwSV5m/giphy.gif",
+			"editable": false,
+			"comment": "Shia Lebouf"
+		},
+		{
+			"command": "!neil",
+			"type": "image",
+			"file": "pictures/neil.png",
+			"filename": "neil.png",
+			"editable": false,
+			"comment": "Neil Degrasse Tyson"
+		},
+		{
+			"command": "!nothing",
+			"type": "text",
+			"message": "http://www.neontommy.com/sites/default/files/users/user535/you-lose-wanka-meme-generator-you-get-nothing-you-lose-a68cbb.jpg",
+			"editable": false,
+			"comment": "You get nothing."
+		}
+	]
+}
