@@ -250,6 +250,7 @@ bot.on('message', message => {
 		return;
 	}
 
+	// Deleting messages
 	if(isCommand(mContent, 'purge') && isAdmin(message)){
 		if(mContent.indexOf(' ') !== -1){
 			var param = mContent.split(' ')[1];
@@ -257,11 +258,18 @@ bot.on('message', message => {
 			if(isNumber(param)){
 				param = Number(param);
 				if(param == 0){
-					mChannel.message("o_O ??");
-				}
+					mChannel.sendMessage("o_O ??");
+					return;
+				}				
 
 				if(param > 100)
 					param = 100;
+
+				// Incase the user decides to delete just one message.
+				// It will delete the message that called this and their 1 message
+				if(param === 1){
+					param = 2;
+				}
 
 				mChannel.fetchMessages({limit: param})
 				 .then( messages =>{
