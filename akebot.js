@@ -409,6 +409,7 @@ bot.on('message', message => {
 				}
   			});
   		}
+  		return;
   	}
 
   	// Custom commands
@@ -421,10 +422,22 @@ bot.on('message', message => {
 			if(error) return sendError("Parsing Bot Commands Config File", error, mChannel);
 		}
 
+		// Check each word in a string and see if the command has been called
+		function commandInString(string, word){
+			string = string.split(' ');
+			for(var i = 0; i < string.length; i++){
+				if(string[i].toLowerCase() === word){
+					return true;
+				}
+			}
+			return false;
+		}
+
 		if(commands.hasOwnProperty('GLOBAL')){
 			var globalCommands = commands['GLOBAL'];
 			for(var i = 0; i < globalCommands.length; i++){
-				if(mContent.toLowerCase() === globalCommands[i].command){
+				var inString = commandInString(mContent, globalCommands[i].command);
+				if(mContent.toLowerCase() === globalCommands[i].command || inString){
 					if(globalCommands[i].type === 'text'){
 						mChannel.sendMessage(globalCommands[i].message);
 					}else if(globalCommands[i].type === 'image'){
@@ -445,7 +458,8 @@ bot.on('message', message => {
 		if(commands.hasOwnProperty(mGuild.id)){
 			var serverCommands = commands[mGuild.id];			
 			for(var i = 0; i < serverCommands.length; i++){
-				if(mContent.toLowerCase() === serverCommands[i].command){
+				var inString = commandInString(mContent, serverCommands[i].command)
+				if(mContent.toLowerCase() === serverCommands[i].command || inString){
 					if(serverCommands[i].type === 'text'){
 						mChannel.sendMessage(serverCommands[i].message);
 					}else if(serverCommands[i].type === 'image'){
