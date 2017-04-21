@@ -3,7 +3,7 @@ Easy discord bot written in Node.js for [Discord](http://www.discord.gg) Anyone 
 
 Library: [Discord.js](https://discord.js.org)
 
-Check out Akephalos before installing your own: [Invite Link Here](https://discordapp.com/oauth2/authorize?client_id=158451686627737600&permissions=0&scope=bot)
+Check out Akephalos before installing your own: [Invite Link](https://discordapp.com/oauth2/authorize?client_id=158451686627737600&permissions=0&scope=bot)
 
 ##Features:
  - Twitch notifier
