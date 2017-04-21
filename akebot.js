@@ -250,6 +250,45 @@ bot.on('message', message => {
 		return;
 	}
 
+	if(isCommand(mContent, 'purge') && isAdmin(message)){
+		if(mContent.indexOf(' ') !== -1){
+			var param = mContent.split(' ')[1];
+
+			if(isNumber(param)){
+				param = Number(param);
+				if(param == 0){
+					mChannel.message("o_O ??");
+				}
+
+				if(param > 100)
+					param = 100;
+
+				mChannel.fetchMessages({limit: param})
+				 .then( messages =>{
+				 	if(messages.length > 2){
+				 		mChannel.bulkDelete(messages)
+				 	 .catch(error=>{
+				 	 	if(error) return sendError('Deleting Messages', error, mChannel);
+				 	 });
+				 	}else{
+				 		messages = messages.array();
+				 		for(var i = 0; i < messages.length; i++){
+				 			messages[i].delete()
+				 			 .catch(error =>{
+				 			 	if(error) return sendError('Deleting Message', error, mChannel);
+				 			 });
+				 		}
+
+				 	}
+				 })
+				 .catch(error =>{
+				 	if(error) return sendError('Getting Messages', error, mChannel);
+				 });
+			}
+		}
+		return;
+	}
+
 	// GENERAL commands
 
   	if(isCommand(mContent, 'help')){
