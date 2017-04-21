@@ -4,12 +4,36 @@ Easy discord bot written in Node.js for [Discord](http://www.discord.gg) Anyone 
 Library: [Discord.js](https://discord.js.org)
 
 ##Features:
- - In progress
+ - Twitch notifier
+ - Admin message purging
+ - Custom commands
+ WIP: Sound meme player
 
 ## Installation:
 
 ### Windows
-  - In progress
+  - TODO
 
-## Bot Commands: 
- - In progress
+## Bot Commands
+ ### Admin Commands
+  - `exit`: Disconnects the bot
+  - `setgame [Game Name]`: Set the game presence of the bot
+  - `setchannel [Channel Name]`: Sets the preferred channel to annouce live streams
+  - `notify`: Enable/Disable notifications for when someone goes live
+  - `purge [Amount]`: Deletes the specified amount of starting from the most recent message
+  - `purge [username] [Amount]`: Deletes the specified amount of messages from the specified user. Amount is optional
+
+ ### General Commands
+  - `help`: Display's help prompt
+  - `about`: About this bot
+  - `source`: Source of bot
+  - `invite`: Invite bot to your server
+  - `uptime`: Uptime of bot
+  - `twitch [Username]`: Checks if the user is streaming on Twitch
+  - `hitbox [Username]`: Checks if the user is streaming on Hitbox
+
+ ### Custom Commands
+  - `commands`: Displays current custom commands for your specfic server
+  - `commands global`: Displays global commands that are accessible to all servers
+  - `delcmd [Command name]`: Deletes a command from custom commands
+  WIP: `addcmd`, `editcmd` 
