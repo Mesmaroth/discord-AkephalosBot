@@ -159,6 +159,8 @@ bot.on('message', message => {
 	const mGuild = message.guild;
 	const mMember = message.member;
 
+	if(mMember.user.bot) return;
+
 	// Admin commands
 
 	if(isCommand(mContent, 'exit') && isAdmin(message)){
