@@ -253,7 +253,26 @@ bot.on('message', message => {
 	// Deleting messages
 	if(isCommand(mContent, 'purge') && isAdmin(message)){
 		if(mContent.indexOf(' ') !== -1){
-			var param = mContent.split(' ')[1];
+			var param = mContent.split(' ')[1].toLowerCase();
+			var param2 = (mContent.split(' ')[2]) ? mContent.split(' ')[2].toLowerCase() : null;
+
+			// If nothing is specified the default is 100
+			if(param2){
+				if(isNumber(param2)){
+					param2 = Number(param2);
+				}else{
+					mChannel.sendMessage("Second parameter isn't a number");
+					return;
+				}
+			} else{
+				param2 = 100;
+			}
+
+			if(param === "me")
+				param = mMember.user.username.toLowerCase();
+
+			if(param === "bot")
+				param = bot.user.username.toLowerCase();
 
 			if(isNumber(param)){
 				param = Number(param);
@@ -291,6 +310,44 @@ bot.on('message', message => {
 				 })
 				 .catch(error =>{
 				 	if(error) return sendError('Getting Messages', error, mChannel);
+				 });
+			} else{
+				if(param2 == 0){
+					mChannel.sendMessage("o_O ??");
+					return;
+				}				
+
+				if(param2 > 100)
+					param2 = 100;
+
+				if(param2 === 1){
+					param2 = 2;
+				}
+				mChannel.fetchMessages({limit: param2})
+				 .then( messages =>{
+				 	messages = messages.filter( message =>{
+				 		return message.author.username.toLowerCase() === param
+				 	})
+				 	
+				 	if(!messages.size){
+				 		mChannel.sendMessage("No messages found to delete");
+				 		return;
+				 	}
+
+				 	if(param2 > 2){
+				 		mChannel.bulkDelete(messages)
+				 	 	.catch(error=>{
+				 	 		if(error) return sendError('Deleting Messages', error, mChannel);
+				 		});
+				 	 } else{
+				 	 	messages = messages.array();
+				 	 	for(var i = 0; i < messages.length; i++){
+				 			messages[i].delete()
+				 			 .catch(error =>{
+				 			 	if(error) return sendError('Deleting Message', error, mChannel);
+				 			 });
+				 		}
+				 	 }
 				 });
 			}
 		}
