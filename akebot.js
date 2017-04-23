@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const botLogin = require('./config/botlogin.js');
 const liveStream = require('./modules/livestream.js');
 const fs = require('fs');
+const request = require('request');
 const bot = new Discord.Client();
 bot.login(botLogin.token);
 
@@ -398,6 +399,116 @@ bot.on('message', message => {
   					mChannel.sendMessage("Command not found");
   				}
   			});
+  		}
+  		return;
+  	}
+
+  	if(isCommand(mContent, `addcmd`) && isAdmin(message)){
+  		if(mContent.indexOf(' ') !== -1){
+  			var file = './config/botCommands.json';
+  			var messageArr = mContent.split(' ');
+  			var newCommand = messageArr[1];
+  			var commandType = messageArr[2];
+  			var commandMessage = messageArr[3];
+  			var image = message.attachments.first();
+
+  			if(image && !commandType)
+  				commandType = 'image';
+
+  			if(!commandType){
+  				mChannel.sendMessage("Making a text command with no message? o_O ?");
+  				return;
+  			}
+
+  			if(commandType.toLowerCase() !== 'text'  && commandType.toLowerCase() !== 'image'){
+  				messageArr.splice(0,2);
+  				if(image)
+  					commandType = 'image';
+  				else
+  					commandType = 'text';
+
+  				commandMessage = messageArr.join(' ');
+  			}else{
+  				messageArr.splice(0,3);
+  				commandMessage = messageArr.join(' ');	
+  			}
+
+  			if(commandMessage.length === 0)
+  				commandMessage = null;
+
+  			fs.readFile(file, (error, commands) =>{
+  				if(error) return sendError("Reading Bot Commands File", error, mChannel);
+  				try{
+  					commands = JSON.parse(commands);
+  				}catch(error){
+  					if(error) return sendError("Parsing Bot Commands File", error, mChannel);
+  				}
+
+  				if(!commands.hasOwnProperty(mGuild.id))
+  					commands[mGuild.id] = [];
+  				
+				for(var i = 0; i < commands[mGuild.id].length; i++){
+					if(commands[mGuild.id][i].command === newCommand.toLowerCase()){
+						mChannel.sendMessage("This command has already been added");
+						return;
+					}
+				}
+
+				if(commandType.toLowerCase() === 'text'){
+					commands[mGuild.id].push({
+						command: newCommand,
+						type: commandType.toLowerCase(),
+						message: commandMessage,
+						editable: true
+					});
+
+					
+				} else if(commandType.toLowerCase() === 'image'){
+					if(image){
+						var fileName = newCommand.replace(/[&\/\\#,+()$~%'":*?<>{}|_-]/g,'') + '.' + image.filename.split('.')[1];
+						var filePath = './pictures/' + fileName;
+						request
+						 .get(image.url)
+						 .on('error', error =>{
+						 	if(error) return sendError("Getting Image File", error, mChannel);						 	
+						 })
+						 .pipe(fs.createWriteStream(filePath));
+
+						 if(fs.existsSync(filePath)){
+						 	if(commandMessage){
+								commands[mGuild.id].push({
+									command: newCommand,
+									type: commandType.toLowerCase(),
+									message: commandMessage,
+									file: filePath,
+									filename: fileName,
+									editable: true
+								});
+							} else{
+								commands[mGuild.id].push({
+									command: newCommand,
+									type: commandType.toLowerCase(),
+									file: filePath,
+									filename: fileName,
+									editable: true
+								});
+							}
+						 }
+					}else{
+						mChannel.sendMessage("You must attach an image with your command as the text input");
+						return;
+					}
+				}
+
+				fs.writeFile(file, JSON.stringify(commands, null, '\t'), error =>{
+					if(error) return sendError("Writing to Bot Commands File", error, mChannel);
+
+					mChannel.sendMessage("Command `" + newCommand + "` added");
+				});
+  				 				
+  			});
+
+
   		}
   		return;
   	}
