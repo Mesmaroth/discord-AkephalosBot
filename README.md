@@ -2,10 +2,9 @@
 Easy discord bot written in Node.js for [Discord](http://www.discord.gg) Anyone can edit or modify this project of their own doing, all I ask is to give credit where credit is due.
 
 Library: [Discord.js](https://discord.js.org)
-
 Check out Akephalos before installing your own: [Invite Link](https://discordapp.com/oauth2/authorize?client_id=158451686627737600&permissions=0&scope=bot)
 
-##Features:
+## Features:
  - Twitch notifier
  - Admin message purging
  - Custom commands
@@ -23,7 +22,7 @@ Check out Akephalos before installing your own: [Invite Link](https://discordapp
   - `setchannel [Channel Name]`: Sets the preferred channel to annouce live streams
   - `notify`: Enable/Disable notifications for when someone goes live
   - `purge [Amount]`: Deletes the specified amount of starting from the most recent message
-  - `purge [username] [Amount]`: Deletes the specified amount of messages from the specified user. Amount is optional
+  - `purge [Username] [Amount]`: Deletes the specified amount of messages from the specified user. Amount is optional
 
  ### General Commands
   - `help`: Display's help prompt
@@ -37,5 +36,5 @@ Check out Akephalos before installing your own: [Invite Link](https://discordapp
  ### Custom Commands
   - `commands`: Displays current custom commands for your specfic server
   - `commands global`: Displays global commands that are accessible to all servers
-  - `delcmd [Command name]`: Deletes a command from custom commands
-  WIP: `addcmd`, `editcmd` 
+  - `delcmd [Command Mame]`: Deletes a command from custom commands
+  - `addcmd [Command Name] [Type] [Message]`: Makes a custom command with type `image` or `text`
