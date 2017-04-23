@@ -388,12 +388,20 @@ bot.on('message', message => {
   					for(var i = 0; i < commands[mGuild.id].length; i++){
   						if(commands[mGuild.id][i].command === input.toLowerCase()){
   							var commandName = commands[mGuild.id][i].command;
+
+  							if(commands[mGuild.id][i].type === 'image'){
+  								if(fs.existsSync('./' + commands[mGuild.id][i].file)){
+  									fs.unlinkSync("./" + commands[mGuild.id][i].file);
+  								}
+  							}
+
   							commands[mGuild.id].splice(i, 1);
+
   							fs.writeFile(file, JSON.stringify(commands, null, '\t'), error =>{
   								if(error) return sendError("Writng to Bot Commands File", error, mChannel);
   								mChannel.sendMessage("Command `" + commandName + "` removed");
-  							}); 
-  							return;							
+  							});
+  							return;					
   						}
   					}
   					mChannel.sendMessage("Command not found");
