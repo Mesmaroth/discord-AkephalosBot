@@ -259,12 +259,8 @@ bot.on('message', message => {
 
 			// If nothing is specified the default is 100
 			if(param2){
-				if(isNumber(param2)){
-					param2 = Number(param2);
-				}else{
-					mChannel.sendMessage("Second parameter isn't a number");
-					return;
-				}
+				if(isNumber(param2))
+					param2 = Number(param2) + 1;
 			} else{
 				param2 = 100;
 			}
