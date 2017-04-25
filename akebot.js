@@ -309,7 +309,7 @@ bot.on('message', message => {
 				 	if(error) return sendError('Getting Messages', error, mChannel);
 				 });
 			} else{
-				if(param2 == 0){
+				if(param2 <= 0){
 					mChannel.sendMessage("o_O ??");
 					return;
 				}				
