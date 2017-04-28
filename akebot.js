@@ -639,7 +639,7 @@ bot.on('message', message => {
 	  				name: "Source",
 	  				value: "https://github.com/Mesmaroth/discord-AkephalosBot",
 	  				inline: false
-	  			}]
+	  			}]	  			
 	  		}
   		}).catch(error =>{
   		 	if(error) sentMessageError(error, mChannel);
@@ -686,19 +686,36 @@ bot.on('message', message => {
   		if(mContent.indexOf(' ') !== -1){
   			var name = mContent.split(' ')[1];
 
-  			liveStream.getTwitchStream(name, (error, status, gameTitle, streamURL)=> {
+  			liveStream.getTwitchStream(name, (error, status, gameTitle, streamURL, thumbnailURL)=> {
   				if(error) return sendError("Getting Twitch Stream Data", error, mChannel);
   				if(status){
-  					mChannel.sendMessage(
-  					"**Twitch**\n**Name:** " + name +
-  					"\n**Status:** `Online`\n**Game:** " + gameTitle +
-  					"\n**URL:** " + streamURL).catch(error =>{
+  					mChannel.sendMessage("**Twitch**\n", {
+  						embed: {
+  							color: 10181046,
+  							title: "LIVE",
+  							thumbnail:{
+  								url: thumbnailURL
+  							},
+  							description: "**Name:** " + name +
+  							"\n**Status:** `Online`\n**Game:** " + gameTitle+
+  							"\n**URL:** " + streamURL
+  						}
+  					}).catch(error =>{
 			  		 	if(error) sentMessageError(error, mChannel);
 			  		});  	
   				} else{
-  					mChannel.sendMessage(
-  						"**Twitch**\n**Name:** " + name +
-  						"\n**Status:** `Offline`").catch(error =>{
+  					mChannel.sendMessage("**Twitch**", {
+  							embed: {
+  								color: 10181046,
+  								title: "OFFLINE",
+  								thumbnail: {
+  									url: "https://pbs.twimg.com/profile_images/509073338191183872/fYdty6yd.png"
+  								},
+  								description: "**Name:** " + name +
+  								"\n**Status:** `Offline`"
+
+  							}
+  						}).catch(error =>{
 			  		 	if(error) sentMessageError(error, mChannel);
 			  		});
   				}		
@@ -711,19 +728,34 @@ bot.on('message', message => {
   		if(mContent.indexOf(' ')!== -1){
   			var name = mContent.split(' ')[1];
 
-  			liveStream.getHitboxStream(name, (error, status, gameTitle, streamURL) =>{
+  			liveStream.getHitboxStream(name, (error, status, gameTitle, streamURL, thumbnailURL) =>{
   				if(error) return sendError("Getting HitBox Stream Data", error, mChannel);
   				if(status){
-  					mChannel.sendMessage(
-  					"**HitBox**\n**Name:**" + name +
-  					"\n**Status:** `Online`\n**Game:** " + gameTitle +
-  					"\n**URL:** " + streamURL).catch(error =>{
-			  		 	if(error) sentMessageError(error, mChannel);
-			  		});
+  					mChannel.sendMessage("**HitBox**\n", {
+  						embed: {
+  							color: 1752220,
+  							title: "LIVE",
+  							thumbnail:{
+  								url: thumbnailURL
+  							},
+  							description: "**Name:** " + name +
+  							"\n**Status:** `Online`\n**Game:** " + gameTitle+
+  							"\n**URL:** " + streamURL
+  						}
+  					});
   				} else{
-  					mChannel.sendMessage(
-  					"**HitBox**\n**Name:**" + name +
-  					"\n**Status:** `Offline`").catch(error =>{
+  					mChannel.sendMessage("**HitBox**", {
+  							embed: {
+  								color: 1752220,
+  								title: "OFFLINE",
+  								thumbnail:{
+  									url: "https://i.imgur.com/QdNLUPH.png"
+  								},
+  								description: "**Name:** " + name +
+  								"\n**Status:** `Offline`"
+
+  							}
+  						}).catch(error =>{
 			  		 	if(error) sentMessageError(error, mChannel);
 			  		});
   				}
@@ -851,7 +883,7 @@ bot.on('message', message => {
   		return;
   	}
 
-  	// Custom commands
+  	// Reading Custom Commands
 	fs.readFile('./config/botCommands.json', (error, commands) =>{
 		if(error) return sendError("Reading Bot Commands Config File", error, mChannel);
 
