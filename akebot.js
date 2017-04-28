@@ -104,6 +104,12 @@ function fileExist(path, data){
 //	Credit: https://stackoverflow.com/questions/1303646/check-whether-variable-is-number-or-string-in-javascript#1303650
 function isNumber(obj) {	
 	return !isNaN(parseFloat(obj))
+}
+
+function sentMessageError(error, mChannel){
+	var guild = mChannel.guild;
+	var channel = getChannelByName(guild, "general");
+	sendError("Sending message", error, channel);
 }	
 
 bot.on('ready', () => {
@@ -148,7 +154,9 @@ bot.on('presenceUpdate', (oldGuildMember, newGuildMember) =>{
 			if(notifyChannel[newGuildMember.guild.id].notify){
 				textChannel.sendMessage("**LIVE**\n" +
 				newGuildMember.user.username + " is now streaming!\n**Title:** " + newGuildMember.presence.game.name +
-				"\n**URL:** " + newGuildMember.presence.game.url);
+				"\n**URL:** " + newGuildMember.presence.game.url).catch(error =>{
+		  		 	if(error) sentMessageError(error, mChannel);
+		  		});
 			}
 		}
 	}		
@@ -204,10 +212,14 @@ bot.on('message', message => {
 					fs.writeFile(file, JSON.stringify(notifyChannel, null, '\t'), error =>{
 						if(error) return sendError("Writing Notify Channels File", error, mChannel);
 
-						mChannel.sendMessage("Channel `" + channel + "` set as default notifications channel");
+						mChannel.sendMessage("Channel `" + channel + "` set as default notifications channel").catch(error =>{
+				  		 	if(error) sentMessageError(error, mChannel);
+				  		});
 					});
 				}else{
-					mChannel.sendMessage("No channel found with that name");
+					mChannel.sendMessage("No channel found with that name").catch(error =>{
+			  		 	if(error) sentMessageError(error, mChannel);
+			  		});
 				}
 			});
 		}
@@ -239,9 +251,13 @@ bot.on('message', message => {
 			}
 
 			if(notifyChannel[message.member.guild.id].notify){
-				mChannel.sendMessage("Notifications for this server set to `true`");
+				mChannel.sendMessage("Notifications for this server set to `true`").catch(error =>{
+	  		 	if(error) sentMessageError(error, mChannel);
+	  		});
 			} else{
-				mChannel.sendMessage("Notifications for this server set to `false`");
+				mChannel.sendMessage("Notifications for this server set to `false`").catch(error =>{
+		  		 	if(error) sentMessageError(error, mChannel);
+		  		});
 			}
 
 			fs.writeFile(file, JSON.stringify(notifyChannel, null, '\t'), error =>{
@@ -327,7 +343,9 @@ bot.on('message', message => {
 				 	})
 				 	
 				 	if(!messages.size){
-				 		mChannel.sendMessage("No messages found to delete");
+				 		mChannel.sendMessage("No messages found to delete").catch(error =>{
+				  		 	if(error) sentMessageError(error, mChannel);
+				  		});
 				 		return;
 				 	}
 
@@ -395,12 +413,16 @@ bot.on('message', message => {
 
   							fs.writeFile(file, JSON.stringify(commands, null, '\t'), error =>{
   								if(error) return sendError("Writng to Bot Commands File", error, mChannel);
-  								mChannel.sendMessage("Command `" + commandName + "` removed");
+  								mChannel.sendMessage("Command `" + commandName + "` removed").catch(error =>{
+						  		 	if(error) sentMessageError(error, mChannel);
+						  		});
   							});
   							return;					
   						}
   					}
-  					mChannel.sendMessage("Command not found");
+  					mChannel.sendMessage("Command not found").catch(error =>{
+			  		 	if(error) sentMessageError(error, mChannel);
+			  		});
   				}
   			});
   		}
@@ -420,7 +442,9 @@ bot.on('message', message => {
   				commandType = 'image';
 
   			if(!commandType){
-  				mChannel.sendMessage("Making a text command with no message? o_O ?");
+  				mChannel.sendMessage("Making a text command with no message? o_O ?").catch(error =>{
+		  		 	if(error) sentMessageError(error, mChannel);
+		  		});
   				return;
   			}
 
@@ -453,7 +477,9 @@ bot.on('message', message => {
   				
 				for(var i = 0; i < commands[mGuild.id].length; i++){
 					if(commands[mGuild.id][i].command === newCommand.toLowerCase()){
-						mChannel.sendMessage("This command has already been added");
+						mChannel.sendMessage("This command has already been added").catch(error =>{
+				  		 	if(error) sentMessageError(error, mChannel);
+				  		});
 						return;
 					}
 				}
@@ -499,15 +525,18 @@ bot.on('message', message => {
 							}
 						 }
 					}else{
-						mChannel.sendMessage("You must attach an image with your command as the text input");
+						mChannel.sendMessage("You must attach an image with your command as the text input").catch(error =>{
+				  		 	if(error) sentMessageError(error, mChannel);
+				  		});
 						return;
 					}
 				}
 
 				fs.writeFile(file, JSON.stringify(commands, null, '\t'), error =>{
 					if(error) return sendError("Writing to Bot Commands File", error, mChannel);
-
-					mChannel.sendMessage("Command `" + newCommand + "` added");
+					mChannel.sendMessage("Command `" + newCommand + "` added").catch(error =>{
+			  		 	if(error) sentMessageError(error, mChannel);
+			  		});
 				});
   				 				
   			});
@@ -591,12 +620,16 @@ bot.on('message', message => {
 	  				inline: false
 	  			}]
 	  		}
-  		});
+  		}).catch(error =>{
+  		 	if(error) sentMessageError(error, mChannel);
+  		});;
   		return;
   	}
 
   	if(isCommand(message.content, 'source')){
-  		mChannel.sendMessage("**Source:** https://github.com/Mesmaroth/discord-AkephalosBot");
+  		mChannel.sendMessage("**Source:** https://github.com/Mesmaroth/discord-AkephalosBot").catch(error =>{
+  		 	if(error) sentMessageError(error, mChannel);
+  		});;
   		return;
   	}
 
@@ -622,7 +655,9 @@ bot.on('message', message => {
 			uptimeMinutes = Math.floor(uptimeMinutes % 60);
 		}
 
-  		mChannel.sendMessage("**Uptime:** " + uptimeHours + " hour(s) : " + uptimeMinutes + " minute(s) : " + uptimeSeconds +" second(s)");
+  		mChannel.sendMessage("**Uptime:** " + uptimeHours + " hour(s) : " + uptimeMinutes + " minute(s) : " + uptimeSeconds +" second(s)").catch(error =>{
+  		 	if(error) sentMessageError(error, mChannel);
+  		});;
   		return;
   	}
 
@@ -636,11 +671,15 @@ bot.on('message', message => {
   					mChannel.sendMessage(
   					"**Twitch**\n**Name:** " + name +
   					"\n**Status:** `Online`\n**Game:** " + gameTitle +
-  					"\n**URL:** " + streamURL);  	
+  					"\n**URL:** " + streamURL).catch(error =>{
+			  		 	if(error) sentMessageError(error, mChannel);
+			  		});  	
   				} else{
   					mChannel.sendMessage(
   						"**Twitch**\n**Name:** " + name +
-  						"\n**Status:** `Offline`");
+  						"\n**Status:** `Offline`").catch(error =>{
+			  		 	if(error) sentMessageError(error, mChannel);
+			  		});
   				}		
   			});
   		}
@@ -657,11 +696,15 @@ bot.on('message', message => {
   					mChannel.sendMessage(
   					"**HitBox**\n**Name:**" + name +
   					"\n**Status:** `Online`\n**Game:** " + gameTitle +
-  					"\n**URL:** " + streamURL);
+  					"\n**URL:** " + streamURL).catch(error =>{
+			  		 	if(error) sentMessageError(error, mChannel);
+			  		});
   				} else{
   					mChannel.sendMessage(
   					"**HitBox**\n**Name:**" + name +
-  					"\n**Status:** `Offline`");
+  					"\n**Status:** `Offline`").catch(error =>{
+			  		 	if(error) sentMessageError(error, mChannel);
+			  		});
   				}
   			});
   		}
@@ -712,11 +755,17 @@ bot.on('message', message => {
 									color: 15105570,
 									fields: fields
 								}
-							});
+							}).catch(error =>{
+					  		 	if(error) sentMessageError(error, mChannel);
+					  		});
 						else
-							mChannel.sendMessage("No commands found on this server");
+							mChannel.sendMessage("No commands found on this server").catch(error =>{
+					  		 	if(error) sentMessageError(error, mChannel);
+					  		});
 					}else{
-						mChannel.sendMessage("No Global commands found on this server");
+						mChannel.sendMessage("No Global commands found on this server").catch(error =>{
+				  		 	if(error) sentMessageError(error, mChannel);
+				  		});
 					}
 	  			});
   			}
@@ -737,7 +786,9 @@ bot.on('message', message => {
 					var fields = [];
 
 					if(commands[mGuild.id].length === 0){
-						mChannel.sendMessage("No Commands found on this server");
+						mChannel.sendMessage("No Commands found on this server").catch(error =>{
+				  		 	if(error) sentMessageError(error, mChannel);
+				  		});
 						delete commands[mGuild.id];
 						fs.writeFile(botCommandsFile, JSON.stringify(commands, null, '\t'), error =>{
 							if(error) return sendError('Writing to Bot Commands File', error, mChannel);
@@ -766,9 +817,13 @@ bot.on('message', message => {
 							color: 3447003,
 							fields: fields
 						}
-					});
+					}).catch(error =>{
+			  		 	if(error) sentMessageError(error, mChannel);
+			  		});
 				}else{
-					mChannel.sendMessage("No commands found on this server");
+					mChannel.sendMessage("No commands found on this server").catch(error =>{
+			  		 	if(error) sentMessageError(error, mChannel);
+			  		});
 				}
   			});
   		}
@@ -802,7 +857,9 @@ bot.on('message', message => {
 				var inString = commandInString(mContent, globalCommands[i].command);
 				if(mContent.toLowerCase() === globalCommands[i].command || inString){
 					if(globalCommands[i].type === 'text'){
-						mChannel.sendMessage(globalCommands[i].message);
+						mChannel.sendMessage(globalCommands[i].message).catch(error =>{
+				  		 	if(error) sentMessageError(error, mChannel);
+				  		});
 					}else if(globalCommands[i].type === 'image'){
 						if(!fs.existsSync(globalCommands[i].file)){
 							return sendError("Reading Custom Commands File", {name: "No file found: " + serverCommands[i].file, message: "File not found."}, mChannel);
@@ -824,7 +881,9 @@ bot.on('message', message => {
 				var inString = commandInString(mContent, serverCommands[i].command)
 				if(mContent.toLowerCase() === serverCommands[i].command || inString){
 					if(serverCommands[i].type === 'text'){
-						mChannel.sendMessage(serverCommands[i].message);
+						mChannel.sendMessage(serverCommands[i].message).catch(error =>{
+				  		 	if(error) sentMessageError(error, mChannel);
+				  		});
 					}else if(serverCommands[i].type === 'image'){
 						if(!fs.existsSync(serverCommands[i].file)){
 							return sendError("Reading Custom Commands File", {name: "No file found: " + serverCommands[i].file, message: "File not found"}, mChannel);
