@@ -30,7 +30,7 @@ try{
 		console.log("----------------------");
 	}
 }
-var CMDINT = "!";
+var CMDINT = "?";
 var defaultStatus = "v"+botVersion + " | " + CMDINT + "help";
 
 // Checks if the message is a command input from the user
@@ -564,12 +564,12 @@ bot.on('message', message => {
 
   		var customCommands = [
   			'cmd', 'addcmd',
-  			'editcmd', 'delcmd'
+  			'editcmd*', 'delcmd*'
   		]
 
   		var sounds = [
   			'sounds', 'addsound',
-  			'delsound', 'editsound'
+  			'delsound*', 'editsound*'
   		]
 
   		function reList(command){
@@ -588,7 +588,7 @@ bot.on('message', message => {
   			embed: {
   				color: 10181046,
   				fields: [{
-  					name: "Admin Commands",
+  					name: "Admin Commands*",
   					value: adminCommands.join('\n'),
   					inline: true
   				}, {
@@ -603,7 +603,10 @@ bot.on('message', message => {
   					name: "Sounds",
   					value: sounds.join('\n'),
   					inline: true
-  				}]
+  				}],
+  				footer: {
+	  				text: "*Needs to be in role \"Admin\""
+	  			}
   			}
   		}).catch(error =>{
   		 	if(error) sentMessageError(error, mChannel);
