@@ -168,7 +168,9 @@ bot.on('message', message => {
 	const mGuild = message.guild;
 	const mMember = message.member;
 
-	if(mMember.user.bot) return;
+	if(mMember){
+		if(mMember.user.bot) return;
+	}
 
 	// Admin commands
 
