@@ -549,28 +549,40 @@ bot.on('message', message => {
 	// GENERAL commands
 
   	if(isCommand(mContent, 'help')){
-  		generalCommands = [
+  		var generalCommands = [
   			'about', 'help',
   			'commands',
   			'invite', 'uptime',
   			'source', 'twitch',
   			'hitbox'];
 
-  		adminCommands = [
+  		var adminCommands = [
   			'setgame', 'delcmd',
   			'addcmd', 'purge',
   			'notify', 'setchannel',
   			'exit'];
 
-  		function re(command){
+  		var customCommands = [
+  			'cmd', 'addcmd',
+  			'editcmd', 'delcmd'
+  		]
+
+  		var sounds = [
+  			'sounds', 'addsound',
+  			'delsound', 'editsound'
+  		]
+
+  		function reList(command){
   			for(var i = 0; i < command.length; i++){
   				command[i] = "**" + (i+1) + ".**  " + CMDINT + command[i];
   			}
   			return command;
   		}
 
-  		adminCommands = re(adminCommands);
-  		generalCommands = re(generalCommands);
+  		adminCommands = reList(adminCommands);
+  		generalCommands = reList(generalCommands);
+  		customCommands = reList(customCommands);
+  		sounds = reList(sounds);
 
   		mChannel.sendMessage("**Help**", {
   			embed: {
@@ -579,14 +591,23 @@ bot.on('message', message => {
   					name: "Admin Commands",
   					value: adminCommands.join('\n'),
   					inline: true
-  				},{
+  				}, {
   					name: "General Commands",
   					value: generalCommands.join('\n'),
   					inline: true
+  				}, {
+  					name: "Custom Commands",
+  					value: customCommands.join('\n'),
+  					inline: true
+  				}, {
+  					name: "Sounds",
+  					value: sounds.join('\n'),
+  					inline: true
   				}]
   			}
-  		})
-  		 .catch(console.error);
+  		}).catch(error =>{
+  		 	if(error) sentMessageError(error, mChannel);
+  		});
   		return;
   	}
 
