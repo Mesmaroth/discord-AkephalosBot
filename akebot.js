@@ -567,9 +567,7 @@ bot.on('message', message => {
 	  		embed:{
 	  			color: 10181046,
 	  			thumbnail: {
-	  				url: bot.user.displayAvatarURL,
-	  				height: 50,
-	  				width: 50
+	  				url: bot.user.displayAvatarURL
 	  			},
 	  			fields:[{
 	  				name: "Bot Version",
