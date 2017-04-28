@@ -671,12 +671,12 @@ bot.on('message', message => {
   	}
 
   	// Display commands
-  	if(isCommand(mContent, 'commands')){
+  	if(isCommand(mContent, 'commands') || isCommand(mContent, 'c')){
   		var botCommandsFile = './config/botCommands.json';
   		if(mContent.indexOf(' ') !== -1){
   			var param = mContent.split(' ')[1];
 
-  			if(param.toLowerCase() === "global"){
+  			if(param.toLowerCase() === "global" || param.toLowerCase() === 'g'){
   				fs.readFile(botCommandsFile, (error, commands)=>{
 	  				if(error) return sendError("Reading Bot Commands Config File", error, mChannel);
 
