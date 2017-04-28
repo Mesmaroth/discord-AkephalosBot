@@ -543,7 +543,7 @@ bot.on('message', message => {
   		adminCommands = re(adminCommands);
   		generalCommands = re(generalCommands);
 
-  		mChannel.sendMessage("**Bot Commands**", {
+  		mChannel.sendMessage("**Help**", {
   			embed: {
   				color: 10181046,
   				fields: [{
