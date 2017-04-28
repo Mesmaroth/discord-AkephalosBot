@@ -520,24 +520,85 @@ bot.on('message', message => {
 	// GENERAL commands
 
   	if(isCommand(mContent, 'help')){
-  		message.channel.sendMessage("**Help**\nIn progress!");
+  		generalCommands = [
+  			'about', 'help',
+  			'commands',
+  			'invite', 'uptime',
+  			'source', 'twitch',
+  			'hitbox'];
+
+  		adminCommands = [
+  			'setgame', 'delcmd',
+  			'addcmd', 'purge',
+  			'notify', 'setchannel',
+  			'exit'];
+
+  		function re(command){
+  			for(var i = 0; i < command.length; i++){
+  				command[i] = "**" + (i+1) + ".**  " + CMDINT + command[i];
+  			}
+  			return command;
+  		}
+
+  		adminCommands = re(adminCommands);
+  		generalCommands = re(generalCommands);
+
+  		mChannel.sendMessage("**Bot Commands**", {
+  			embed: {
+  				color: 10181046,
+  				fields: [{
+  					name: "Admin Commands",
+  					value: adminCommands.join('\n'),
+  					inline: true
+  				},{
+  					name: "General Commands",
+  					value: generalCommands.join('\n'),
+  					inline: true
+  				}]
+  			}
+  		})
+  		 .catch(console.error);
   		return;
   	}
 
   	if(isCommand(mContent, 'about')){
-  		var content = "**About**\n" + "**Bot Version:** Akephalos Bot v" + botVersion +
-  			"\n**Bot Username:** " + bot.user.username +
-  			"\n**Servers Connected:** `" + bot.guilds.array().length + "`" +
-  			"\n**Author:** Mesmaroth" +
-  			"\n**Library:** Discord.js" +  			
-  			"\n**Source:** <https://github.com/Mesmaroth/discord-AkephalosBot>"
 
-  		message.channel.sendFile( bot.user.displayAvatarURL, 'botAvatar.jpg', content);
+  		mChannel.sendMessage("**About**", {
+	  		embed:{
+	  			color: 10181046,
+	  			thumbnail: {
+	  				url: bot.user.displayAvatarURL,
+	  				height: 50,
+	  				width: 50
+	  			},
+	  			fields:[{
+	  				name: "Bot Version",
+	  				value: "Akephalos Bot v" + botVersion,
+	  				inline: true
+	  			}, {
+	  				name: "Servers",
+	  				value: bot.guilds.array().length,
+	  				inline: true
+	  			}, {
+	  				name: "Author",
+	  				value: "Mesmaroth",
+	  				inline: true
+	  			}, {
+	  				name: "Library",
+	  				value: "Discord.js",
+	  				inline: true
+	  			}, {
+	  				name: "Source",
+	  				value: "https://github.com/Mesmaroth/discord-AkephalosBot",
+	  				inline: false
+	  			}]
+	  		}
+  		});
   		return;
   	}
 
   	if(isCommand(message.content, 'source')){
-  		message.channel.sendMessage("**Source:** https://github.com/Mesmaroth/discord-AkephalosBot");
+  		mChannel.sendMessage("**Source:** https://github.com/Mesmaroth/discord-AkephalosBot");
   		return;
   	}
 
@@ -628,19 +689,36 @@ bot.on('message', message => {
 					if(commands.hasOwnProperty("GLOBAL")){
 						var globalCommands = commands["GLOBAL"];
 						var cmds = [];
+						var sets = [];
+						var fields = [];
 
 						for(var i = 0; i < globalCommands.length; i++){
-							cmds.push("**"+(i+1) + ".** " + globalCommands[i].command);
+							cmds.push("**"+(i+1) + ".**  " + globalCommands[i].command);
+						}
+						
+						while(cmds.length > 0){
+							sets.push(cmds.splice(0,5));
+						}
+						
+						for(var i = 0; i < sets.length; i++){
+							fields.push({
+								name: "** **",
+								value: sets[i].join('\n'),
+								inline: true
+							});
 						}
 
-						if(cmds.length > 0)
-							while(cmds.length !== 0){
-								mChannel.sendMessage("**Commands**\n" + cmds.splice(0,30).join('\n'));
-							}
+						if(fields.length > 0)
+							mChannel.sendMessage("**Global Commands**", {
+								embed: {
+									color: 15105570,
+									fields: fields
+								}
+							});
 						else
 							mChannel.sendMessage("No commands found on this server");
 					}else{
-						mChannel.sendMessage("No commands found on this server");
+						mChannel.sendMessage("No Global commands found on this server");
 					}
 	  			});
   			}
@@ -657,6 +735,8 @@ bot.on('message', message => {
 				if(commands.hasOwnProperty(mGuild.id)){
 					var serverCommands = commands[mGuild.id];
 					var cmds = [];
+					var sets = [];
+					var fields = [];
 
 					if(commands[mGuild.id].length === 0){
 						mChannel.sendMessage("No Commands found on this server");
@@ -665,15 +745,30 @@ bot.on('message', message => {
 							if(error) return sendError('Writing to Bot Commands File', error, mChannel);
 						});
 						return;
-					}					
+					}
 
 					for(var i = 0; i < serverCommands.length; i++){
-						cmds.push("**"+(i+1) + ".** " + serverCommands[i].command);
+						cmds.push("**"+(i+1) + ".**  " + serverCommands[i].command);
 					}
+					
+					while(cmds.length > 0){
+						sets.push(cmds.splice(0,5));
+					}
+					
+					for(var i = 0; i < sets.length; i++){
+						fields.push({
+							name: "** **",
+							value: sets[i].join('\n'),
+							inline: true
+						});
+					}					
 
-					while(cmds.length !== 0){
-						mChannel.sendMessage("**Commands**\n" + cmds.splice(0,30).join('\n'));
-					}
+					mChannel.sendMessage("**Commands**\n", {
+						embed: {
+							color: 3447003,
+							fields: fields
+						}
+					});
 				}else{
 					mChannel.sendMessage("No commands found on this server");
 				}
