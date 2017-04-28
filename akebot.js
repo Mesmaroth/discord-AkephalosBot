@@ -152,11 +152,25 @@ bot.on('presenceUpdate', (oldGuildMember, newGuildMember) =>{
 
 		if(newGuildMember.presence.game.streaming){
 			if(notifyChannel[newGuildMember.guild.id].notify){
-				textChannel.sendMessage("**LIVE**\n" +
-				newGuildMember.user.username + " is now streaming!\n**Title:** " + newGuildMember.presence.game.name +
-				"\n**URL:** " + newGuildMember.presence.game.url).catch(error =>{
-		  		 	if(error) sentMessageError(error, mChannel);
-		  		});
+				var user = newGuildMember.presence.game.url.slice(newGuildMember.presence.game.url.indexOf('/', newGuildMember.presence.game.url.indexOf('www.twitch.tv')) + 1);
+
+				liveStream.getTwitchStream(user, (error, status, gameTitle, streamURL, thumbnailURL) =>{
+					if(gameTitle === ''){
+						gameTitle = "None"
+					}
+					textChannel.sendMessage("**LIVE**", {
+						embed: {
+							color: 10181046,
+							title: newGuildMember.user.username + " is now streaming!",
+							thumbnail: {
+								url: thumbnailURL
+							},
+							description: "**Title:** " + newGuildMember.presence.game.name + "\n**Game:** " + gameTitle + "\n**URL:** " + streamURL
+						}
+					}).catch(error =>{
+			  		 	if(error) sentMessageError(error, mChannel);
+			  		});
+				});
 			}
 		}
 	}		
