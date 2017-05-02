@@ -2,25 +2,47 @@ const Discord = require('discord.js');
 const botLogin = require('./config/botlogin.js');
 const liveStream = require('./modules/livestream.js');
 const fs = require('fs');
+const path = require('path');
 const request = require('request');
 const bot = new Discord.Client();
 bot.login(botLogin.token);
 
 const adminRole = "admin";
+const notifyChannelFile = path.resolve(__dirname, 'config/notifychannels.json');
+const botCommandsFile = path.resolve(__dirname, 'config/botCommands.json');
+const picturePath = path.resolve(__dirname, 'pictures');
+
+var notifyChannel = {}
 
 var botVersion = "?#";
 try{
-	botVersion = require('./package.json').version;
-
-	var notifyChannel = {}
-	if((fs.existsSync('./config/notifychannels.json'))){
-		notifyChannel = fs.readFileSync('./config/notifychannels.json');
+	botVersion = require(path.resolve(__dirname, 'package.json')).version;
+	
+	if((fs.existsSync(notifyChannelFile))){
+		notifyChannel = fs.readFileSync(notifyChannelFile);
 		notifyChannel = JSON.parse(notifyChannel);
 		
 	}else{
-		fs.writeFileSync('./config/notifychannels.json', "{}");
-		notifyChannel = fs.readFileSync('./config/notifychannels.json');
+		fs.writeFileSync(notifyChannelFile, "{}");
+		notifyChannel = fs.readFileSync(notifyChannelFile);
 		notifyChannel = JSON.parse(notifyChannel);
+		console.log("NOTIFY CHANNEL CONFIG FILE CREATED AT: " + botCommandsFile);
+		console.log();
+	}
+
+	if(!fs.existsSync(botCommandsFile)){
+		var globalKey = {
+			GLOBAL: [{
+				command: "ping",
+				message: "pong",
+				type: "text",
+				editable: false,
+				comment: "Test command"
+			}]
+		}
+		notifyChannel = fs.writeFileSync(botCommandsFile, JSON.stringify(globalKey, null, '\t'));
+		console.log("COMMANDS FILE CREATED AT: " + botCommandsFile);
+		console.log();	
 	}
 	
 } catch(error){
@@ -204,10 +226,9 @@ bot.on('message', message => {
 
 	// Sets the preferred channel for live streaming notifications
 	if(isCommand(mContent, 'setchannel') && isAdmin(message)){
-		var file = './config/notifychannels.json';
 		if(mContent.indexOf(' ') !== -1){
 			var channel = mContent.split(' ')[1];
-			fs.readFile(file, (error, notifyChannel) =>{
+			fs.readFile(notifyChannelFile, (error, notifyChannel) =>{
 				if(error) return sendError("Reading Notify Channels File", error, mChannel);
 				try{
 					notifyChannel = JSON.parse(notifyChannel);
@@ -225,7 +246,7 @@ bot.on('message', message => {
 					}
 
 
-					fs.writeFile(file, JSON.stringify(notifyChannel, null, '\t'), error =>{
+					fs.writeFile(notifyChannelFile, JSON.stringify(notifyChannel, null, '\t'), error =>{
 						if(error) return sendError("Writing Notify Channels File", error, mChannel);
 
 						mChannel.sendMessage("Channel `" + channel + "` set as default notifications channel").catch(error =>{
@@ -244,8 +265,7 @@ bot.on('message', message => {
 
 	// Enables or disables streaming notifcations on a server
 	if(isCommand(mContent, 'notify') && isAdmin(message)){
-		var file = './config/notifychannels.json';
-		fs.readFile(file, (error, notifyChannel) =>{
+		fs.readFile(notifyChannelFile, (error, notifyChannel) =>{
 			if(error) return sendError("Reading Notify Channels File", error, mChannel);
 			try{
 				notifyChannel = JSON.parse(notifyChannel);
@@ -276,7 +296,7 @@ bot.on('message', message => {
 		  		});
 			}
 
-			fs.writeFile(file, JSON.stringify(notifyChannel, null, '\t'), error =>{
+			fs.writeFile(notifyChannelFile, JSON.stringify(notifyChannel, null, '\t'), error =>{
 				if(error) return sendError("Reading Stream Black List File", error, mChannel);			
 			});
 		});
@@ -404,9 +424,7 @@ bot.on('message', message => {
   		if(mContent.indexOf(' ') !== -1){
   			var input = mContent.split(' ')[1];
 
-  			var file = './config/botCommands.json';
-
-  			fs.readFile(file, (error, commands) =>{
+  			fs.readFile(botCommandsFile, (error, commands) =>{
   				if(error) return sendError("Reading Bot Commands File", error, mChannel);
   				try{
   					commands = JSON.parse(commands);
@@ -427,7 +445,7 @@ bot.on('message', message => {
 
   							commands[mGuild.id].splice(i, 1);
 
-  							fs.writeFile(file, JSON.stringify(commands, null, '\t'), error =>{
+  							fs.writeFile(botCommandsFile, JSON.stringify(commands, null, '\t'), error =>{
   								if(error) return sendError("Writng to Bot Commands File", error, mChannel);
   								mChannel.sendMessage("Command `" + commandName + "` removed").catch(error =>{
 						  		 	if(error) sentMessageError(error, mChannel);
@@ -447,7 +465,6 @@ bot.on('message', message => {
 
   	if(isCommand(mContent, `addcmd`) && isAdmin(message)){
   		if(mContent.indexOf(' ') !== -1){
-  			var file = './config/botCommands.json';
   			var messageArr = mContent.split(' ');
   			var newCommand = messageArr[1];
   			var commandType = messageArr[2];
@@ -480,7 +497,7 @@ bot.on('message', message => {
   			if(commandMessage.length === 0)
   				commandMessage = null;
 
-  			fs.readFile(file, (error, commands) =>{
+  			fs.readFile(botCommandsFile, (error, commands) =>{
   				if(error) return sendError("Reading Bot Commands File", error, mChannel);
   				try{
   					commands = JSON.parse(commands);
@@ -506,13 +523,11 @@ bot.on('message', message => {
 						type: commandType.toLowerCase(),
 						message: commandMessage,
 						editable: true
-					});
-
-					
+					});					
 				} else if(commandType.toLowerCase() === 'image'){
 					if(image){
 						var fileName = newCommand.replace(/[&\/\\#,+()$~%'":*?<>{}|_-]/g,'') + '.' + image.filename.split('.')[1];
-						var filePath = './pictures/' + fileName;
+						var filePath = path.resolve(picturePath, fileName)
 						request
 						 .get(image.url)
 						 .on('error', error =>{
@@ -548,7 +563,7 @@ bot.on('message', message => {
 					}
 				}
 
-				fs.writeFile(file, JSON.stringify(commands, null, '\t'), error =>{
+				fs.writeFile(botCommandsFile, JSON.stringify(commands, null, '\t'), error =>{
 					if(error) return sendError("Writing to Bot Commands File", error, mChannel);
 					mChannel.sendMessage("Command `" + newCommand + "` added").catch(error =>{
 			  		 	if(error) sentMessageError(error, mChannel);
@@ -785,7 +800,6 @@ bot.on('message', message => {
 
   	// Display commands
   	if(isCommand(mContent, 'commands') || isCommand(mContent, 'c')){
-  		var botCommandsFile = './config/botCommands.json';
   		if(mContent.indexOf(' ') !== -1){
   			var param = mContent.split(' ')[1];
 
@@ -903,7 +917,7 @@ bot.on('message', message => {
   	}
 
   	// Reading Custom Commands
-	fs.readFile('./config/botCommands.json', (error, commands) =>{
+	fs.readFile(botCommandsFile, (error, commands) =>{
 		if(error) return sendError("Reading Bot Commands Config File", error, mChannel);
 
 		try{
