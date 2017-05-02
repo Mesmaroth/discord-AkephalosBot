@@ -74,7 +74,7 @@ function isAdmin(message){
 		if(roles[role].name.toLowerCase() === adminRole)			
 			return true;
 	}
-	message.channel.sendMessage("You aren't admin for this command.");
+	message.channel.send("You aren't admin for this command.");
 	return false;
 }
 
@@ -103,7 +103,7 @@ function sendError(title, error, channel){
 	console.log("-----"  + "ERROR"+ "------");
 	console.log(error);
 	console.log("----------");
-	channel.sendMessage("**" + title + " Error**\n```" + error.message +"```");
+	channel.send("**" + title + " Error**\n```" + error.message +"```");
 }
 
 function displayServers(){
@@ -152,7 +152,7 @@ bot.on('disconnect', event =>{
 bot.on('guildMemberAdd', guildMember =>{
 	var generalChannel = getChannelByName(guildMember.guild, 'general');
 
-	generalChannel.sendMessage(guildMember.user.username +", welcome to " + guildMember.guild.name);	
+	generalChannel.send(guildMember.user.username +", welcome to " + guildMember.guild.name);	
 	botLog(guildMember.guild.name + " welcomes " + guildMember.user.username + " to their server.");
 });
 
@@ -181,7 +181,7 @@ bot.on('presenceUpdate', (oldGuildMember, newGuildMember) =>{
 					if(gameTitle === ''){
 						gameTitle = "None"
 					}
-					textChannel.sendMessage("**LIVE**", {
+					textChannel.send("**LIVE**", {
 						embed: {
 							color: 10181046,
 							title: newGuildMember.user.username + " is now streaming!",
@@ -250,12 +250,12 @@ bot.on('message', message => {
 					fs.writeFile(notifyChannelFile, JSON.stringify(notifyChannel, null, '\t'), error =>{
 						if(error) return sendError("Writing Notify Channels File", error, mChannel);
 
-						mChannel.sendMessage("Channel `" + channel + "` set as default notifications channel").catch(error =>{
+						mChannel.send("Channel `" + channel + "` set as default notifications channel").catch(error =>{
 				  		 	if(error) sentMessageError(error, mChannel);
 				  		});
 					});
 				}else{
-					mChannel.sendMessage("No channel found with that name").catch(error =>{
+					mChannel.send("No channel found with that name").catch(error =>{
 			  		 	if(error) sentMessageError(error, mChannel);
 			  		});
 				}
@@ -288,11 +288,11 @@ bot.on('message', message => {
 			}
 
 			if(notifyChannel[message.member.guild.id].notify){
-				mChannel.sendMessage("Notifications for this server set to `true`").catch(error =>{
+				mChannel.send("Notifications for this server set to `true`").catch(error =>{
 	  		 	if(error) sentMessageError(error, mChannel);
 	  		});
 			} else{
-				mChannel.sendMessage("Notifications for this server set to `false`").catch(error =>{
+				mChannel.send("Notifications for this server set to `false`").catch(error =>{
 		  		 	if(error) sentMessageError(error, mChannel);
 		  		});
 			}
@@ -327,7 +327,7 @@ bot.on('message', message => {
 			if(isNumber(param)){
 				param = Number(param);
 				if(param == 0){
-					mChannel.sendMessage("o_O ??");
+					mChannel.send("o_O ??");
 					return;
 				}				
 
@@ -363,7 +363,7 @@ bot.on('message', message => {
 				 });
 			} else{
 				if(param2 <= 0){
-					mChannel.sendMessage("o_O ??");
+					mChannel.send("o_O ??");
 					return;
 				}				
 
@@ -380,7 +380,7 @@ bot.on('message', message => {
 				 	})
 				 	
 				 	if(!messages.size){
-				 		mChannel.sendMessage("No messages found to delete").catch(error =>{
+				 		mChannel.send("No messages found to delete").catch(error =>{
 				  		 	if(error) sentMessageError(error, mChannel);
 				  		});
 				 		return;
@@ -448,14 +448,14 @@ bot.on('message', message => {
 
   							fs.writeFile(botCommandsFile, JSON.stringify(commands, null, '\t'), error =>{
   								if(error) return sendError("Writng to Bot Commands File", error, mChannel);
-  								mChannel.sendMessage("Command `" + commandName + "` removed").catch(error =>{
+  								mChannel.send("Command `" + commandName + "` removed").catch(error =>{
 						  		 	if(error) sentMessageError(error, mChannel);
 						  		});
   							});
   							return;					
   						}
   					}
-  					mChannel.sendMessage("Command not found").catch(error =>{
+  					mChannel.send("Command not found").catch(error =>{
 			  		 	if(error) sentMessageError(error, mChannel);
 			  		});
   				}
@@ -476,7 +476,7 @@ bot.on('message', message => {
   				commandType = 'image';
 
   			if(!commandType){
-  				mChannel.sendMessage("Making a text command with no message? o_O ?").catch(error =>{
+  				mChannel.send("Making a text command with no message? o_O ?").catch(error =>{
 		  		 	if(error) sentMessageError(error, mChannel);
 		  		});
   				return;
@@ -511,7 +511,7 @@ bot.on('message', message => {
   				
 				for(var i = 0; i < commands[mGuild.id].length; i++){
 					if(commands[mGuild.id][i].command === newCommand.toLowerCase()){
-						mChannel.sendMessage("This command has already been added").catch(error =>{
+						mChannel.send("This command has already been added").catch(error =>{
 				  		 	if(error) sentMessageError(error, mChannel);
 				  		});
 						return;
@@ -557,7 +557,7 @@ bot.on('message', message => {
 							}
 						 }
 					}else{
-						mChannel.sendMessage("You must attach an image with your command as the text input").catch(error =>{
+						mChannel.send("You must attach an image with your command as the text input").catch(error =>{
 				  		 	if(error) sentMessageError(error, mChannel);
 				  		});
 						return;
@@ -566,7 +566,7 @@ bot.on('message', message => {
 
 				fs.writeFile(botCommandsFile, JSON.stringify(commands, null, '\t'), error =>{
 					if(error) return sendError("Writing to Bot Commands File", error, mChannel);
-					mChannel.sendMessage("Command `" + newCommand + "` added").catch(error =>{
+					mChannel.send("Command `" + newCommand + "` added").catch(error =>{
 			  		 	if(error) sentMessageError(error, mChannel);
 			  		});
 				});
@@ -616,7 +616,7 @@ bot.on('message', message => {
   		customCommands = reList(customCommands);
   		sounds = reList(sounds);
 
-  		mChannel.sendMessage("**Help**", {
+  		mChannel.send("**Help**", {
   			embed: {
   				color: 10181046,
   				fields: [{
@@ -648,7 +648,7 @@ bot.on('message', message => {
 
   	if(isCommand(mContent, 'about')){
 
-  		mChannel.sendMessage("**About**", {
+  		mChannel.send("**About**", {
 	  		embed:{
 	  			color: 10181046,
 	  			thumbnail: {
@@ -683,7 +683,7 @@ bot.on('message', message => {
   	}
 
   	if(isCommand(message.content, 'source')){
-  		mChannel.sendMessage("**Source:** https://github.com/Mesmaroth/discord-AkephalosBot").catch(error =>{
+  		mChannel.send("**Source:** https://github.com/Mesmaroth/discord-AkephalosBot").catch(error =>{
   		 	if(error) sentMessageError(error, mChannel);
   		});;
   		return;
@@ -691,7 +691,7 @@ bot.on('message', message => {
 
   	if(isCommand(mContent, 'invite')){
   		bot.generateInvite().then( link =>{
-  			mChannel.sendMessage("**Invite:** " + link);
+  			mChannel.send("**Invite:** " + link);
   		});
   		return;
   	}
@@ -711,7 +711,7 @@ bot.on('message', message => {
 			uptimeMinutes = Math.floor(uptimeMinutes % 60);
 		}
 
-  		mChannel.sendMessage("**Uptime:** " + uptimeHours + " hour(s) : " + uptimeMinutes + " minute(s) : " + uptimeSeconds +" second(s)").catch(error =>{
+  		mChannel.send("**Uptime:** " + uptimeHours + " hour(s) : " + uptimeMinutes + " minute(s) : " + uptimeSeconds +" second(s)").catch(error =>{
   		 	if(error) sentMessageError(error, mChannel);
   		});;
   		return;
@@ -724,7 +724,7 @@ bot.on('message', message => {
   			liveStream.getTwitchStream(name, (error, status, gameTitle, streamURL, thumbnailURL)=> {
   				if(error) return sendError("Getting Twitch Stream Data", error, mChannel);
   				if(status){
-  					mChannel.sendMessage("**Twitch**\n", {
+  					mChannel.send("**Twitch**\n", {
   						embed: {
   							color: 10181046,
   							title: "LIVE",
@@ -739,7 +739,7 @@ bot.on('message', message => {
 			  		 	if(error) sentMessageError(error, mChannel);
 			  		});  	
   				} else{
-  					mChannel.sendMessage("**Twitch**", {
+  					mChannel.send("**Twitch**", {
   							embed: {
   								color: 10181046,
   								title: "OFFLINE",
@@ -766,7 +766,7 @@ bot.on('message', message => {
   			liveStream.getHitboxStream(name, (error, status, gameTitle, streamURL, thumbnailURL) =>{
   				if(error) return sendError("Getting HitBox Stream Data", error, mChannel);
   				if(status){
-  					mChannel.sendMessage("**HitBox**\n", {
+  					mChannel.send("**HitBox**\n", {
   						embed: {
   							color: 1752220,
   							title: "LIVE",
@@ -779,7 +779,7 @@ bot.on('message', message => {
   						}
   					});
   				} else{
-  					mChannel.sendMessage("**HitBox**", {
+  					mChannel.send("**HitBox**", {
   							embed: {
   								color: 1752220,
   								title: "OFFLINE",
@@ -837,7 +837,7 @@ bot.on('message', message => {
 						}
 
 						if(fields.length > 0)
-							mChannel.sendMessage("**Global Commands**", {
+							mChannel.send("**Global Commands**", {
 								embed: {
 									color: 15105570,
 									fields: fields
@@ -846,11 +846,11 @@ bot.on('message', message => {
 					  		 	if(error) sentMessageError(error, mChannel);
 					  		});
 						else
-							mChannel.sendMessage("No commands found on this server").catch(error =>{
+							mChannel.send("No commands found on this server").catch(error =>{
 					  		 	if(error) sentMessageError(error, mChannel);
 					  		});
 					}else{
-						mChannel.sendMessage("No Global commands found on this server").catch(error =>{
+						mChannel.send("No Global commands found on this server").catch(error =>{
 				  		 	if(error) sentMessageError(error, mChannel);
 				  		});
 					}
@@ -873,7 +873,7 @@ bot.on('message', message => {
 					var fields = [];
 
 					if(commands[mGuild.id].length === 0){
-						mChannel.sendMessage("No Commands found on this server").catch(error =>{
+						mChannel.send("No Commands found on this server").catch(error =>{
 				  		 	if(error) sentMessageError(error, mChannel);
 				  		});
 						delete commands[mGuild.id];
@@ -899,7 +899,7 @@ bot.on('message', message => {
 						});
 					}					
 
-					mChannel.sendMessage("**Commands**\n", {
+					mChannel.send("**Commands**\n", {
 						embed: {
 							color: 3447003,
 							fields: fields
@@ -908,7 +908,7 @@ bot.on('message', message => {
 			  		 	if(error) sentMessageError(error, mChannel);
 			  		});
 				}else{
-					mChannel.sendMessage("No commands found on this server").catch(error =>{
+					mChannel.send("No commands found on this server").catch(error =>{
 			  		 	if(error) sentMessageError(error, mChannel);
 			  		});
 				}
@@ -965,7 +965,7 @@ bot.on('message', message => {
 				var inString = commandInString(mContent, globalCommands[i].command);
 				if(mContent.toLowerCase() === globalCommands[i].command || inString){
 					if(globalCommands[i].type === 'text'){
-						mChannel.sendMessage(globalCommands[i].message).catch(error =>{
+						mChannel.send(globalCommands[i].message).catch(error =>{
 				  		 	if(error) sentMessageError(error, mChannel);
 				  		});
 					}else if(globalCommands[i].type === 'image'){
@@ -989,7 +989,7 @@ bot.on('message', message => {
 				var inString = commandInString(mContent, serverCommands[i].command)
 				if(mContent.toLowerCase() === serverCommands[i].command || inString){
 					if(serverCommands[i].type === 'text'){
-						mChannel.sendMessage(serverCommands[i].message).catch(error =>{
+						mChannel.send(serverCommands[i].message).catch(error =>{
 				  		 	if(error) sentMessageError(error, mChannel);
 				  		});
 					}else if(serverCommands[i].type === 'image'){
