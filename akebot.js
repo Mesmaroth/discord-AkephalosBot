@@ -439,8 +439,15 @@ bot.on('message', message => {
   							var commandName = commands[mGuild.id][i].command;
 
   							if(commands[mGuild.id][i].type === 'image'){
+  								var fileClear = true;
+  								for(var x = 0; x < commands[mGuild.id].length; x++){
+  									if(commands[mGuild.id][x].file === commands[mGuild.id][i].file && commands[mGuild.id][x].command !== commands[mGuild.id][i].command) 
+  										fileClear = false;
+  								}
+
   								if(fs.existsSync(commands[mGuild.id][i].file)){
-  									fs.unlinkSync(commands[mGuild.id][i].file);
+  									if(fileClear)
+  										fs.unlinkSync(commands[mGuild.id][i].file);
   								}
   							}
 
