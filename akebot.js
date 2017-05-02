@@ -924,6 +924,42 @@ bot.on('message', message => {
   		return;
   	}
 
+  	if(isCommand(mContent, 'sounds')){
+  		fs.readdir(soundsPath, (error, files)=>{
+  			if(error) return sendError("Reading Sounds Directory", error, mChannel);
+
+  			var sounds = [];
+  			var sets = [];
+  			var fields = [];
+
+  			for(var i = 0; i < files.length; i++){
+  				sounds.push("**" + (i+1) + ".** " + CMDINT + files[i].split('.')[0]);
+  			}
+
+  			while(sounds.length !== 0){
+  				sets.push(sounds.splice(0,5));
+  			}
+
+  			for(var i = 0; i < sets.length; i++){
+  				fields.push({
+					name: "** **",
+					value: sets[i].join('\n'),
+					inline: true
+				});
+  			}
+
+  			if(fields.length > 0){
+  				mChannel.send("**Sounds**",{
+	  				embed: {
+	  					color: 15105570,
+	  					fields: fields
+	  				}
+	  			});
+  			}else
+  				mChannel.send("No sounds found. Be sure you added some");
+  		});
+  	}
+
   	// Playing Sounds
   	if(mContent[0] === CMDINT && mContent.length > 1){
   		var input = mContent.slice(1).toLowerCase();
