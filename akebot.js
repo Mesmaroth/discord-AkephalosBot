@@ -924,19 +924,30 @@ bot.on('message', message => {
   		if(files === '') return;
   		if(!mMember.voiceChannel) return;
 
+  		// Get the voice channel from the server
+  		var botVoiceConnection = bot.voiceConnections.find( voiceConnection =>{
+  			return voiceConnection.channel.guild.id === mMember.guild.id;
+  		});
+
+  		// If the bot is in voice channel in your guild then return
+  		// then don't join or play anything
+  		if(botVoiceConnection){
+  			if(botVoiceConnection.channel.guild.id === mGuild.id) return;
+  		}  		
+
   		for(var i = 0; i < files.length; i++){
   			if(files[i].split('.')[0].toLowerCase() === mContent.toLowerCase()){
   				var file = path.resolve(soundsPath, files[i]);
   				mMember.voiceChannel.join().then(connection =>{
-  					const DISPATCHER = connection.playFile(file);
+  					DISPATCHER = connection.playFile(file);
 
   					DISPATCHER.on('end', ()=>{
   						connection.disconnect();
-  					})
+  					});
   				});
   			}
   		}
-  	})
+  	});
 
   	// Reading Custom Commands
 	fs.readFile(botCommandsFile, (error, commands) =>{
