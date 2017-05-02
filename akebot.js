@@ -925,37 +925,40 @@ bot.on('message', message => {
   	}
 
   	// Playing Sounds
-  	fs.readdir(soundsPath, (error, files) =>{
-  		if(error) return sendError("Reading Sounds Path", error, mChannel);
+  	if(mContent[0] === CMDINT && mContent.length > 1){
+  		var input = mContent.slice(1).toLowerCase();
+  		fs.readdir(soundsPath, (error, files) =>{
+	  		if(error) return sendError("Reading Sounds Path", error, mChannel);
 
-  		if(files === '') return;
-  		if(mMember) 
-  			if(!mMember.voiceChannel) return;
+	  		if(files === '') return;
+	  		if(mMember) 
+	  			if(!mMember.voiceChannel) return;
 
-  		// Get the voice channel from the server
-  		var botVoiceConnection = bot.voiceConnections.find( voiceConnection =>{
-  			return voiceConnection.channel.guild.id === mMember.guild.id;
-  		});
+	  		// Get the voice channel from the server
+	  		var botVoiceConnection = bot.voiceConnections.find( voiceConnection =>{
+	  			return voiceConnection.channel.guild.id === mMember.guild.id;
+	  		});
 
-  		// If the bot is in voice channel in your guild then return
-  		// then don't join or play anything
-  		if(botVoiceConnection){
-  			if(botVoiceConnection.channel.guild.id === mGuild.id) return;
-  		}  		
+	  		// If the bot is in voice channel in your guild then return
+	  		// then don't join or play anything
+	  		if(botVoiceConnection){
+	  			if(botVoiceConnection.channel.guild.id === mGuild.id) return;
+	  		}  		
 
-  		for(var i = 0; i < files.length; i++){
-  			if(files[i].split('.')[0].toLowerCase() === mContent.toLowerCase()){
-  				var file = path.resolve(soundsPath, files[i]);
-  				mMember.voiceChannel.join().then(connection =>{
-  					DISPATCHER = connection.playFile(file);
+	  		for(var i = 0; i < files.length; i++){
+	  			if(files[i].split('.')[0].toLowerCase() === input){
+	  				var file = path.resolve(soundsPath, files[i]);
+	  				mMember.voiceChannel.join().then(connection =>{
+	  					DISPATCHER = connection.playFile(file);
 
-  					DISPATCHER.on('end', ()=>{
-  						connection.disconnect();
-  					});
-  				});
-  			}
-  		}
-  	});
+	  					DISPATCHER.on('end', ()=>{
+	  						connection.disconnect();
+	  					});
+	  				});
+	  			}
+	  		}
+	  	});
+  	}
 
   	// Reading Custom Commands
 	fs.readFile(botCommandsFile, (error, commands) =>{
