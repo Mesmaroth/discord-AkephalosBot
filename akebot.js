@@ -948,13 +948,18 @@ bot.on('message', message => {
 	  		for(var i = 0; i < files.length; i++){
 	  			if(files[i].split('.')[0].toLowerCase() === input){
 	  				var file = path.resolve(soundsPath, files[i]);
+
 	  				mMember.voiceChannel.join().then(connection =>{
 	  					DISPATCHER = connection.playFile(file);
 
 	  					DISPATCHER.on('end', ()=>{
 	  						connection.disconnect();
 	  					});
-	  				});
+
+	  					DISPATCHER.on('error', (error)=>{
+	  						console.log(error);
+	  					});
+	  				});		  				
 	  			}
 	  		}
 	  	});
