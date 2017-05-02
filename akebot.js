@@ -439,8 +439,8 @@ bot.on('message', message => {
   							var commandName = commands[mGuild.id][i].command;
 
   							if(commands[mGuild.id][i].type === 'image'){
-  								if(fs.existsSync('./' + commands[mGuild.id][i].file)){
-  									fs.unlinkSync("./" + commands[mGuild.id][i].file);
+  								if(fs.existsSync(commands[mGuild.id][i].file)){
+  									fs.unlinkSync(commands[mGuild.id][i].file);
   								}
   							}
 
