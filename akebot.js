@@ -984,9 +984,19 @@ bot.on('message', message => {
 							return sendError("Reading Custom Commands File", {name: "No file found: " + serverCommands[i].file, message: "File not found."}, mChannel);
 						}
 						if(globalCommands[i].hasOwnProperty('message')){
-							mChannel.sendFile(globalCommands[i].file, globalCommands[i].filename, globalCommands[i].message);
+							mChannel.send(globalCommands[i].message, {
+								file: {
+									attachment: globalCommands[i].file,
+									name: globalCommands[i].filename
+								}
+							})
 						}else{
-							mChannel.sendFile(globalCommands[i].file, globalCommands[i].filename);
+							mChannel.sendFile({
+								file: {
+									attachment: globalCommands[i].file,
+									name: globalCommands[i].filename
+								}
+							});
 						}
 					}
 					return;
@@ -1008,9 +1018,19 @@ bot.on('message', message => {
 							return sendError("Reading Custom Commands File", {name: "No file found: " + serverCommands[i].file, message: "File not found"}, mChannel);
 						}
 						if(serverCommands[i].hasOwnProperty('message')){
-							mChannel.sendFile(serverCommands[i].file, serverCommands[i].filename, serverCommands[i].message);
+							mChannel.send(serverCommands[i].message, {
+								file: {
+									attachment: serverCommands[i].file,
+									name: serverCommands[i].filename
+								}
+							})
 						}else{
-							mChannel.sendFile(serverCommands[i].file, serverCommands[i].filename);
+							mChannel.send({
+								file: {
+									attachment: serverCommands[i].file,
+									name: serverCommands[i].filename
+								}
+							});
 						}
 					}
 					return;
