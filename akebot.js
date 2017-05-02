@@ -929,7 +929,8 @@ bot.on('message', message => {
   		if(error) return sendError("Reading Sounds Path", error, mChannel);
 
   		if(files === '') return;
-  		if(!mMember.voiceChannel) return;
+  		if(mMember) 
+  			if(!mMember.voiceChannel) return;
 
   		// Get the voice channel from the server
   		var botVoiceConnection = bot.voiceConnections.find( voiceConnection =>{
