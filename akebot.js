@@ -11,6 +11,7 @@ const adminRole = "admin";
 const notifyChannelFile = path.resolve(__dirname, 'config/notifychannels.json');
 const botCommandsFile = path.resolve(__dirname, 'config/botCommands.json');
 const picturePath = path.resolve(__dirname, 'pictures');
+const soundsPath = path.resolve(__dirname, 'sounds');
 
 var notifyChannel = {}
 
@@ -915,6 +916,27 @@ bot.on('message', message => {
   		}
   		return;
   	}
+
+  	// Playing Sounds
+  	fs.readdir(soundsPath, (error, files) =>{
+  		if(error) return sendError("Reading Sounds Path", error, mChannel);
+
+  		if(files === '') return;
+  		if(!mMember.voiceChannel) return;
+
+  		for(var i = 0; i < files.length; i++){
+  			if(files[i].split('.')[0].toLowerCase() === mContent.toLowerCase()){
+  				var file = path.resolve(soundsPath, files[i]);
+  				mMember.voiceChannel.join().then(connection =>{
+  					const DISPATCHER = connection.playFile(file);
+
+  					DISPATCHER.on('end', ()=>{
+  						connection.disconnect();
+  					})
+  				});
+  			}
+  		}
+  	})
 
   	// Reading Custom Commands
 	fs.readFile(botCommandsFile, (error, commands) =>{
