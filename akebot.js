@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const request = require('request');
 const bot = new Discord.Client();
+const embed = new Discord.RichEmbed();
 bot.login(botLogin.token);
 
 const adminRole = "admin";
@@ -12,10 +13,20 @@ const notifyChannelFile = path.resolve(__dirname, 'config/notifychannels.json');
 const botCommandsFile = path.resolve(__dirname, 'config/botCommands.json');
 const picturePath = path.resolve(__dirname, 'pictures');
 const soundsPath = path.resolve(__dirname, 'sounds');
+const bannedCommands = [
+	'exit', 'setgame',
+	'setchannel', 'notify',
+	'purge', 'delcmd',
+	'addcmd', 'help',
+	'about', 'source',
+	'invite', 'uptime',
+	'twitch', 'hitbox',
+	'commands', 'sounds']
 
 var notifyChannel = {}
-
 var botVersion = "?#";
+var CMDINT = "!";
+
 try{
 	botVersion = require(path.resolve(__dirname, 'package.json')).version;
 	
@@ -53,7 +64,7 @@ try{
 		console.log("----------------------");
 	}
 }
-var CMDINT = "!";
+
 var defaultStatus = "v"+botVersion + " | " + CMDINT + "help";
 
 // Checks if the message is a command input from the user
@@ -487,6 +498,13 @@ bot.on('message', message => {
 		  		 	if(error) sentMessageError(error, mChannel);
 		  		});
   				return;
+  			}
+
+  			for(var i = 0; i < bannedCommands.length; i++){
+  				if(CMDINT + bannedCommands[i] === newCommand){
+  					mChannel.send("This command has already been taken.");
+  					return;
+  				}
   			}
 
   			if(commandType.toLowerCase() !== 'text'  && commandType.toLowerCase() !== 'image'){
