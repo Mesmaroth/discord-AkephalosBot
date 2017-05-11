@@ -961,7 +961,7 @@ bot.on('message', message => {
 			 .pipe(fs.createWriteStream(filePath));
 
 			if(fs.existsSync(filePath)){
-			 	mChannel.send("Added " + fileName + " to sounds");
+			 	mChannel.send("Added `" + file.filename.split('.')[0] + "` to sounds");
 			 } else{
 			 	mChannel.send("Something went wrong, check the logs");
 			 }
