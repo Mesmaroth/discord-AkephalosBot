@@ -335,6 +335,10 @@ bot.on('message', message => {
 			if(param === "bot")
 				param = bot.user.username.toLowerCase();
 
+			if(message.mentions.members.array().length > 0){
+				param = message.mentions.members.array()[0].user.username.toLowerCase();
+			}
+
 			if(isNumber(param)){
 				param = Number(param);
 				if(param == 0){
