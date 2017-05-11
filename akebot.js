@@ -934,7 +934,10 @@ bot.on('message', message => {
   				mChannel.send("**Sounds**",{
 	  				embed: {
 	  					color: 15105570,
-	  					fields: fields
+	  					fields: fields,
+	  					footer: {
+	  						text: "Need to be in a voice channel"
+	  					}
 	  				}
 	  			});
   			}else
