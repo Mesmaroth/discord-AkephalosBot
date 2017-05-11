@@ -980,6 +980,36 @@ bot.on('message', message => {
   			}else
   				mChannel.send("No sounds found. Be sure you added some");
   		});
+  		return;
+  	}
+
+  	if(isCommand(mContent, 'addsound') && isAdmin(message)){
+  		var file = message.attachments.first();
+		if(file){
+			if(file.filename.split('.')[1] !== 'mp3'){
+				mChannel.send("This file isn't a mp3 file");
+				return;
+			}
+
+			var fileName = file.filename.split('.')[0].replace(/[&\/\\#,+()$~%'":*?<>{}|_-]/g,'') + '.' + file.filename.split('.')[1];
+			var filePath = path.resolve(soundsPath, fileName);
+
+			request
+			 .get(file.url)
+			 .on('error', error =>{
+			 	if(error) return sendError("Getting Sound File", error, mChannel);						 	
+			 })
+			 .pipe(fs.createWriteStream(filePath));
+
+			if(fs.existsSync(filePath)){
+			 	mChannel.send("Added " + fileName + " to sounds");
+			 } else{
+			 	mChannel.send("Something went wrong, check the logs");
+			 }
+			} else{
+				mChannel.send("You need to attach a mp3 file.")
+		}
+  		return;
   	}
 
   	// Playing Sounds
