@@ -20,8 +20,8 @@ const bannedCommands = [
 	'addcmd', 'help',
 	'about', 'source',
 	'invite', 'uptime',
-	'twitch', 'hitbox',
-	'commands', 'sounds']
+	'twitch', 'commands',
+	'sounds']
 
 var notifyChannel = {}
 var botVersion = "?#";
@@ -614,8 +614,7 @@ bot.on('message', message => {
   			'about', 'help',
   			'commands',
   			'invite', 'uptime',
-  			'source', 'twitch',
-  			'hitbox'];
+  			'source', 'twitch'];
 
   		var adminCommands = [
   			'setgame', 'delcmd',
@@ -624,12 +623,12 @@ bot.on('message', message => {
   			'exit'];
 
   		var customCommands = [
-  			'cmd', 'addcmd',
+  			'cmd', 'addcmd*',
   			'editcmd*', 'delcmd*'
   		]
 
   		var sounds = [
-  			'sounds', 'addsound',
+  			'sounds', 'addsound*',
   			'delsound*', 'editsound*'
   		]
 
@@ -783,46 +782,6 @@ bot.on('message', message => {
 			  		 	if(error) sentMessageError(error, mChannel);
 			  		});
   				}		
-  			});
-  		}
-  		return;
-  	}
-
-  	if(isCommand(mContent, 'hitbox')){
-  		if(mContent.indexOf(' ')!== -1){
-  			var name = mContent.split(' ')[1];
-
-  			liveStream.getHitboxStream(name, (error, status, gameTitle, streamURL, thumbnailURL) =>{
-  				if(error) return sendError("Getting HitBox Stream Data", error, mChannel);
-  				if(status){
-  					mChannel.send("**HitBox**\n", {
-  						embed: {
-  							color: 1752220,
-  							title: "LIVE",
-  							thumbnail:{
-  								url: thumbnailURL
-  							},
-  							description: "**Name:** " + name +
-  							"\n**Status:** `Online`\n**Game:** " + gameTitle+
-  							"\n**URL:** " + streamURL
-  						}
-  					});
-  				} else{
-  					mChannel.send("**HitBox**", {
-  							embed: {
-  								color: 1752220,
-  								title: "OFFLINE",
-  								thumbnail:{
-  									url: "https://i.imgur.com/QdNLUPH.png"
-  								},
-  								description: "**Name:** " + name +
-  								"\n**Status:** `Offline`"
-
-  							}
-  						}).catch(error =>{
-			  		 	if(error) sentMessageError(error, mChannel);
-			  		});
-  				}
   			});
   		}
   		return;
