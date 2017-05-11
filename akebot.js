@@ -189,9 +189,10 @@ bot.on('presenceUpdate', (oldGuildMember, newGuildMember) =>{
 				var user = newGuildMember.presence.game.url.slice(newGuildMember.presence.game.url.indexOf('/', newGuildMember.presence.game.url.indexOf('www.twitch.tv')) + 1);
 
 				liveStream.getTwitchStream(user, (error, status, gameTitle, streamURL, thumbnailURL) =>{
-					if(gameTitle === ''){
+					if(gameTitle === '' || gameTitle === null){
 						gameTitle = "None"
 					}
+					
 					textChannel.send("**LIVE**", {
 						embed: {
 							color: 10181046,
@@ -199,7 +200,7 @@ bot.on('presenceUpdate', (oldGuildMember, newGuildMember) =>{
 							thumbnail: {
 								url: thumbnailURL
 							},
-							description: "**Title:** " + newGuildMember.presence.game.name + "\n**Game:** " + gameTitle + "\n**URL:** " + streamURL
+							description: "**Title:** " + newGuildMember.presence.game.name + "\n**Game:** " + gameTitle + "\n" + newGuildMember.presence.game.url
 						}
 					}).catch(error =>{
 			  		 	if(error) sentMessageError(error, mChannel);
@@ -761,7 +762,7 @@ bot.on('message', message => {
   							},
   							description: "**Name:** " + name +
   							"\n**Status:** `Online`\n**Game:** " + gameTitle+
-  							"\n**URL:** " + streamURL
+  							"\n" + streamURL
   						}
   					}).catch(error =>{
 			  		 	if(error) sentMessageError(error, mChannel);
