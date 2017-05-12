@@ -1058,7 +1058,7 @@ bot.on('message', message => {
 								}
 							})
 						}else{
-							mChannel.sendFile({
+							mChannel.send({
 								file: {
 									attachment: globalCommands[i].file,
 									name: globalCommands[i].filename
