@@ -160,7 +160,7 @@ function sentMessageError(error, mChannel){
 }	
 
 bot.on('ready', () => {
-	console.log("TalosBot v" + botVersion);
+	console.log("Akephalos Bot v" + botVersion);
 	console.log(bot.user.username + " - (" + bot.user.id + ")");
 	bot.generateInvite().then( link =>{
 		console.log("\nInvite: " + link);
