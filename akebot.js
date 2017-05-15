@@ -135,7 +135,10 @@ function displayServers(){
 		servers.push(guilds[i].name);
 	}
 
-	return "Servers:\n" + servers.join("\n") + "\n";
+	if(servers.length === 0){
+		return console.log("Servers: NONE");
+	} else
+		return console.log("Servers:\n" + servers.join("\n") + "\n");
 }
 
 function fileExist(path, data){
@@ -157,9 +160,13 @@ function sentMessageError(error, mChannel){
 }	
 
 bot.on('ready', () => {
-	console.log("AkeBot v" + botVersion);
-	console.log(displayServers());
-
+	console.log("TalosBot v" + botVersion);
+	console.log(bot.user.username + " - (" + bot.user.id + ")");
+	bot.generateInvite().then( link =>{
+		console.log("\nInvite: " + link);
+	});
+	console.log();
+	displayServers();
 	setGame(defaultStatus);
 });
 
