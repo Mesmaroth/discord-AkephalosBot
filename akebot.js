@@ -58,7 +58,13 @@ try{
 		console.log("COMMANDS FILE CREATED AT: " + botCommandsFile);
 		console.log();	
 	}
-	
+
+	if(fs.existsSync(botPreference)){ 
+		var file = fs.readFileSync(botPreference);		
+		file = JSON.parse(file);
+		CMDINT = file.initcmd;
+		adminGroups = file.adminGroups;
+	}	
 } catch(error){
 	if(error) {
 		console.log("------- ERROR --------");
@@ -67,7 +73,7 @@ try{
 	}
 }
 
-var defaultStatus = "v"+botVersion + " | " + CMDINT + "help";
+var defaultStatus = "v" + botVersion + " | " + CMDINT + "help";
 
 // Checks if the message is a command input from the user
 function isCommand(message, command){
@@ -82,10 +88,12 @@ function isCommand(message, command){
 
 // Checks for a specific role the user is in to run admin commands
 function isAdmin(message){
-	var roles = message.member.roles.array();
-	for(var role = 0; role < roles.length; role++){
-		if(roles[role].name.toLowerCase() === adminRole)			
-			return true;
+	var memberRoles = message.member.roles.array();
+	for(var role = 0; role < memberRoles.length; role++){
+		for(var group = 0; group < adminGroups.length; group++){
+			if(memberRoles[role].name.toLowerCase() === adminGroups[group])
+				return true;
+		}
 	}
 	message.channel.send("You aren't admin for this command.");
 	return false;
@@ -235,6 +243,79 @@ bot.on('message', message => {
 			var game = mContent.slice(mContent.indexOf(' ') + 1);
 			setGame(game);
 			botLog("Game set to: " + game);
+			mChannel.send("Game set to: " + game);
+		}
+		return;
+	}
+
+	if(isCommand(mContent, 'setavatar') && isAdmin(message)){
+		if(mContent.indexOf(' ') !== -1){
+			var url = message.content.split(' ')[1];
+			bot.user.setAvatar(url);
+			console.log("DISCORD: Avatar changed");
+		}
+	}
+
+	if(isCommand(mContent, 'setname') && isAdmin(message)){
+		if(mContent.indexOf(' ') !== -1){
+			var username = mContent.split(' ')[1];
+			bot.user.setUsername(username);
+			console.log("DISCORD: Username set to " + username);
+		}
+	}
+
+	if(isCommand(mContent, 'setinit') && isAdmin(message)){
+		if(mContent.indexOf(' ') !== -1){
+			var init  = mContent.split(' ')[1];
+
+			CMDINT = init;
+
+			fs.readFile(botPreference, (error, file) =>{
+				if(error) return sendError("Reading preference config file", error, mChannel);
+
+				try{
+					file = JSON.parse(file);
+				}catch(error){
+					if(error) return sendError("Parsing prefernce config file", error, mChannel);
+				}
+
+				file.initcmd = init;
+
+				fs.writeFile(botPreference, JSON.stringify(file, null, '\t'), error =>{
+					if(error) return sendError("Writing to preference config file", error, mChannel);
+
+					mChannel.send("Command initializer set as `" + init + "`");
+				});
+			});
+
+		}
+		return;
+	}
+
+	// Adds a role to the admin group list
+	if(isCommand(mContent, 'addadminrole') && isAdmin(message)){
+		if(mContent.indexOf(' ') !== -1){
+			var param = mContent.split(' ')[1].toLowerCase();
+
+			adminGroups.push(param);
+
+			fs.readFile(botPreference, (error, file) =>{
+				if(error) return sendError("Reading Preference File", error, mChannel);
+
+				try{
+					file = JSON.parse(file);
+				}catch(error){
+					if(error) return sendError("Parsing Preference File", error, mChannel);
+				}
+
+				file.adminGroups.push(param);
+
+				fs.writeFile(botPreference, JSON.stringify(file, null, '\t'), error =>{
+					if(error) return sendError("Writing Preference File", error, mChannel);
+
+					mChannel.send("Role `" + param + "` has been added to admin group list");
+				});
+			});
 		}
 		return;
 	}
@@ -622,7 +703,9 @@ bot.on('message', message => {
   		var adminCommands = [
   			'setgame', 'delcmd',
   			'addcmd', 'purge',
+  			'setinit', 'setadminrole',
   			'notify', 'setchannel',
+  			'setavatar', 'setname',
   			'exit'];
 
   		var customCommands = [
