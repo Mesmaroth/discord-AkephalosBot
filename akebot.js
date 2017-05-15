@@ -174,13 +174,14 @@ bot.on('disconnect', event =>{
 	console.log("Exited with code: " + event.code);
 	if(event.message)
 		console.log("Message: " + event.message);
+	console.log();
 	process.exit(0);
 });
 
 bot.on('guildMemberAdd', guildMember =>{
 	var generalChannel = getChannelByName(guildMember.guild, 'general');
 
-	generalChannel.send(guildMember.user.username +", welcome to " + guildMember.guild.name);	
+	generalChannel.send(guildMember.user.username +", welcome to **" + guildMember.guild.name + "**");	
 	botLog(guildMember.guild.name + " welcomes " + guildMember.user.username + " to their server.");
 });
 
