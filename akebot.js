@@ -1,16 +1,17 @@
 const Discord = require('discord.js');
-const botLogin = require('./config/botlogin.js');
-const liveStream = require('./modules/livestream.js');
 const fs = require('fs');
 const path = require('path');
 const request = require('request');
+const botLogin = require(path.resolve(__dirname, 'config/botlogin.js'));
+const liveStream = require(path.resolve(__dirname, 'modules/livestream.js'));
 const bot = new Discord.Client();
 bot.login(botLogin.token);
 
 
 const notifyChannelFile = path.resolve(__dirname, 'config/notifychannels.json');
 const botCommandsFile = path.resolve(__dirname, 'config/botCommands.json');
-const botPreference = path.resolve(__dirname, 'config/preference.json');
+const botPreferenceFile = path.resolve(__dirname, 'config/preference.json');
+const logsPath = path.resolve(__dirname, 'logs');
 const picturePath = path.resolve(__dirname, 'pictures');
 const soundsPath = path.resolve(__dirname, 'sounds');
 const bannedCommands = [
