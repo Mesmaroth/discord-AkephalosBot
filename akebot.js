@@ -36,13 +36,12 @@ try{
 	
 	if((fs.existsSync(notifyChannelFile))){
 		notifyChannel = fs.readFileSync(notifyChannelFile);
-		notifyChannel = JSON.parse(notifyChannel);
-		
+		notifyChannel = JSON.parse(notifyChannel);		
 	}else{
 		fs.writeFileSync(notifyChannelFile, "{}");
 		notifyChannel = fs.readFileSync(notifyChannelFile);
 		notifyChannel = JSON.parse(notifyChannel);
-		console.log("NOTIFY CHANNEL CONFIG FILE CREATED AT: " + botCommandsFile);
+		console.log("Notifcation channel preference file created: " + notifyChannelFile);
 		console.log();
 	}
 
@@ -55,18 +54,15 @@ try{
 				editable: false,
 				comment: "Test command"
 			}]
-		}
-		notifyChannel = fs.writeFileSync(botCommandsFile, JSON.stringify(globalKey, null, '\t'));
-		console.log("COMMANDS FILE CREATED AT: " + botCommandsFile);
-		console.log();	
+		}		
 	}
 
-	if(fs.existsSync(botPreference)){ 
-		var file = fs.readFileSync(botPreference);		
+	if(fs.existsSync(botPreferenceFile)){
+		var file = fs.readFileSync(botPreferenceFile);		
 		file = JSON.parse(file);
 		CMDINT = file.initcmd;
 		adminGroups = file.adminGroups;
-	}	
+	}
 } catch(error){
 	if(error) {
 		console.log("------- ERROR --------");
@@ -159,13 +155,38 @@ function sentMessageError(error, mChannel){
 	var guild = mChannel.guild;
 	var channel = getChannelByName(guild, "general");
 	sendError("Sending message", error, channel);
-}	
+}
+
+function getDateTime() {
+
+    var date = new Date();
+
+    var hour = date.getHours();
+    hour = (hour < 10 ? "0" : "") + hour;
+
+    var min  = date.getMinutes();
+    min = (min < 10 ? "0" : "") + min;
+
+    var sec  = date.getSeconds();
+    sec = (sec < 10 ? "0" : "") + sec;
+
+    var year = date.getFullYear();
+
+    var month = date.getMonth() + 1;
+    month = (month < 10 ? "0" : "") + month;
+
+    var day  = date.getDate();
+    day = (day < 10 ? "0" : "") + day;
+
+
+    return month + "/" + day + "/" + year + "," + hour + ":" + min + ":" + sec;
+}
 
 bot.on('ready', () => {
 	console.log("Akephalos Bot v" + botVersion);
 	console.log(bot.user.username + " - (" + bot.user.id + ")");
 	bot.generateInvite().then( link =>{
-		console.log("\nInvite: " + link);
+		console.log("\nINVITE: " + link);
 	});
 	console.log();
 	displayServers();
@@ -209,10 +230,11 @@ bot.on('presenceUpdate', (oldGuildMember, newGuildMember) =>{
 				var user = newGuildMember.presence.game.url.slice(newGuildMember.presence.game.url.indexOf('/', newGuildMember.presence.game.url.indexOf('www.twitch.tv')) + 1);
 
 				liveStream.getTwitchStream(user, (error, status, gameTitle, streamURL, thumbnailURL) =>{
-					if(gameTitle === '' || gameTitle === null){
-						gameTitle = "None"
-					}
-					
+					if(gameTitle !== 'undefined')
+						gameTitle = "\n**Game:** " + gameTitle;
+					else
+						gameTitle = "";
+
 					textChannel.send("**LIVE**", {
 						embed: {
 							color: 10181046,
@@ -220,7 +242,7 @@ bot.on('presenceUpdate', (oldGuildMember, newGuildMember) =>{
 							thumbnail: {
 								url: thumbnailURL
 							},
-							description: "**Title:** " + newGuildMember.presence.game.name + "\n**Game:** " + gameTitle + "\n" + newGuildMember.presence.game.url
+							description: "**Title:** " + newGuildMember.presence.game.name + gameTitle + "\n" + newGuildMember.presence.game.url
 						}
 					}).catch(error =>{
 			  		 	if(error) sentMessageError(error, mChannel);
@@ -280,7 +302,7 @@ bot.on('message', message => {
 
 			CMDINT = init;
 
-			fs.readFile(botPreference, (error, file) =>{
+			fs.readFile(botPreferenceFile, (error, file) =>{
 				if(error) return sendError("Reading preference config file", error, mChannel);
 
 				try{
@@ -291,7 +313,7 @@ bot.on('message', message => {
 
 				file.initcmd = init;
 
-				fs.writeFile(botPreference, JSON.stringify(file, null, '\t'), error =>{
+				fs.writeFile(botPreferenceFile, JSON.stringify(file, null, '\t'), error =>{
 					if(error) return sendError("Writing to preference config file", error, mChannel);
 
 					mChannel.send("Command initializer set as `" + init + "`");
@@ -302,14 +324,14 @@ bot.on('message', message => {
 		return;
 	}
 
-	// Adds a role to the admin group list
-	if(isCommand(mContent, 'addadminrole') && isAdmin(message)){
+	// Adds a role to the admin group list to execute admin commands
+	if(isCommand(mContent, 'addadmingroup') && isAdmin(message)){
 		if(mContent.indexOf(' ') !== -1){
 			var param = mContent.split(' ')[1].toLowerCase();
 
 			adminGroups.push(param);
 
-			fs.readFile(botPreference, (error, file) =>{
+			fs.readFile(botPreferenceFile, (error, file) =>{
 				if(error) return sendError("Reading Preference File", error, mChannel);
 
 				try{
@@ -320,7 +342,7 @@ bot.on('message', message => {
 
 				file.adminGroups.push(param);
 
-				fs.writeFile(botPreference, JSON.stringify(file, null, '\t'), error =>{
+				fs.writeFile(botPreferenceFile, JSON.stringify(file, null, '\t'), error =>{
 					if(error) return sendError("Writing Preference File", error, mChannel);
 
 					mChannel.send("Role `" + param + "` has been added to admin group list");
@@ -334,25 +356,27 @@ bot.on('message', message => {
 	if(isCommand(mContent, 'setchannel') && isAdmin(message)){
 		if(mContent.indexOf(' ') !== -1){
 			var channel = mContent.split(' ')[1];
-			fs.readFile(notifyChannelFile, (error, notifyChannel) =>{
-				if(error) return sendError("Reading Notify Channels File", error, mChannel);
+			fs.readFile(notifyChannelFile, (error, file) =>{
+				if(error) return sendError("Reading Notify Channel File", error, mChannel);
+
 				try{
-					notifyChannel = JSON.parse(notifyChannel);
+					file = JSON.parse(file);
 				}catch(error){
 					if(error) return sendError("Parsing Notify Channels File");
 				}
+
 				if(getChannelByName(message.guild, channel) !== null){
-					if(!(notifyChannel.hasOwnProperty(message.member.guild.id))){
-						notifyChannel[message.member.guild.id] = {
+					if(!(file.hasOwnProperty(message.member.guild.id))){
+						file[message.member.guild.id] = {
 							channel: channel,
 							notify: true
 						}
 					} else{
-						notifyChannel[message.member.guild.id].channel = channel;
+						file[message.member.guild.id].channel = channel;
 					}
 
-
-					fs.writeFile(notifyChannelFile, JSON.stringify(notifyChannel, null, '\t'), error =>{
+					notifyChannel = file;
+					fs.writeFile(notifyChannelFile, JSON.stringify(file, null, '\t'), error =>{
 						if(error) return sendError("Writing Notify Channels File", error, mChannel);
 
 						mChannel.send("Channel `" + channel + "` set as default notifications channel").catch(error =>{
@@ -371,39 +395,40 @@ bot.on('message', message => {
 
 	// Enables or disables streaming notifcations on a server
 	if(isCommand(mContent, 'notify') && isAdmin(message)){
-		fs.readFile(notifyChannelFile, (error, notifyChannel) =>{
+		fs.readFile(notifyChannelFile, (error, file) =>{
 			if(error) return sendError("Reading Notify Channels File", error, mChannel);
 			try{
-				notifyChannel = JSON.parse(notifyChannel);
+				file = JSON.parse(file);
 			}catch(error){
 				if(error) return sendError("Parsing Notify Channels File", error, mChannel);
 			}
 
-			if(!(notifyChannel.hasOwnProperty(message.member.guild.id))){
-				notifyChannel[message.member.guild.id] = {
+			if(!(file.hasOwnProperty(message.member.guild.id))){
+				file[message.member.guild.id] = {
 					channel: "general",
-					notify: true
+					notify: false
 				}
 			} else{
-				if(notifyChannel[message.member.guild.id].notify){
-					notifyChannel[message.member.guild.id].notify = false;
+				if(file[message.member.guild.id].notify){
+					file[message.member.guild.id].notify = false;
 				} else{
-					notifyChannel[message.member.guild.id].notify = true;
+					file[message.member.guild.id].notify = true;
 				}
 			}
 
-			if(notifyChannel[message.member.guild.id].notify){
+			if(file[message.member.guild.id].notify){
 				mChannel.send("Notifications for this server set to `true`").catch(error =>{
-	  		 	if(error) sentMessageError(error, mChannel);
-	  		});
+	  		 		if(error) sentMessageError(error, mChannel);
+	  			});
 			} else{
 				mChannel.send("Notifications for this server set to `false`").catch(error =>{
 		  		 	if(error) sentMessageError(error, mChannel);
 		  		});
 			}
 
-			fs.writeFile(notifyChannelFile, JSON.stringify(notifyChannel, null, '\t'), error =>{
-				if(error) return sendError("Reading Stream Black List File", error, mChannel);			
+			notifyChannel = file;
+			fs.writeFile(notifyChannelFile, JSON.stringify(file, null, '\t'), error =>{
+				if(error) return sendError("Reading Stream Black List File", error, mChannel);
 			});
 		});
 		return;
@@ -447,12 +472,6 @@ bot.on('message', message => {
 				if(param > 100)
 					param = 100;
 
-				// Incase the user decides to delete just one message.
-				// It will delete the message that called this and their 1 message
-				if(param === 1){
-					param = 2;
-				}
-
 				mChannel.fetchMessages({limit: param})
 				 .then( messages =>{
 				 	if(messages.length > 2){
@@ -480,37 +499,53 @@ bot.on('message', message => {
 					return;
 				}
 
-				param2+=1;				
+				/*	Add one if the user is purging himself to include the
+				 	the command that initialized it
+				*/
+				if(param === mMember.user.username.toLowerCase()){
+					param2+=1;	
+				}
 
 				if(param2 > 100)
 					param2 = 100;
 
-				if(param2 === 1){
-					param2 = 2;
-				}
-				
-				mChannel.fetchMessages({limit: param2})
+				mChannel.fetchMessages({limit: 100})
 				 .then( messages =>{
-				 	messages = messages.filter( message =>{
-				 		return message.author.username.toLowerCase() === param
-				 	});
+				 	messages = messages.array();
+				 	var userMessages = [];
+
+
+				 	for(var i = 0; i < messages.length; i++){
+				 		if(messages[i].author.username.toLowerCase() === param){
+				 			userMessages.push(messages[i]);
+				 		}
+				 	}
 				 	
-				 	if(!messages.size){
+				 	if(userMessages.length === 0){
 				 		mChannel.send("No messages found to delete").catch(error =>{
 				  		 	if(error) sentMessageError(error, mChannel);
 				  		});
 				 		return;
 				 	}
 
-				 	if(param2 > 2){
-				 		mChannel.bulkDelete(messages)
+				 	/*	Get's a certain amount messages based on if the user
+				 		entered a specific amount of messages to purge.
+						Otherwise it will count to max. Max = 100						
+				 	*/
+				 	var bulk = [];
+			 		for(var i = 0; i < userMessages.length && i !== param2; i++){
+		 				bulk.push(userMessages[i]);			 			
+			 		}
+
+			 		//	Based on the size use different methods for deletion
+				 	if(bulk.length > 2){
+				 		mChannel.bulkDelete(bulk)
 				 	 	.catch(error=>{
 				 	 		if(error) return sendError('Deleting Messages', error, mChannel);
 				 		});
-				 	 } else{
-				 	 	messages = messages.array();
-				 	 	for(var i = 0; i < messages.length; i++){
-				 			messages[i].delete()
+				 	 } else if(bulk.length <= 2){
+				 	 	for(var i = 0; i < bulk.length; i++){
+				 			bulk[i].delete()
 				 			 .catch(error =>{
 				 			 	if(error) return sendError('Deleting Message', error, mChannel);
 				 			 });
@@ -713,7 +748,7 @@ bot.on('message', message => {
   	if(isCommand(mContent, 'help')){
   		var generalCommands = [
   			'about', 'help',
-  			'commands',
+  			'commands', 'report',
   			'invite', 'uptime',
   			'source', 'twitch'];
 
@@ -727,13 +762,11 @@ bot.on('message', message => {
 
   		var customCommands = [
   			'cmd', 'addcmd*',
-  			'editcmd*', 'delcmd*'
-  		]
+  			'editcmd*', 'delcmd*'];
 
   		var sounds = [
   			'sounds', 'addsound*',
-  			'delsound*', 'editsound*'
-  		]
+  			'delsound*', 'editsound*'];
 
   		function reList(command){
   			for(var i = 0; i < command.length; i++){
@@ -848,6 +881,41 @@ bot.on('message', message => {
   		return;
   	}
 
+
+  	if(isCommand(mContent, 'report')){
+  		if(mContent.indexOf(' ') !== -1){
+  			var user = mMember.user.username;
+  			var msg = mContent.split(' ');
+  			var report;
+  			var reportFile = path.join(logsPath, mGuild.name + '_reports.txt');
+
+  			msg.splice(0,1);
+  			msg = msg.join(' ');
+  			report = getDateTime() + " " + user + "@"+ mGuild.name + ": " + msg;
+
+  			if(fs.existsSync(reportFile)){
+  				fs.readFile(reportFile, 'utf-8', (error, file)=>{
+  					if(error) return sendError("Reading Report File", error, mChannel);
+  					file = file.split('\n');
+  					file.push(report);
+  					fs.writeFile(reportFile, file.join('\n'), error=>{
+  						if(error) return sendError("Writing Report File", error, mChannel);
+  						mChannel.send("You're report has been filed. Thank you");				  						
+  					});
+  				});
+  			}else{
+  				fs.writeFile(reportFile, report, error =>{
+  					if(error) return sendError("Writing Report File", error, mChannel);
+  					mChannel.send("You're report has been filed. Thank you");
+  				});
+  			}
+  			console.log("REPORT: " + user + " from " + mGuild.name + " submitted a report.");
+  		} else{
+  			mChannel.send("o_O ??");
+  		}
+  		return;
+  	}
+
   	if(isCommand(mContent, 'twitch')){
   		if(mContent.indexOf(' ') !== -1){
   			var name = mContent.split(' ')[1];
@@ -855,6 +923,11 @@ bot.on('message', message => {
   			liveStream.getTwitchStream(name, (error, status, gameTitle, streamURL, thumbnailURL)=> {
   				if(error) return sendError("Getting Twitch Stream Data", error, mChannel);
   				if(status){
+  					if(gameTitle !== 'undefined')
+						gameTitle = "\n**Game:** " + gameTitle;
+					else
+						gameTitle = "";
+  					
   					mChannel.send("**Twitch**\n", {
   						embed: {
   							color: 10181046,
@@ -863,7 +936,7 @@ bot.on('message', message => {
   								url: thumbnailURL
   							},
   							description: "**Name:** " + name +
-  							"\n**Status:** `Online`\n**Game:** " + gameTitle+
+  							"\n**Status:** `Online`" + gameTitle + 
   							"\n" + streamURL
   						}
   					}).catch(error =>{
@@ -1045,6 +1118,37 @@ bot.on('message', message => {
   			}else
   				mChannel.send("No sounds found. Be sure you added some");
   		});
+  		return;
+  	}
+
+  	// Renaming sounds from the existing list of sounds
+  	if(isCommand(mContent, 'editsound') && isAdmin(message)){
+  		if(mContent.indexOf(' ') !== -1){
+  			var param = mContent.split(' ')[1].toLowerCase();
+  			var param2 = (mContent.split(' ')[2]) ? mContent.split(' ')[2].toLowerCase() : null;
+
+  			if(!param2){
+  				mChannel.send("Missing new filename parameter");
+  				return;
+  			}
+
+  			fs.readdir(soundsPath, (error, files)=>{
+  				if(error) return sendError("Reading Sounds Path Directory", error, mChannel);
+
+  				for(var i = 0; i < files.length; i++){
+  					var fileName = files[i].split('.')[0];
+
+  					if(fileName === param){
+  						fs.rename(path.join(soundsPath, '/' + files[i]), path.join(soundsPath, '/' + param2 + '.mp3'), error =>{
+  							if(error) return sendError("Renaming File", error, mChannel);
+
+  							mChannel.send("Sound `" + fileName + "` renamed to `" + param2 + "`");
+  						});
+  						return;
+  					}
+  				}
+  			});
+  		}
   		return;
   	}
 
