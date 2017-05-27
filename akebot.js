@@ -20,10 +20,11 @@ const bannedCommands = [
 	'setchannel', 'notify',
 	'purge', 'delcmd',
 	'addcmd', 'help',
+	'report', 'setinit',
 	'about', 'source',
 	'invite', 'uptime',
 	'twitch', 'commands',
-	'sounds', 'setadminrole', 'setinit'];
+	'sounds', 'setadminrole'];
 
 var adminGroups = ["admin"];
 var notifyChannel = {}
