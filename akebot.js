@@ -801,7 +801,7 @@ bot.on('message', message => {
   					inline: true
   				}],
   				footer: {
-	  				text: "*Needs to be in role \"Admin\""
+	  				text: "*Server owners need to have a group called \"admin\" to start using admin commands"
 	  			}
   			}
   		}).catch(error =>{
