@@ -182,6 +182,38 @@ function getDateTime() {
     return month + "/" + day + "/" + year + "," + hour + ":" + min + ":" + sec;
 }
 
+function botUptime(){
+	var uptimeSeconds = 0, uptimeMinutes = 0, uptimeHours = 0, uptimeDays = 0;
+
+	uptimeSeconds = Math.floor(bot.uptime/1000);
+
+	if(uptimeSeconds > 60){
+		uptimeMinutes = Math.floor(uptimeSeconds/60);
+		uptimeSeconds = Math.floor(uptimeSeconds % 60);
+	}
+
+	if(uptimeMinutes > 60){
+		uptimeHours = Math.floor(uptimeMinutes / 60);
+		uptimeMinutes = Math.floor(uptimeMinutes % 60);
+	}
+
+	if(uptimeHours > 24){
+		uptimeDays = Math.floor(uptimeHours / 24);
+		uptimeHours = Math.floor(uptimeHours % 24);
+	}
+
+	return [uptimeDays, uptimeHours, uptimeMinutes, uptimeSeconds];
+}
+
+function getInvite(callback){
+	bot.generateInvite([ 
+		"CONNECT", "SPEAK", "READ_MESSAGES", "SEND_MESSAGES", "SEND_TTS_MESSAGES",
+		"ATTACH_FILES", "USE_VAD"
+	]).then( link => {
+		callback(link);
+	});
+}
+
 bot.on('ready', () => {
 	console.log("Akephalos Bot v" + botVersion);
 	console.log(bot.user.username + " - (" + bot.user.id + ")");
