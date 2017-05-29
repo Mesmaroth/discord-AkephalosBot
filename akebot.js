@@ -952,31 +952,17 @@ bot.on('message', message => {
   	}
 
   	if(isCommand(mContent, 'invite')){
-  		bot.generateInvite().then( link =>{
+  		getInvite(link =>{
   			mChannel.send("**Invite:** " + link);
   		});
   		return;
   	}
 
   	if(isCommand(mContent, 'uptime')){
-  		var uptimeSeconds = 0, uptimeMinutes = 0, uptimeHours = 0;
+  		var uptime = botUptime();
+  		var d = uptime[0], h = uptime[1], m = uptime[2], s = uptime[3];
 
-  		uptimeSeconds = Math.floor(bot.uptime/1000);
-		
-		if(uptimeSeconds > 60){
-			uptimeMinutes = Math.floor(uptimeSeconds/60);
-			uptimeSeconds = Math.floor(uptimeSeconds % 60);
-		}
-
-		if(uptimeMinutes > 60){
-			uptimeHours = Math.floor(uptimeMinutes / 60);
-			uptimeMinutes = Math.floor(uptimeMinutes % 60);
-		}
-
-  		mChannel.send("**Uptime:** " + uptimeHours + " hour(s) : " + uptimeMinutes + " minute(s) : " + uptimeSeconds +" second(s)").catch(error =>{
-  		 	if(error) sentMessageError(error, mChannel);
-  		});;
-  		return;
+  		mChannel.send("**Uptime:** " + d + " day(s) : " + h + " hours(s) : " + m + " minute(s) : " + s + " second(s)");
   	}
 
 
