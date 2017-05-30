@@ -318,24 +318,24 @@ bot.on('message', message => {
 		if(mMember.user.bot) return;
 	}
 
-	// Admin commands
+	// Owner Commands
 
-	if(isCommand(mContent, 'exit') && isAdmin(message)){
+	if(isCommand(mContent, 'exit') && isOwner(message)){
 		bot.destroy();
 		return;
 	}
 
-	if(isCommand(mContent, 'setgame') && isAdmin(message)){
+	if(isCommand(mContent, 'setgame') && isOwner(message)){
 		if(mContent.indexOf('') !== -1){
 			var game = mContent.slice(mContent.indexOf(' ') + 1);
 			setGame(game);
 			botLog("Game set to: " + game);
-			mChannel.send("Game set to: " + game);
+			mChannel.send("Game set to: `" + game + "`");
 		}
 		return;
 	}
 
-	if(isCommand(mContent, 'setavatar') && isAdmin(message)){
+	if(isCommand(mContent, 'setavatar') && isOwner(message)){
 		if(mContent.indexOf(' ') !== -1){
 			var url = message.content.split(' ')[1];
 			bot.user.setAvatar(url);
@@ -343,13 +343,16 @@ bot.on('message', message => {
 		}
 	}
 
-	if(isCommand(mContent, 'setname') && isAdmin(message)){
+	if(isCommand(mContent, 'setname') && isOwner(message)){
 		if(mContent.indexOf(' ') !== -1){
 			var username = mContent.split(' ')[1];
 			bot.user.setUsername(username);
 			console.log("DISCORD: Username set to " + username);
 		}
 	}
+
+
+	// Admin commands
 
 	if(isCommand(mContent, 'setinit') && isAdmin(message)){
 		if(mContent.indexOf(' ') !== -1){
