@@ -48,7 +48,7 @@ try{
 	if(!fs.existsSync(botCommandsFile)){
 		var globalKey = {
 			GLOBAL: [{
-				command: "ping",
+				command: "!ping",
 				message: "pong",
 				type: "text",
 				editable: false,
@@ -63,6 +63,20 @@ try{
 		CMDINT = file.initcmd;
 		adminGroups = file.adminGroups;
 	}
+
+	if(!fs.existsSync(logsPath)){
+		fs.mkdirSync(logsPath);
+	}
+
+	if(!fs.existsSync(soundsPath)){
+		fs.mkdirSync(soundsPath);
+	}
+
+	if(!fs.existsSync(picturePath)){
+		fs.mkdirSync(picturePath);
+	}
+
+
 } catch(error){
 	if(error) {
 		console.log("------- ERROR --------");
