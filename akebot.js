@@ -806,19 +806,18 @@ bot.on('message', message => {
   	if(isCommand(mContent, 'help')){
   		var generalCommands = [
   			'about', 'help',
-  			'commands', 'report',
+  			'report', 'stats',
   			'invite', 'uptime',
   			'source', 'twitch'];
 
   		var adminCommands = [
-  			'setgame', 'delcmd',
+  			'delcmd',
   			'addcmd', 'purge',
   			'setinit', 'setadminrole',
-  			'notify', 'setchannel',
-  			'setavatar', 'setname',
-  			'exit'];
+  			'notify', 'setchannel'];
 
   		var customCommands = [
+  			'commands', 'commands global',
   			'cmd', 'addcmd*',
   			'editcmd*', 'delcmd*'];
 
