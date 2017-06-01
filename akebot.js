@@ -285,10 +285,7 @@ bot.on('presenceUpdate', (oldGuildMember, newGuildMember) =>{
 				var user = newGuildMember.presence.game.url.slice(newGuildMember.presence.game.url.indexOf('/', newGuildMember.presence.game.url.indexOf('www.twitch.tv')) + 1);
 
 				liveStream.getTwitchStream(user, (error, status, gameTitle, streamURL, thumbnailURL) =>{
-					if(gameTitle !== 'undefined')
-						gameTitle = "\n**Game:** " + gameTitle;
-					else
-						gameTitle = "";
+					gameTitle = (gameTitle === "" || gameTitle === "undefined") ? "" : "\n**Game:** " + gameTitle;
 
 					textChannel.send("**LIVE**", {
 						embed: {
