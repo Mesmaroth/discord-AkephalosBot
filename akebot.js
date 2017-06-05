@@ -65,7 +65,7 @@ try{
 		adminGroups = file.adminGroups;
 	}
 
-	var paths = [logsPath, filePath, soundsPath, picturePath];
+	var paths = [logsPath, soundsPath, picturePath];
 	for(var i = 0; i < paths.length; i++){
 		if(!fs.existsSync(paths[i])){
 			fs.mkdirSync(paths[i]);
