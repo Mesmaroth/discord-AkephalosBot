@@ -65,18 +65,12 @@ try{
 		adminGroups = file.adminGroups;
 	}
 
-	if(!fs.existsSync(logsPath)){
-		fs.mkdirSync(logsPath);
+	var paths = [logsPath, filePath, soundsPath, picturePath];
+	for(var i = 0; i < paths.length; i++){
+		if(!fs.existsSync(paths[i])){
+			fs.mkdirSync(paths[i]);
+		}
 	}
-
-	if(!fs.existsSync(soundsPath)){
-		fs.mkdirSync(soundsPath);
-	}
-
-	if(!fs.existsSync(picturePath)){
-		fs.mkdirSync(picturePath);
-	}
-
 
 } catch(error){
 	if(error) {
