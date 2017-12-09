@@ -1,6 +1,6 @@
 {
   "name": "Discord-AkephalosBot",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "A multi-purpose bot written in JavaScript for [Discord](http://www.discord.gg)",
   "main": "akeBot.js",
   "repository": {
@@ -11,7 +11,7 @@
     "discord.js": "^11.1.0",
     "node-opus": "^0.2.4",
     "request": "^2.81.0",
-    "uws": "^0.14.5"
+    "uws": "^9.14.0"
   },
   "keywords": [],
   "author": "Robert (Mesmaroth)",
