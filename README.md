@@ -10,11 +10,6 @@ Check out Akephalos before installing your own: [Invite Link](https://discordapp
  - Custom commands
  WIP: Sound meme player
 
-## Installation:
-
-### Windows
-  - TODO
-
 ## Bot Commands
  ### Admin Commands
   - `exit`: Disconnects the bot
